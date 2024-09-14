@@ -25,6 +25,8 @@ public struct UI {
         logger?.debug("Notcurses initialized.")
 
         logger?.info("UI initialized successfully.")
+
+        setupSigwinchHandler()
     }
 
     public func start() {
@@ -56,8 +58,6 @@ public struct UI {
 
     private func appLoop() {
 
-        var lastRefresh = Date()
-
         while running {
 
             handleInput()
@@ -67,19 +67,16 @@ public struct UI {
                 UI.stateChanged = false
             }
 
-            let currentTime = Date()
-            if currentTime.timeIntervalSince(lastRefresh) >= 0.5 {
-                // Not sure if this is the right way to do it but it works for now...
-                lastRefresh = currentTime
+            if resizeOccurred != 0 {
                 notcurses_refresh(notcurses.pointer, nil, nil)
+                notcurses_render(notcurses.pointer)
+                resizeOccurred = 0
             }
-
-            Thread.sleep(forTimeInterval: 0.01)
         }
     }
 
     func handleInput() {
-        guard let input = Input(notcurses: notcurses) else {
+        guard let input = Input(notcurses: notcurses, blockingTime: opts.blockingTime) else {
             return
         }
         logger?.trace("New input: \(input)")

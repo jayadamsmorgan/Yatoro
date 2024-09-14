@@ -33,6 +33,13 @@ struct UIArgOptions: ParsableArguments {
         completion: .default
     )
     var margins: UInt32 = 0
+
+    @Option(
+        name: .shortAndLong,
+        help: "Set UI blocking time in nanoseconds. Default: 10_000_000.",
+        completion: .default
+    )
+    var blockingTime: Int = 10_000_000
 }
 
 @main
@@ -68,7 +75,8 @@ struct Yatoro: ParsableCommand {
         let opts = UIOptions(
             logLevel: loggingOptions.ncLogLevel,
             margins: uiOptions.margins,
-            flags: [.inhibitSetLocale, .noFontChanges]
+            flags: [.inhibitSetLocale, .noFontChanges, .noWinchSighandler],
+            blockingTime: uiOptions.blockingTime
         )
 
         let ui = UI(logger: logger, opts: opts)
