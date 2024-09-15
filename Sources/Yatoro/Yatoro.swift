@@ -1,6 +1,4 @@
-import AVFoundation
 import ArgumentParser
-import Foundation
 import Logging
 
 struct LoggingArgOptions: ParsableArguments {
@@ -10,13 +8,6 @@ struct LoggingArgOptions: ParsableArguments {
         completion: .default
     )
     var logLevel: Logger.Level?
-
-    @Option(
-        name: .shortAndLong,
-        help: "Path to directory where log file should be saved. Default: Current working directory.",
-        completion: .directory
-    )
-    var fileLogPath: String?
 
     @Option(
         name: .shortAndLong,
@@ -33,17 +24,10 @@ struct UIArgOptions: ParsableArguments {
         completion: .default
     )
     var margins: UInt32 = 0
-
-    @Option(
-        name: .shortAndLong,
-        help: "Set UI blocking time in nanoseconds. Default: 10_000_000.",
-        completion: .default
-    )
-    var blockingTime: Int = 10_000_000
 }
 
 @main
-struct Yatoro: ParsableCommand {
+struct Yatoro: AsyncParsableCommand {
 
     @OptionGroup(title: "Logging", visibility: .default)
     var loggingOptions: LoggingArgOptions
@@ -55,31 +39,21 @@ struct Yatoro: ParsableCommand {
         guard let logLevel = loggingOptions.logLevel else {
             return nil
         }
-        guard var fileLogPath = loggingOptions.fileLogPath else {
-            let logger: Logger = Logger(label: loggerLabel) {
-                FileLogger(label: $0, filePath: $0 + ".log", logLevel: logLevel)
-            }
-            return logger
-        }
-        if fileLogPath.last != "/" {
-            fileLogPath.append("/")
-        }
         let logger: Logger = Logger(label: loggerLabel) {
-            FileLogger(label: $0, filePath: fileLogPath + $0 + ".log", logLevel: logLevel)
+            FileLogger(label: $0, filePath: $0 + ".log", logLevel: logLevel)
         }
         return logger
     }
 
-    mutating func run() throws {
+    mutating func run() async throws {
         let logger = initLogging()
         let opts = UIOptions(
             logLevel: loggingOptions.ncLogLevel,
             margins: uiOptions.margins,
-            flags: [.inhibitSetLocale, .noFontChanges, .noWinchSighandler],
-            blockingTime: uiOptions.blockingTime
+            flags: [.inhibitSetLocale, .noFontChanges, .noWinchSighandler]
         )
 
         let ui = UI(logger: logger, opts: opts)
-        ui.start()
+        await ui.start()
     }
 }

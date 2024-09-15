@@ -8,7 +8,6 @@ public struct UIOptions {
     var rightMargin: UInt32
     var bottomMargin: UInt32
     var topMargin: UInt32
-    let blockingTime: Int
 
     public init(
         logLevel: UILogLevel = .silent,
@@ -16,10 +15,8 @@ public struct UIOptions {
         rightMargin: UInt32 = 0,
         bottomMargin: UInt32 = 0,
         topMargin: UInt32 = 0,
-        flags: [UIOptionFlag] = UIOptionFlag.cliMode(),
-        blockingTime: Int
+        flags: [UIOptionFlag] = UIOptionFlag.cliMode()
     ) {
-        self.blockingTime = blockingTime
         self.optionFlags = flags
         self.notcursesOptions = .init(
             termtype: nil,
@@ -39,8 +36,7 @@ public struct UIOptions {
     public init(
         logLevel: UILogLevel = .silent,
         margins: UInt32 = 0,
-        flags: [UIOptionFlag] = UIOptionFlag.cliMode(),
-        blockingTime: Int
+        flags: [UIOptionFlag] = UIOptionFlag.cliMode()
     ) {
         self.init(
             logLevel: logLevel,
@@ -48,8 +44,7 @@ public struct UIOptions {
             rightMargin: margins,
             bottomMargin: margins,
             topMargin: margins,
-            flags: flags,
-            blockingTime: blockingTime
+            flags: flags
         )
     }
 }

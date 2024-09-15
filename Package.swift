@@ -5,9 +5,11 @@ import PackageDescription
 
 let package = Package(
     name: "Yatoro",
+    platforms: [.macOS("14.0")],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.6.1"),
+        .package(url: "https://github.com/rryam/MusadoraKit.git", from: "5.0.3"),
     ],
     targets: [
         .systemLibrary(
@@ -23,6 +25,7 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
+                .product(name: "MusadoraKit", package: "MusadoraKit"),
                 "notcurses",
             ],
             linkerSettings: [

@@ -29,7 +29,7 @@ public struct UI {
         setupSigwinchHandler()
     }
 
-    public func start() {
+    public func start() async {
         guard let stdPlane = Plane(in: notcurses, logger: logger) else {
             fatalError("Failed to initialize notcurses std plane")
         }
@@ -53,10 +53,10 @@ public struct UI {
         }
         ncplane_putstr(first.ncplane, "TEST")
 
-        appLoop()
+        await appLoop()
     }
 
-    private func appLoop() {
+    private func appLoop() async {
 
         while running {
 
@@ -72,19 +72,25 @@ public struct UI {
                 notcurses_render(notcurses.pointer)
                 resizeOccurred = 0
             }
+
+            try! await Task.sleep(nanoseconds: 10_000_000)
         }
     }
 
     func handleInput() {
-        guard let input = Input(notcurses: notcurses, blockingTime: opts.blockingTime) else {
+        guard let input = Input(notcurses: notcurses) else {
             return
         }
         logger?.trace("New input: \(input)")
+        if input.utf8 == "q" {
+            stop()
+        }
         UI.stateChanged = true
     }
 
     public func stop() {
         notcurses_stop(notcurses.pointer)
+        exit(EXIT_SUCCESS)
     }
 
 }

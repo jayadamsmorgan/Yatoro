@@ -13,10 +13,9 @@ public struct Input {
     public let pixelXOffset: Int32
     public let pixelYOffset: Int32
 
-    public init?(notcurses: NotCurses, blockingTime: Int) {
+    public init?(notcurses: NotCurses) {
         var ncinput = ncinput()
-        var timespec = timespec(tv_sec: 0, tv_nsec: blockingTime)
-        guard notcurses_get(notcurses.pointer, &timespec, &ncinput) != 0 else {
+        guard notcurses_get_nblock(notcurses.pointer, &ncinput) != 0 else {
             return nil
         }
         self.id = ncinput.id
