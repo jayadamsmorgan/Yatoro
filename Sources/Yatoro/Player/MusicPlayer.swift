@@ -1,66 +1,258 @@
 import AVFoundation
 import Logging
-import MusicKit
+import MediaPlayer
+import MusadoraKit
 
-let player = AVPlayer()
+public typealias Player = AudioPlayerManager
 
-@MainActor
-@available(macOS 12.0, *)
-public struct MusicPlayer {
-    private var logger: Logger?
+public class AudioPlayerManager {
 
-    public init(logger: Logger? = nil) {
-        self.logger = logger
+    static let shared = AudioPlayerManager()
+
+    public var logger: Logger?
+
+    public let player = ApplicationMusicPlayer.shared
+    private var queue: [Song] = []
+
+    var nowPlaying: Song? {
+        queue.first
     }
 
-    // Request permission to use Apple Music
-    mutating func requestMusicAuthorization() async -> Bool {
-        let status = await MusicAuthorization.request()
-        return status == .authorized
+    public var status: ApplicationMusicPlayer.PlaybackStatus {
+        player.state.playbackStatus
+    }
+}
+
+// STARTUP
+public extension AudioPlayerManager {
+
+    func authorize() async {
+        let authorizationStatus = await MusicAuthorization.request()
+        guard authorizationStatus == .authorized else {
+            logger?.debug("Music authorization not granted. Status: \(authorizationStatus.description)")
+            fatalError("Cannot authorize Apple Music request.")
+        }
+        logger?.debug("Music authorization granted.")
     }
 
-    // Search for a song using MusicKit
-    mutating func fetchSong(using searchTerm: String) async throws -> MusicItemCollection<Song>? {
-        let searchRequest = MusicCatalogSearchRequest(term: searchTerm, types: [Song.self])
-        let searchResponse = try await searchRequest.response()
-        return searchResponse.songs
-    }
-
-    // Play the first song from the search results
-    mutating func play(song: Song) {
-        guard let url = song.previewAssets?.first?.url else {
-            print("No preview available for the song.")
+    func loadPreviouslyPlayedQueue() async {
+        let previousEntries = player.queue.entries
+        guard !previousEntries.isEmpty else {
             return
         }
-
-        // Initialize AVPlayer with the song URL
-        print(url)
-
-        var headRequest = URLRequest(url: url)
-        headRequest.httpMethod = "HEAD"
-
-        URLSession.shared.dataTask(
-            with: headRequest,
-            completionHandler: { data, response, error in
-                guard let httpResponse = response as? HTTPURLResponse else { return }
-                print("Headers for \(url)")
-
-                for (key, value) in httpResponse.allHeaderFields {
-                    if let stringKey = key as? String, let stringValue = value as? String {
-                        print("Header \(stringKey): \(stringValue)")
-                    }
-                }
+        for entry in previousEntries {
+            do {
+                let song = try await MCatalog.song(id: MusicItemID(entry.id))
+                self.queue.append(song)
+            } catch {
+                logger?.error("Failed to find a song with id \(entry.id) from a previous queue.")
             }
-        ).resume()
-        let item = AVPlayerItem(
-            asset: AVURLAsset(url: url),
-            automaticallyLoadedAssetKeys: ["duration", "playable"]
-        )
-
-        player.replaceCurrentItem(with: item)
-        player.automaticallyWaitsToMinimizeStalling = false
-        player.isMuted = false
-        player.play()
-        print("PLAYING")
+        }
     }
+}
+
+// SEARCHING
+public extension AudioPlayerManager {
+
+    func defaultSearch(for string: String) async -> MusicCatalogSearchResponse? {
+        do {
+            logger?.trace("Performing default music search for \"\(string)\"...")
+            let result = try await MCatalog.search(
+                for: string,
+                types: [.songs, .artists, .albums, .stations, .playlists]
+            )
+            logger?.debug("Default search result: \(result). Top results found: \(result.topResults.count)")
+            return result
+        } catch {
+            if let error = error as? MusicDataRequest.Error {
+                logger?.error("Failed to perform default search: \(error.detailText)")
+            } else {
+                logger?.error("Failed to perform default search: \(error.localizedDescription)")
+            }
+        }
+        return nil
+    }
+
+    func searchSongs(by string: String) async -> [Song]? {
+        do {
+            logger?.trace("Performing song search for \"\(string)\"...")
+            return try await Array(MCatalog.searchSongs(for: string))
+        } catch {
+            logger?.error("Failed to perform default search: \(error.localizedDescription)")
+        }
+        return nil
+    }
+}
+
+// PLAYBACK
+public extension AudioPlayerManager {
+
+    private func checkQueueLengths() -> Bool {
+        let queueCount = self.queue.count
+        let entriesCount = player.queue.entries.count
+        if queueCount != entriesCount {
+            logger?.critical(
+                "Something went wrong: Queue length mismatch: Queue \(queueCount) != Entries \(entriesCount)"
+            )
+            return false
+        }
+        return true
+    }
+
+    private func _play() async throws {
+        logger?.trace("Trying to play...")
+        guard checkQueueLengths() else {
+            return
+        }
+        let playerStatus = player.state.playbackStatus
+        logger?.trace("Player status: \(playerStatus)")
+        switch player.state.playbackStatus {
+        case .paused:
+            logger?.trace("Trying to continue playing...")
+            try await player.play()
+            logger?.trace("Player playing.")
+            return
+        case .playing:
+            logger?.debug("Player is already playing.")
+            return
+        case .stopped:
+            guard !self.queue.isEmpty else {
+                logger?.debug("Trying to play empty queue.")
+                // TODO: populate with automatic music suggestions
+                return
+            }
+            try await player.play()
+        case .interrupted:
+            logger?.critical("Something went wrong: Player status interrupted.")
+            return
+        case .seekingForward, .seekingBackward:
+            logger?.trace("Trying to stop seeking...")
+            player.endSeeking()
+            return
+        @unknown default:
+            logger?.error("Unknown player status \(playerStatus).")
+            return
+        }
+    }
+
+    func play() async {
+        do {
+            try await _play()
+        } catch {
+            logger?.error("Error playing: \(error.localizedDescription) \(type(of: error))")
+        }
+    }
+
+    func pause() {
+        logger?.trace("Trying to pause...")
+        guard checkQueueLengths() else {
+            return
+        }
+        let playerStatus = player.state.playbackStatus
+        logger?.trace("Player status: \(playerStatus)")
+        switch player.state.playbackStatus {
+        case .paused:
+            logger?.debug("Player is already paused.")
+            return
+        case .playing:
+            player.pause()
+            logger?.trace("Player paused.")
+            return
+        case .stopped:
+            logger?.error("Trying to pause stopped player.")
+            return
+        case .interrupted:
+            logger?.critical("Something went wrong: Player status interrupted.")
+            return
+        case .seekingForward, .seekingBackward:
+            logger?.trace("Trying to stop seeking...")
+            player.endSeeking()
+            player.pause()
+            logger?.trace("Player stopped seeking and paused.")
+            return
+        @unknown default:
+            logger?.error("Unknown player status \(playerStatus).")
+            return
+        }
+    }
+
+    func restartSong() async {
+        player.restartCurrentEntry()
+    }
+
+    func playNext() async {
+        do {
+            try await player.skipToNextEntry()
+        } catch {
+            logger?.error("Failed to play next: \(error.localizedDescription)")
+        }
+    }
+
+    func playPrevious() async {
+        do {
+            try await player.skipToPreviousEntry()
+        } catch {
+            logger?.error("Failed to play previous: \(error.localizedDescription)")
+        }
+    }
+
+    func clearQueue() async {
+        player.queue.entries = []
+        self.queue = []
+    }
+
+    func playLater(_ song: Song) async {
+        await addSongsToQueue(songs: [song], at: .tail)
+    }
+
+    func playLater(_ songs: [Song]) async {
+        await addSongsToQueue(songs: songs, at: .tail)
+    }
+
+    func playNext(_ song: Song) async {
+        await addSongsToQueue(songs: [song], at: .afterCurrentEntry)
+    }
+
+    func playNext(_ songs: [Song]) async {
+        await addSongsToQueue(songs: songs, at: .afterCurrentEntry)
+    }
+
+    private func addSongsToQueue(
+        songs: [Song],
+        at position: ApplicationMusicPlayer.Queue.EntryInsertionPosition
+    ) async {
+        do {
+            if self.queue.isEmpty {
+                player.queue = .init(for: songs)
+            } else {
+                try await player.queue.insert(songs, position: position)
+            }
+        } catch {
+            logger?.error("Unable to add songs to player queue: \(error.localizedDescription)")
+            return
+        }
+        if self.queue.isEmpty {
+            self.queue = songs
+        } else {
+            switch position {
+            case .afterCurrentEntry:
+                self.queue.insert(contentsOf: songs, at: 1)
+            case .tail:
+                self.queue.append(contentsOf: songs)
+            @unknown default:
+                logger?.error("Unknown Music Player position: \(position)")
+                return
+            }
+        }
+        do {
+            if !player.isPreparedToPlay {
+                logger?.trace("Preparing player...")
+                try await player.prepareToPlay()
+            }
+        } catch {
+            logger?.critical("Unable to prepare player: \(error)")
+        }
+        _ = checkQueueLengths()
+    }
+
 }
