@@ -15,7 +15,20 @@ public class AudioPlayerManager {
     private var queue: [Song] = []
 
     var nowPlaying: Song? {
-        queue.first
+        queue.first(where: { $0.id == player.queue.currentEntry?.item?.id })
+    }
+
+    var upNext: Song? {
+        guard let nowPlaying = nowPlaying else {
+            return nil
+        }
+        guard let nowPlayingIndex = queue.firstIndex(of: nowPlaying) else {
+            return nil
+        }
+        guard nowPlayingIndex < queue.count - 1 else {
+            return nil
+        }
+        return queue[nowPlayingIndex + 1]
     }
 
     public var status: ApplicationMusicPlayer.PlaybackStatus {
@@ -172,6 +185,19 @@ public extension AudioPlayerManager {
             return
         @unknown default:
             logger?.error("Unknown player status \(playerStatus).")
+            return
+        }
+    }
+
+    func playPauseToggle() async {
+        switch player.state.playbackStatus {
+        case .paused:
+            await self.play()
+        case .playing:
+            self.pause()
+        case .stopped:
+            await self.play()
+        default:
             return
         }
     }
