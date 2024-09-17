@@ -13,6 +13,10 @@ public struct UI {
 
     internal static var stateChanged: Bool = true
 
+    private var pages: [Page] = []
+
+    private var playerPage: PlayerPage?
+
     public init(logger: Logger?, opts: UIOptions) {
         self.logger = logger
         self.opts = opts
@@ -29,29 +33,18 @@ public struct UI {
         setupSigwinchHandler()
     }
 
-    public func start() async {
+    public mutating func start() async {
         guard let stdPlane = Plane(in: notcurses, logger: logger) else {
             fatalError("Failed to initialize notcurses std plane")
         }
-        guard
-            let first = Plane(
-                in: stdPlane,
-                opts: PlaneOptions(
-                    x: 50,
-                    y: 30,
-                    width: 50,
-                    height: 3,
-                    debugID: "FIRST",
-                    flags: [],
-                    bottomMargin: 0,
-                    rightMargin: 0
-                ),
-                logger: logger
-            )
-        else {
-            fatalError("Failed to initialize first plane")
+
+        guard let playerPage = PlayerPage(stdPlane: stdPlane, logger: logger) else {
+            logger?.critical("Failed to initiate Player Page.")
+            stop()
+            return
         }
-        ncplane_putstr(first.ncplane, "TEST")
+        self.playerPage = playerPage
+        self.pages = [playerPage]
 
         await appLoop()
     }
@@ -60,12 +53,13 @@ public struct UI {
 
         while running {
 
-            handleInput()
+            await handleInput()
 
-            if UI.stateChanged {
-                notcurses_render(notcurses.pointer)
-                UI.stateChanged = false
+            for page in pages {
+                page.render()
             }
+
+            notcurses_render(notcurses.pointer)
 
             if resizeOccurred != 0 {
                 notcurses_refresh(notcurses.pointer, nil, nil)
@@ -77,19 +71,32 @@ public struct UI {
         }
     }
 
-    func handleInput() {
+    func handleInput() async {
         guard let input = Input(notcurses: notcurses) else {
             return
         }
         logger?.trace("New input: \(input)")
-        if input.utf8 == "q" {
+        switch input.utf8 {
+        case "q":
             stop()
+        case "p":
+            await Player.shared.playPauseToggle()
+        case "f":
+            await Player.shared.playNext()
+        case "b":
+            await Player.shared.playPrevious()
+        case "r":
+            await Player.shared.restartSong()
+        default:
+            break
         }
         UI.stateChanged = true
     }
 
     public func stop() {
+        logger?.info("Stopping Yatoro...\n")
         notcurses_stop(notcurses.pointer)
+        logger?.debug("Notcurses stopped.")
         exit(EXIT_SUCCESS)
     }
 

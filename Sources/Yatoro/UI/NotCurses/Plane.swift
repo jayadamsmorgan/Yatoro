@@ -3,9 +3,9 @@ import notcurses
 
 public class Plane {
     internal let ncplane: OpaquePointer
-    private let parentPlane: Plane?
+    internal let parentPlane: Plane?
 
-    private let notcurses: NotCurses?
+    internal let notcurses: NotCurses?
 
     internal var opts: PlaneOptions
 
@@ -16,7 +16,7 @@ public class Plane {
     private var _y: Int32 = 0
 
     fileprivate var logger: Logger?
-    fileprivate var debugID: String
+    public var debugID: String
 
     public let type: PlaneType
 

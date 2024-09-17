@@ -53,7 +53,15 @@ struct Yatoro: AsyncParsableCommand {
             flags: [.inhibitSetLocale, .noFontChanges, .noWinchSighandler]
         )
 
-        let ui = UI(logger: logger, opts: opts)
+        let player = Player.shared
+        player.logger = logger
+        await player.authorize()
+
+        let songs = await player.searchSongs(by: "zxcursed")
+        await player.playNext(songs!)
+        await player.play()
+
+        var ui = UI(logger: logger, opts: opts)
         await ui.start()
     }
 }
