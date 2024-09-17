@@ -57,10 +57,6 @@ struct Yatoro: AsyncParsableCommand {
         player.logger = logger
         await player.authorize()
 
-        let songs = await player.searchSongs(by: "zxcursed")
-        await player.playNext(songs!)
-        await player.play()
-
         var ui = UI(logger: logger, opts: opts)
         await ui.start()
     }
