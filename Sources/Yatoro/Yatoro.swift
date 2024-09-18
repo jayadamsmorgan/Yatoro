@@ -94,6 +94,13 @@ struct Yatoro: AsyncParsableCommand {
         player.logger = logger
         await player.authorize()
 
+        // Some music to play while started, remove when SearchPage is done :)
+        let result = await player.defaultSearch(for: "classic music")
+        if let songs = result?.songs {
+            await player.playNext(Array(songs))
+            await player.play()
+        }
+
         var ui = UI(logger: logger, config: config)
         await ui.start()
     }
