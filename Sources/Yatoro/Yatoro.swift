@@ -4,26 +4,55 @@ import Logging
 struct LoggingArgOptions: ParsableArguments {
     @Option(
         name: .shortAndLong,
-        help: "Set app log level. Default: none.",
+        help: "Set app log level (default: none)",
         completion: .default
     )
     var logLevel: Logger.Level?
 
     @Option(
         name: .shortAndLong,
-        help: "Set notcurses log level. Default: silent.",
+        help: "Set notcurses log level (default: silent)",
         completion: .default
     )
-    var ncLogLevel: UILogLevel = .silent
+    var ncLogLevel: UILogLevel?
 }
 
 struct UIArgOptions: ParsableArguments {
     @Option(
         name: .shortAndLong,
-        help: "Set UI margins, must be greater than 0. Default: 0.",
+        help: "Set UI margins, must be greater than 0 (default: 0)",
         completion: .default
     )
-    var margins: UInt32 = 0
+    var margins: UInt32?
+
+    @Option(
+        name: .long,
+        help: "Set left UI margin, must be greater than 0 (default: 0)",
+        completion: .default
+    )
+    var leftMargin: UInt32?
+
+    @Option(
+        name: .long,
+        help: "Set right UI margin, must be greater than 0 (default: 0)",
+        completion: .default
+    )
+    var rightMargin: UInt32?
+
+    @Option(
+        name: .long,
+        help: "Set top UI margin, must be greater than 0 (default: 0)",
+        completion: .default
+    )
+    var topMargin: UInt32?
+
+    @Option(
+        name: .long,
+        help: "Set bottom UI margin, must be greater than 0 (default: 0)",
+        completion: .default
+    )
+    var bottomMargin: UInt32?
+
 }
 
 @main
@@ -35,8 +64,15 @@ struct Yatoro: AsyncParsableCommand {
     @OptionGroup(title: "UI", visibility: .default)
     var uiOptions: UIArgOptions
 
-    public func initLogging() -> Logger? {
-        guard let logLevel = loggingOptions.logLevel else {
+    @Option(
+        name: .shortAndLong,
+        help: "Custom path to config.yaml",
+        completion: .file(extensions: ["yaml"])
+    )
+    var configPath: String = Config.defaultConfigPath
+
+    private func initLogging(config: Config.LoggingConfig) -> Logger? {
+        guard let logLevel = config.logLevel else {
             return nil
         }
         let logger: Logger = Logger(label: loggerLabel) {
@@ -46,18 +82,19 @@ struct Yatoro: AsyncParsableCommand {
     }
 
     mutating func run() async throws {
-        let logger = initLogging()
-        let opts = UIOptions(
-            logLevel: loggingOptions.ncLogLevel,
-            margins: uiOptions.margins,
-            flags: [.inhibitSetLocale, .noFontChanges, .noWinchSighandler]
+        let config = Config.parseOptions(
+            uiOptions: uiOptions,
+            loggingOptions: loggingOptions,
+            configPath: configPath
         )
+
+        let logger = initLogging(config: config.logging!)
 
         let player = Player.shared
         player.logger = logger
         await player.authorize()
 
-        var ui = UI(logger: logger, opts: opts)
+        var ui = UI(logger: logger, config: config)
         await ui.start()
     }
 }

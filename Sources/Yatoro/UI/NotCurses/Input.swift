@@ -63,7 +63,7 @@ public struct Input {
         self.modifiers = modifiers
     }
 
-    public enum Modifier {
+    public enum Modifier: Decodable {
         case shift
         case ctrl
         case alt

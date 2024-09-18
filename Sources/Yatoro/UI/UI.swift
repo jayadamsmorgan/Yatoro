@@ -7,9 +7,10 @@ public struct UI {
     private let logger: Logger?
 
     private let notcurses: NotCurses
-    private var opts: UIOptions
 
-    private var running: Bool = true
+    private let inputQueue: InputQueue
+
+    public static var running: Bool = true
 
     internal static var stateChanged: Bool = true
 
@@ -17,20 +18,26 @@ public struct UI {
 
     private var playerPage: PlayerPage?
 
-    public init(logger: Logger?, opts: UIOptions) {
+    public init(logger: Logger?, config: Config) {
         self.logger = logger
-        self.opts = opts
+        var opts = UIOptions(
+            logLevel: config.logging!.ncLogLevel!,
+            config: config.ui!,
+            flags: [.inhibitSetLocale, .noFontChanges, .noWinchSighandler]
+        )
+
+        self.inputQueue = .init(mappings: config.mappings!, logger: logger)
 
         logger?.info("Initializing UI with options: \(opts)")
-        guard let notcurses = NotCurses(logger: logger, opts: &self.opts) else {
+        guard let notcurses = NotCurses(logger: logger, opts: &opts) else {
             fatalError("Failed to initialize notcurses UI.")
         }
         self.notcurses = notcurses
         logger?.debug("Notcurses initialized.")
 
-        logger?.info("UI initialized successfully.")
-
         setupSigwinchHandler()
+
+        logger?.info("UI initialized successfully.")
     }
 
     public mutating func start() async {
@@ -46,12 +53,14 @@ public struct UI {
         self.playerPage = playerPage
         self.pages = [playerPage]
 
+        await inputQueue.start()
+
         await appLoop()
     }
 
     private func appLoop() async {
 
-        while running {
+        while UI.running {
 
             await handleInput()
 
@@ -69,6 +78,8 @@ public struct UI {
 
             try! await Task.sleep(nanoseconds: 10_000_000)
         }
+
+        stop()
     }
 
     func handleInput() async {
@@ -76,20 +87,7 @@ public struct UI {
             return
         }
         logger?.trace("New input: \(input)")
-        switch input.utf8 {
-        case "q":
-            stop()
-        case "p":
-            await Player.shared.playPauseToggle()
-        case "f":
-            await Player.shared.playNext()
-        case "b":
-            await Player.shared.playPrevious()
-        case "r":
-            await Player.shared.restartSong()
-        default:
-            break
-        }
+        inputQueue.add(input)
         UI.stateChanged = true
     }
 

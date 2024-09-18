@@ -54,11 +54,14 @@ public extension AudioPlayerManager {
             return
         }
         for entry in previousEntries {
+            guard let item = entry.item else {
+                continue
+            }
             do {
-                let song = try await MCatalog.song(id: MusicItemID(entry.id))
+                let song = try await MCatalog.song(id: item.id)
                 self.queue.append(song)
             } catch {
-                logger?.error("Failed to find a song with id \(entry.id) from a previous queue.")
+                logger?.error("Failed to find a song with id \(item.id) from a previous queue.")
             }
         }
     }

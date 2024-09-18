@@ -35,21 +35,26 @@ public struct UIOptions {
 
     public init(
         logLevel: UILogLevel = .silent,
-        margins: UInt32 = 0,
+        config: Config.UIConfig,
         flags: [UIOptionFlag] = UIOptionFlag.cliMode()
     ) {
+        let margins = config.margins!
+        let leftMargin = margins.left ?? margins.all!
+        let rightMargin = margins.right ?? margins.all!
+        let bottomMargin = margins.bottom ?? margins.all!
+        let topMargin = margins.top ?? margins.all!
         self.init(
             logLevel: logLevel,
-            leftMargin: margins,
-            rightMargin: margins,
-            bottomMargin: margins,
-            topMargin: margins,
+            leftMargin: leftMargin,
+            rightMargin: rightMargin,
+            bottomMargin: bottomMargin,
+            topMargin: topMargin,
             flags: flags
         )
     }
 }
 
-public enum UILogLevel: Int32, ExpressibleByArgument {
+public enum UILogLevel: Int32, ExpressibleByArgument, Decodable {
     case silent = -1
     case panic = 0
     case fatal = 1
