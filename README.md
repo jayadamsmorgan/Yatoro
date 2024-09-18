@@ -30,6 +30,10 @@ Yatoro strives for bringing all the features of the Apple Music app into your Te
     git clone https://github.com/jayadamsmorgan/Yatoro.git
     cd Yatoro
     ```
+    - Install notcurses library with homebrew:
+    ```
+    brew install notcurses
+    ```
     - Build it:
     ```
     swift build -c release
