@@ -77,6 +77,7 @@ public extension Config {
                 newMappings[index] = mapping
             }
             // TODO: check for duplicates and other funny stuff
+            config.mappings = newMappings
         } else {
             config.mappings = Mapping.defaultMappings
         }

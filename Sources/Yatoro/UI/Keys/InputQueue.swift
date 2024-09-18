@@ -53,7 +53,11 @@ public class InputQueue {
                 let input = self.queue.dequeue()
                 guard
                     let mapping = mappings.first(where: {
-                        $0.utf8.uppercased() == input.utf8.uppercased()
+                        if var modifiers = $0.modifiers, modifiers.contains(.shift) {
+                            modifiers.removeAll(where: { $0 == .shift })
+                            return $0.key.uppercased() == input.utf8 && modifiers == input.modifiers
+                        }
+                        return $0.key.uppercased() == input.utf8.uppercased()
                             && ($0.modifiers == input.modifiers || $0.modifiers == nil && input.modifiers.isEmpty)
                     })
                 else {

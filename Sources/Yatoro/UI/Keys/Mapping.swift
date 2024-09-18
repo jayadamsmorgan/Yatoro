@@ -1,11 +1,11 @@
 public struct Mapping: Decodable {
 
-    public var utf8: String
+    public var key: String
     public var modifiers: [Input.Modifier]?
     public let action: Action
 
-    public init(_ utf8: String, mod: [Input.Modifier]?, action: Action) {
-        self.utf8 = utf8
+    public init(_ key: String, mod: [Input.Modifier]?, action: Action) {
+        self.key = key
         self.modifiers = mod
         self.action = action
     }
