@@ -16,14 +16,14 @@ public struct UI {
 
     private var pages: [Page] = []
 
-    private var playerPage: PlayerPage?
+    internal static var mode: UIMode = .normal
 
     public init(logger: Logger?, config: Config) {
         self.logger = logger
         var opts = UIOptions(
             logLevel: config.logging!.ncLogLevel!,
             config: config.ui!,
-            flags: [.inhibitSetLocale, .noFontChanges, .noWinchSighandler]
+            flags: [.inhibitSetLocale, .noFontChanges, .noWinchSighandler, .noQuitSighandlers]
         )
 
         self.inputQueue = .init(mappings: config.mappings!, logger: logger)
@@ -50,8 +50,20 @@ public struct UI {
             stop()
             return
         }
-        self.playerPage = playerPage
-        self.pages = [playerPage]
+
+        guard let searchPage = SearchPage(stdPlane: stdPlane, logger: logger) else {
+            logger?.critical("Failed to initiate Search Page.")
+            stop()
+            return
+        }
+
+        guard let commandPage = CommandPage(stdPlane: stdPlane, logger: logger) else {
+            logger?.critical("Failed to initiate Command Page.")
+            stop()
+            return
+        }
+
+        self.pages = [playerPage, searchPage, commandPage]
 
         await inputQueue.start()
 
@@ -92,10 +104,16 @@ public struct UI {
     }
 
     public func stop() {
-        logger?.info("Stopping Yatoro...\n")
+        logger?.info("Stopping Yatoro...")
         notcurses_stop(notcurses.pointer)
         logger?.debug("Notcurses stopped.")
+        logger?.info("Yatoro stopped.\n")
         exit(EXIT_SUCCESS)
     }
 
+}
+
+public enum UIMode {
+    case normal
+    case command
 }

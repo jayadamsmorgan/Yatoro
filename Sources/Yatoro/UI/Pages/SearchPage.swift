@@ -1,4 +1,5 @@
 import Logging
+import MusadoraKit
 import notcurses
 
 public struct SearchPage: Page {
@@ -8,20 +9,23 @@ public struct SearchPage: Page {
 
     private let output: Output
 
-    public let width: UInt32 = 28
-    public let height: UInt32 = 13
+    public var width: UInt32 = 28
+    public var height: UInt32 = 13
+
+    public var lastSearch: MusicCatalogSearchResponse?
+    public var currentSearchFilter: MCatalogSearchType = .songs
 
     public init?(stdPlane: Plane, logger: Logger?) {
         guard
             let plane = Plane(
                 in: stdPlane,
                 opts: .init(
-                    x: 0,
+                    x: 30,
                     y: 0,
                     width: width,
                     height: height,
-                    debugID: "SEARCH_PAGE",
-                    flags: [.verticalScrolling]
+                    debugID: "SEARCH_PAGE"
+                        // flags: [.verticalScrolling]
                 ),
                 logger: logger
             )
@@ -34,10 +38,54 @@ public struct SearchPage: Page {
     }
 
     public func onResize() {
-
     }
 
     public func render() {
+        output.putString("Search \(currentSearchFilter):", at: (0, 0))
+        guard let lastSearch else {
+            return
+        }
+        switch currentSearchFilter {
+
+        case .songs:
+            renderSongs(items: Array(lastSearch.songs))
+        case .albums:
+            renderAlbums(items: Array(lastSearch.albums))
+        case .playlists:
+            renderPlaylists(items: Array(lastSearch.playlists))
+        case .artists:
+            renderArtists(items: Array(lastSearch.artists))
+        case .stations:
+            renderStations(items: Array(lastSearch.stations))
+        case .radioShows:
+            renderRadioShows(items: Array(lastSearch.radioShows))
+        default:
+            return
+        }
+    }
+
+    private func renderSongs(items: [Song]) {
+
+    }
+
+    private func renderAlbums(items: [Album]) {
+
+    }
+
+    private func renderStations(items: [Station]) {
+
+    }
+
+    private func renderPlaylists(items: [Playlist]) {
+
+    }
+
+    private func renderArtists(items: [Artist]) {
+
+    }
+
+    private func renderRadioShows(items: [RadioShow]) {
+
     }
 
 }

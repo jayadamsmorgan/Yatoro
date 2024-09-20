@@ -2,28 +2,6 @@ import Foundation
 import Logging
 import notcurses
 
-public class BlockingQueue<T> {
-    private var queue = [T]()
-    private let semaphore = DispatchSemaphore(value: 0)
-    private let accessQueue = DispatchQueue(label: "dev.hermanberdnikov.yatoro.blockingQueue")
-
-    func enqueue(_ element: T) {
-        accessQueue.async {
-            self.queue.append(element)
-            self.semaphore.signal()
-        }
-    }
-
-    func dequeue() -> T {
-        semaphore.wait()
-        var element: T?
-        accessQueue.sync {
-            element = self.queue.removeFirst()
-        }
-        return element!
-    }
-}
-
 public class InputQueue {
 
     public var mappings: [Mapping]
@@ -42,15 +20,36 @@ public class InputQueue {
         self.logger = logger
     }
 
-    public func loadMappings() {
-        logger?.trace("Loading mappings...")
-
-    }
-
     public func start() async {
         Task {
             while (true) {
                 let input = self.queue.dequeue()
+
+                guard UI.mode == .normal else {
+                    // CMD mode
+                    CommandInput.shared.lastCommandOutput = ""
+                    guard input.id != 27 else {
+                        // ESC pressed
+                        UI.mode = .normal
+                        CommandInput.shared.clear()
+                        continue
+                    }
+                    guard input.id != 1115121 else {
+                        // Enter pressed
+                        UI.mode = .normal
+                        Command.parseCommand(logger: logger)
+                        CommandInput.shared.clear()
+                        continue
+                    }
+                    if input.id == 1115008 && CommandInput.shared.get().isEmpty {
+                        // Backspace pressed when the command input is empty
+                        UI.mode = .normal
+                        continue
+                    }
+                    CommandInput.shared.add(input)
+                    continue
+                }
+
                 guard
                     let mapping = mappings.first(where: {
                         if var modifiers = $0.modifiers, modifiers.contains(.shift) {
@@ -88,10 +87,11 @@ public class InputQueue {
                 case .restartSong:
                     await Player.shared.restartSong()
                 case .startSearching:
-                    // TODO
+                    UI.mode = .command
+                    CommandInput.shared.add("search ")
                     break
                 case .openCommmandLine:
-                    // TODO
+                    UI.mode = .command
                     break
                 case .quitApplication:
                     UI.running = false  // I don't like it but it's ok for now

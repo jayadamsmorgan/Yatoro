@@ -12,8 +12,8 @@ public class PlayerPage: Page {
     public var plane: Plane
     public var logger: Logger?
 
-    public let width: UInt32 = 28
-    public let height: UInt32 = 13
+    public var width: UInt32 = 28
+    public var height: UInt32 = 13
 
     var currentSong: Song?
 
@@ -57,7 +57,7 @@ public class PlayerPage: Page {
             "up_next: \(player.upNext != nil ? (player.upNext!.title + " - " + player.upNext!.artistName) : "none")",
             at: (0, 5)
         )
-        output.putString("────────────────────────────", at: (0, 11))
+        output.putString(String(repeating: "─", count: Int(self.width)), at: (0, 11))
         if let nowPlaying = currentSong {
             let currentPlaybackTime = player.player.playbackTime
             if let duration = nowPlaying.duration {
@@ -94,16 +94,12 @@ public class PlayerPage: Page {
         length: Int32
     ) -> Int32 {
         let result = currentPlaybackTime / playbackTime * Double(length)
-        return Int32(result.rounded())
+        return Int32(floor(result))
     }
 
     private func calculateControlsPosition() -> Int32 {
         let result = (self.width / 2) - 6
         return Int32(result)
-    }
-
-    public func onResize() {
-
     }
 
 }

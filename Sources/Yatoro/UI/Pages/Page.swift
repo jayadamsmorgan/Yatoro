@@ -5,14 +5,17 @@ public protocol Page {
     var plane: Plane { get set }
     var logger: Logger? { get }
 
-    func onResize()
+    var width: UInt32 { get set }
+    var height: UInt32 { get set }
 
     func render()
 }
 
 public extension Page {
+
     func show() {
+        logger?.trace("Showing page with debugID \(plane.debugID)")
         ncplane_move_top(self.plane.ncplane)
-        logger?.debug("Showing page with debugID \(plane.debugID)")
+        logger?.debug("Showed page with debugID \(plane.debugID)")
     }
 }
