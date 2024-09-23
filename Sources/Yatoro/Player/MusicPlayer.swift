@@ -237,6 +237,8 @@ public extension AudioPlayerManager {
                 collection = response.topResults as? MusicItemCollection<T>
             case is Playlist.Type:
                 collection = response.playlists as? MusicItemCollection<T>
+            case is Album.Type:
+                collection = response.albums as? MusicItemCollection<T>
             case is Artist.Type:
                 collection = response.artists as? MusicItemCollection<T>
             case is MusicVideo.Type:
