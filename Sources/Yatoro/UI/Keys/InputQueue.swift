@@ -37,7 +37,7 @@ public class InputQueue {
                     guard input.id != 1115121 else {
                         // Enter pressed
                         UI.mode = .normal
-                        Command.parseCommand(logger: logger)
+                        await Command.parseCommand(logger: logger)
                         CommandInput.shared.clear()
                         continue
                     }

@@ -1,4 +1,5 @@
 import Logging
+import MusicKit
 import notcurses
 
 public class CommandPage: Page {
@@ -62,7 +63,11 @@ public class CommandPage: Page {
         let absY = Int32(plane.parentPlane!.height) - 2
         if absY != lastAbsY {
             lastAbsY = absY
-            ncplane_move_yx(plane.ncplane, Int32(plane.parentPlane!.height) - 2, 0)
+            ncplane_move_yx(
+                plane.ncplane,
+                Int32(plane.parentPlane!.height) - 2,
+                0
+            )
         }
 
         var firstLineLeft = ""
@@ -164,32 +169,53 @@ public class CommandPage: Page {
             secondLine = CommandInput.shared.lastCommandOutput
         }
         if secondLine.count < self.width {
-            secondLine += String(repeating: " ", count: Int(self.width) - secondLine.count)
+            secondLine += String(
+                repeating: " ",
+                count: Int(self.width) - secondLine.count
+            )
         } else if UI.mode == .command {
-            secondLine = String(secondLine.dropFirst(secondLine.count - Int(self.width)))
+            secondLine = String(
+                secondLine.dropFirst(secondLine.count - Int(self.width))
+            )
         }
 
         guard let nowPlaying = Player.shared.nowPlaying else {
             if size == .default || size == .plus || size == .mega {
                 if Int(self.width) - firstLineLeft.count > 0 {
-                    firstLineLeft += String(repeating: " ", count: Int(self.width) - firstLineLeft.count)
+                    firstLineLeft += String(
+                        repeating: " ",
+                        count: Int(self.width) - firstLineLeft.count
+                    )
                 }
                 firstLineRight += "--:--/--:--"
             } else {
-                firstLineLeft += String(repeating: " ", count: Int(self.width) - firstLineLeft.count)
+                firstLineLeft += String(
+                    repeating: " ",
+                    count: Int(self.width) - firstLineLeft.count
+                )
             }
-            printSections(firstLineLeft: firstLineLeft, firstLineRight: firstLineRight, secondLine: secondLine)
+            printSections(
+                firstLineLeft: firstLineLeft,
+                firstLineRight: firstLineRight,
+                secondLine: secondLine
+            )
             return
         }
 
-        firstLineRight += Player.shared.player.playbackTime.toMMSS() + "/" + (nowPlaying.duration?.toMMSS() ?? "--:--")
+        if let nowPlaying = nowPlaying as? Song {
+            firstLineRight +=
+                Player.shared.player.playbackTime.toMMSS() + "/"
+                + (nowPlaying.duration?.toMMSS() ?? "--:--")
 
-        switch size {
-        case .nano, .mini: break
-        case .default:
-            firstLineLeft += "\(nowPlaying.title)"
-        case .plus, .mega:
-            firstLineLeft += "\(nowPlaying.artistName) - \(nowPlaying.title)"
+            switch size {
+            case .nano, .mini: break
+            case .default:
+                firstLineLeft += "\(nowPlaying.title)"
+            case .plus, .mega:
+                firstLineLeft +=
+                    "\(nowPlaying.artistName) - \(nowPlaying.title)"
+            }
+
         }
 
         guard self.width > firstLineLeft.count else {
@@ -197,14 +223,27 @@ public class CommandPage: Page {
             return
         }
 
-        firstLineLeft.append(String(repeating: " ", count: Int(self.width) - firstLineLeft.count))
+        firstLineLeft.append(
+            String(repeating: " ", count: Int(self.width) - firstLineLeft.count)
+        )
 
-        printSections(firstLineLeft: firstLineLeft, firstLineRight: firstLineRight, secondLine: secondLine)
+        printSections(
+            firstLineLeft: firstLineLeft,
+            firstLineRight: firstLineRight,
+            secondLine: secondLine
+        )
     }
 
-    private func printSections(firstLineLeft: String, firstLineRight: String, secondLine: String) {
+    private func printSections(
+        firstLineLeft: String,
+        firstLineRight: String,
+        secondLine: String
+    ) {
         output.putString(firstLineLeft, at: (0, 0))
-        output.putString(firstLineRight, at: (Int32(self.width) - Int32(firstLineRight.count), 0))
+        output.putString(
+            firstLineRight,
+            at: (Int32(self.width) - Int32(firstLineRight.count), 0)
+        )
         output.putString(secondLine, at: (0, 1))
     }
 

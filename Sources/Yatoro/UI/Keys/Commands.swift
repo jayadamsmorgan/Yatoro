@@ -91,10 +91,12 @@ public struct CommandInput {
 
 public struct Command {
     public let name: String
+    public let shortName: String?
     public var action: CommandAction?
 
-    public init(name: String, action: CommandAction?) {
+    public init(name: String, short: String? = nil, action: CommandAction?) {
         self.name = name
+        self.shortName = short
         self.action = action
     }
 
@@ -109,14 +111,14 @@ public struct Command {
         .init(name: "startSeekingForward", action: .startSeekingForward),
         .init(name: "playPrevious", action: .playPrevious),
         .init(name: "startSeekingBackward", action: .startSeekingBackward),
+        .init(name: "stopSeeking", action: .stopSeeking),
         .init(name: "restartSong", action: .restartSong),
-        .init(name: "openCommmandLine", action: .openCommmandLine),
-        .init(name: "quitApplication", action: .quitApplication),
-        .init(name: "search", action: nil),
-        .init(name: "setSongTime", action: nil),
+        .init(name: "quitApplication", short: "q", action: .quitApplication),
+        .init(name: "search", action: .search),
+        .init(name: "setSongTime", action: .setSongTime),
     ]
 
-    public static func parseCommand(logger: Logger?) {
+    public static func parseCommand(logger: Logger?) async {
         let commandString = CommandInput.shared.get()
         let commandParts = commandString.split(separator: " ")
         guard let commandString = commandParts.first else {
@@ -125,7 +127,10 @@ public struct Command {
         }
         guard
             let command = defaultCommands.first(where: { cmd in
-                cmd.name == commandString
+                if let short = cmd.shortName {
+                    return short == commandString
+                }
+                return cmd.name == commandString
             })
         else {
             let msg = "Unknown command \"\(commandString)\""
@@ -134,6 +139,43 @@ public struct Command {
             return
         }
         let arguments = commandParts.dropFirst()
+        guard let action = command.action else {
+            let msg = "Command \"\(command.name)\" doesn't have any action."
+            CommandInput.shared.lastCommandOutput = msg
+            logger?.debug(msg)
+            return
+        }
+        switch action {
+
+        case .playPauseToggle: await Player.shared.playPauseToggle()
+
+        case .play: await Player.shared.play()
+
+        case .pause: Player.shared.pause()
+
+        case .stop: break
+
+        case .clearQueue: await Player.shared.clearQueue()
+
+        case .playNext: await Player.shared.playNext()
+
+        case .startSeekingForward: Player.shared.player.beginSeekingForward()
+
+        case .playPrevious: await Player.shared.playPrevious()
+
+        case .startSeekingBackward: Player.shared.player.beginSeekingBackward()
+
+        case .stopSeeking: Player.shared.player.endSeeking()
+
+        case .restartSong: await Player.shared.restartSong()
+
+        case .quitApplication: UI.running = false
+
+        case .search: break
+
+        case .setSongTime: Player.shared.player.playbackTime
+
+        }
         return
     }
 }
@@ -148,9 +190,9 @@ public enum CommandAction {
     case startSeekingForward
     case playPrevious
     case startSeekingBackward
+    case stopSeeking
     case restartSong
-    case openCommmandLine
     case quitApplication
-    case search(String, MCatalogSearchType?)
-    case setSongTime(String)
+    case search
+    case setSongTime
 }

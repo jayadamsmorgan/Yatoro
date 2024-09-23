@@ -1,5 +1,6 @@
 import ArgumentParser
 import Logging
+import MusicKit
 
 struct LoggingArgOptions: ParsableArguments {
     @Option(
@@ -95,9 +96,16 @@ struct Yatoro: AsyncParsableCommand {
         await player.authorize()
 
         // Some music to play while started, remove when SearchPage is done :)
-        let result = await player.defaultSearch(for: "classic music")
-        if let songs = result?.songs {
-            await player.playNext(Array(songs))
+        // let result = await player.defaultSearch(for: "classic music")
+        // if let songs = result?.songs {
+        //     await player.playNext(songs)
+        //     await player.play()
+        // }
+        // await player.recentlyPlayedRequest()
+        var recommended = await player.getUserRecommendedBatch()
+        if let recommended {
+            logger?.info("\(recommended)")
+            await player.playNext(recommended.first!.playlists.first!)
             await player.play()
         }
 

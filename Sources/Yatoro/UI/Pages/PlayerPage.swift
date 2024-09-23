@@ -15,7 +15,7 @@ public class PlayerPage: Page {
     public var width: UInt32 = 28
     public var height: UInt32 = 13
 
-    var currentSong: Song?
+    var currentSong: MusicItem?
 
     public init?(stdPlane: Plane, logger: Logger?) {
         self.plane = stdPlane
@@ -49,18 +49,34 @@ public class PlayerPage: Page {
             logger?.debug("Player page erase triggered.")
             ncplane_erase(self.plane.ncplane)
         }
-        output.putString("station/playlist: \(currentSong?.station?.name ?? "none")", at: (0, 1))  // TODO: playlist recognition
-        output.putString("artist: \(currentSong?.artistName ?? "none")", at: (0, 2))
-        output.putString("song: \(currentSong?.title ?? "none")", at: (0, 3))
-        output.putString("album: \(currentSong?.albumTitle ?? "none")", at: (0, 4))
-        output.putString(
-            "up_next: \(player.upNext != nil ? (player.upNext!.title + " - " + player.upNext!.artistName) : "none")",
-            at: (0, 5)
-        )
-        output.putString(String(repeating: "─", count: Int(self.width)), at: (0, 11))
-        if let nowPlaying = currentSong {
+        if let currentSong = currentSong as? Song {
+
+            output.putString(
+                "station/playlist: \(currentSong.station?.name ?? "none")",
+                at: (0, 1)
+            )  // TODO: playlist recognition
+            output.putString(
+                "artist: \(currentSong.artistName ?? "none")",
+                at: (0, 2)
+            )
+            output.putString(
+                "song: \(currentSong.title ?? "none")",
+                at: (0, 3)
+            )
+            output.putString(
+                "album: \(currentSong.albumTitle ?? "none")",
+                at: (0, 4)
+            )
+            // output.putString(
+            //     "up_next: \(player.upNext != nil ? (player.upNext!.title + " - " + player.upNext!.artistName) : "none")",
+            //     at: (0, 5)
+            // )
+            output.putString(
+                String(repeating: "─", count: Int(self.width)),
+                at: (0, 11)
+            )
             let currentPlaybackTime = player.player.playbackTime
-            if let duration = nowPlaying.duration {
+            if let duration = currentSong.duration {
                 output.putString(
                     "time: \(currentPlaybackTime.toMMSS()) / \(duration.toMMSS())",
                     at: (0, 6)
@@ -77,8 +93,6 @@ public class PlayerPage: Page {
                     at: (0, 6)
                 )
             }
-        } else {
-            output.putString("time: none", at: (0, 6))
         }
         let position = calculateControlsPosition()
         if player.status == .playing {
