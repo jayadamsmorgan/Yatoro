@@ -8,6 +8,9 @@ public typealias Player = AudioPlayerManager
 public typealias LibraryTopResult = MusicLibrarySearchResponse.TopResult
 public typealias CatalogTopResult = MusicCatalogSearchResponse.TopResult
 
+extension CatalogTopResult: @retroactive MusicCatalogSearchable {}
+extension LibraryTopResult: @retroactive MusicLibrarySearchable {}
+
 public class AudioPlayerManager {
 
     static let shared = AudioPlayerManager()
