@@ -1,13 +1,13 @@
 import Logging
 import MusadoraKit
 
-public struct CommandInput {
+public actor CommandInput {
 
     private var inputs: [Character]
 
-    public static var shared = CommandInput()
+    public static let shared = CommandInput()
 
-    public var lastCommandOutput: String
+    private var lastCommandOutput: String
 
     private var cursorPositionInWord: Int
 
@@ -17,7 +17,7 @@ public struct CommandInput {
         self.cursorPositionInWord = 0
     }
 
-    private mutating func deletePressed(_ newInput: Input) -> Bool {
+    private func deletePressed(_ newInput: Input) -> Bool {
         if newInput.id == 1115008 {
             // DELETE pressed
             if !inputs.isEmpty {
@@ -29,7 +29,7 @@ public struct CommandInput {
         return false
     }
 
-    private mutating func arrowKeysPressed(_ newInput: Input) -> Bool {
+    private func arrowKeysPressed(_ newInput: Input) -> Bool {
         switch newInput.id {
         case 1115005:
             // left
@@ -48,7 +48,7 @@ public struct CommandInput {
         }
     }
 
-    public mutating func add(_ newInput: Input) {
+    public func add(_ newInput: Input) async {
         guard !deletePressed(newInput) else {
             return
         }
@@ -62,29 +62,37 @@ public struct CommandInput {
         cursorPositionInWord += 1
     }
 
-    public func getCursorPosition() -> Int {
+    public func getCursorPosition() async -> Int {
         self.cursorPositionInWord
     }
 
-    public mutating func add(_ newCharacter: Character) {
+    public func add(_ newCharacter: Character) async {
         inputs.append(newCharacter)
         cursorPositionInWord += 1
     }
 
-    public mutating func add(_ string: String) {
+    public func add(_ string: String) async {
         for char in string {
             self.inputs.append(char)
         }
         cursorPositionInWord += string.count
     }
 
-    public mutating func clear() {
+    public func clear() async {
         self.inputs = []
         cursorPositionInWord = 0
     }
 
-    public func get() -> String {
+    public func get() async -> String {
         String(self.inputs)
+    }
+
+    public func setLastCommandOutput(_ newValue: String) async {
+        self.lastCommandOutput = newValue
+    }
+
+    public func getLastCommandOutput() async -> String {
+        self.lastCommandOutput
     }
 
 }
@@ -119,7 +127,7 @@ public struct Command {
     ]
 
     public static func parseCommand(logger: Logger?) async {
-        let commandString = CommandInput.shared.get()
+        let commandString = await CommandInput.shared.get()
         let commandParts = commandString.split(separator: " ")
         guard let commandString = commandParts.first else {
             logger?.debug("Empty command entered")
@@ -134,14 +142,14 @@ public struct Command {
             })
         else {
             let msg = "Unknown command \"\(commandString)\""
-            CommandInput.shared.lastCommandOutput = msg
+            await CommandInput.shared.setLastCommandOutput(msg)
             logger?.debug(msg)
             return
         }
         let arguments = commandParts.dropFirst()
         guard let action = command.action else {
             let msg = "Command \"\(command.name)\" doesn't have any action."
-            CommandInput.shared.lastCommandOutput = msg
+            await CommandInput.shared.setLastCommandOutput(msg)
             logger?.debug(msg)
             return
         }

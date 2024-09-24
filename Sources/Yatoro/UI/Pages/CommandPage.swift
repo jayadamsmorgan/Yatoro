@@ -2,6 +2,19 @@ import Logging
 import MusicKit
 import notcurses
 
+// TODO: Move it somewhere later as we would probably need to manage the cursor not only here I guess...
+public struct CursorState {
+    public var x: Int32
+    public var y: Int32
+    public var enabled: Bool
+
+    public init(_ pair: (x: Int32, y: Int32), enabled: Bool) {
+        self.x = pair.x
+        self.y = pair.y
+        self.enabled = enabled
+    }
+}
+
 public class CommandPage: Page {
 
     public var plane: Plane
@@ -13,6 +26,8 @@ public class CommandPage: Page {
     private let output: Output
 
     private var lastAbsY: Int32 = 0
+
+    private var cursorState = CursorState((0, 0), enabled: false)
 
     private var size: YatoroSize {
         if width < 20 {
@@ -29,8 +44,6 @@ public class CommandPage: Page {
         }
         return .mega
     }
-
-    private var cursorEnabled: Bool = false
 
     public init?(stdPlane: Plane, logger: Logger?) {
         self.plane = stdPlane
@@ -56,7 +69,7 @@ public class CommandPage: Page {
         self.output = .init(plane: plane)
     }
 
-    public func render() {
+    public func render() async {
 
         self.width = plane.parentPlane!.width
 
@@ -153,20 +166,28 @@ public class CommandPage: Page {
 
         var secondLine: String
         if (UI.mode == .command) {
-            secondLine = ":\(CommandInput.shared.get())"
+            secondLine = ":\(await CommandInput.shared.get())"
             let absolutePlanePositionY = ncplane_abs_y(self.plane.ncplane)
-            notcurses_cursor_enable(
-                plane.parentPlane!.notcurses!.pointer,
-                absolutePlanePositionY + 1,
-                Int32(CommandInput.shared.getCursorPosition() + 1)
-            )
-            cursorEnabled = true
-        } else {
-            if cursorEnabled {
-                notcurses_cursor_disable(plane.parentPlane!.notcurses!.pointer)
-                cursorEnabled = false
+            let cursorY = absolutePlanePositionY + 1
+            let cursorX =
+                Int32(await CommandInput.shared.getCursorPosition()) + 1
+            if (cursorState.x != cursorX || !cursorState.enabled) {
+                logger?.debug("Cursor update")
+                notcurses_cursor_enable(
+                    plane.parentPlane!.notcurses!.pointer,
+                    cursorY,
+                    cursorX
+                )
+                self.cursorState.x = cursorX
+                self.cursorState.y = cursorY
+                self.cursorState.enabled = true
             }
-            secondLine = CommandInput.shared.lastCommandOutput
+        } else {
+            if (cursorState.enabled) {
+                notcurses_cursor_disable(plane.parentPlane!.notcurses!.pointer)
+                cursorState.enabled = false
+            }
+            secondLine = await CommandInput.shared.getLastCommandOutput()
         }
         if secondLine.count < self.width {
             secondLine += String(

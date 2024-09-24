@@ -1,24 +1,28 @@
 import Foundation
 
-// TODO: Migrate to Async swift
-public class BlockingQueue<T> {
+public actor BlockingQueue<T> {
     private var queue = [T]()
-    private let semaphore = DispatchSemaphore(value: 0)
-    private let accessQueue = DispatchQueue(label: "dev.hermanberdnikov.yatoro.blockingQueue")
+    private var continuations: [CheckedContinuation<T, Never>] = []
 
-    func enqueue(_ element: T) {
-        accessQueue.async {
-            self.queue.append(element)
-            self.semaphore.signal()
+    public init() {}
+
+    public func enqueue(_ element: T) {
+        if !continuations.isEmpty {
+            let continuation = continuations.removeFirst()
+            continuation.resume(returning: element)
+        } else {
+            queue.append(element)
         }
     }
 
-    func dequeue() -> T {
-        semaphore.wait()
-        var element: T?
-        accessQueue.sync {
-            element = self.queue.removeFirst()
+    public func dequeue() async -> T {
+        if !queue.isEmpty {
+            return queue.removeFirst()
+        } else {
+            return await withCheckedContinuation {
+                (continuation: CheckedContinuation<T, Never>) in
+                continuations.append(continuation)
+            }
         }
-        return element!
     }
 }

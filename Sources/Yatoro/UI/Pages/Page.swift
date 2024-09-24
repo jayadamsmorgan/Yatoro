@@ -8,7 +8,7 @@ public protocol Page {
     var width: UInt32 { get set }
     var height: UInt32 { get set }
 
-    func render()
+    func render() async
 }
 
 public extension Page {

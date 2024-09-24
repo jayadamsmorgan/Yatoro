@@ -2,7 +2,7 @@ import Foundation
 import Logging
 import notcurses
 
-public struct UI {
+public actor UI {
 
     private let logger: Logger?
 
@@ -23,7 +23,10 @@ public struct UI {
         var opts = UIOptions(
             logLevel: config.logging!.ncLogLevel!,
             config: config.ui!,
-            flags: [.inhibitSetLocale, .noFontChanges, .noWinchSighandler, .noQuitSighandlers]
+            flags: [
+                .inhibitSetLocale, .noFontChanges, .noWinchSighandler,
+                .noQuitSighandlers,
+            ]
         )
 
         self.inputQueue = .init(mappings: config.mappings!, logger: logger)
@@ -40,24 +43,27 @@ public struct UI {
         logger?.info("UI initialized successfully.")
     }
 
-    public mutating func start() async {
+    public func start() async {
         guard let stdPlane = Plane(in: notcurses, logger: logger) else {
             fatalError("Failed to initialize notcurses std plane")
         }
 
-        guard let playerPage = PlayerPage(stdPlane: stdPlane, logger: logger) else {
+        guard let playerPage = PlayerPage(stdPlane: stdPlane, logger: logger)
+        else {
             logger?.critical("Failed to initiate Player Page.")
             stop()
             return
         }
 
-        guard let searchPage = SearchPage(stdPlane: stdPlane, logger: logger) else {
+        guard let searchPage = SearchPage(stdPlane: stdPlane, logger: logger)
+        else {
             logger?.critical("Failed to initiate Search Page.")
             stop()
             return
         }
 
-        guard let commandPage = CommandPage(stdPlane: stdPlane, logger: logger) else {
+        guard let commandPage = CommandPage(stdPlane: stdPlane, logger: logger)
+        else {
             logger?.critical("Failed to initiate Command Page.")
             stop()
             return
@@ -77,7 +83,7 @@ public struct UI {
             await handleInput()
 
             for page in pages {
-                page.render()
+                await page.render()
             }
 
             notcurses_render(notcurses.pointer)
@@ -88,7 +94,8 @@ public struct UI {
                 resizeOccurred = 0
             }
 
-            try! await Task.sleep(nanoseconds: 10_000_000)
+            // TODO: make it configurable through config too
+            try! await Task.sleep(nanoseconds: 3_500_000)
         }
 
         stop()
@@ -99,7 +106,7 @@ public struct UI {
             return
         }
         logger?.trace("New input: \(input)")
-        inputQueue.add(input)
+        await inputQueue.add(input)
         UI.stateChanged = true
     }
 

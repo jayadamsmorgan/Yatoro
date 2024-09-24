@@ -40,7 +40,7 @@ public struct SearchPage: Page {
     public func onResize() {
     }
 
-    public func render() {
+    public func render() async {
         output.putString("Search \(currentSearchFilter):", at: (0, 0))
         guard let lastSearch else {
             return

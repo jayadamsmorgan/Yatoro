@@ -2,7 +2,7 @@ import Foundation
 import Logging
 import notcurses
 
-public class InputQueue {
+public actor InputQueue {
 
     public var mappings: [Mapping]
 
@@ -11,7 +11,9 @@ public class InputQueue {
     private var logger: Logger?
 
     public func add(_ newInput: Input) {
-        queue.enqueue(newInput)
+        Task {
+            await queue.enqueue(newInput)
+        }
     }
 
     public init(mappings: [Mapping], logger: Logger?) {
@@ -23,41 +25,47 @@ public class InputQueue {
     public func start() async {
         Task {
             while (true) {
-                let input = self.queue.dequeue()
+                let input = await self.queue.dequeue()
 
                 guard UI.mode == .normal else {
                     // CMD mode
-                    CommandInput.shared.lastCommandOutput = ""
+                    await CommandInput.shared.setLastCommandOutput("")
                     guard input.id != 27 else {
                         // ESC pressed
                         UI.mode = .normal
-                        CommandInput.shared.clear()
+                        await CommandInput.shared.clear()
                         continue
                     }
                     guard input.id != 1115121 else {
                         // Enter pressed
                         UI.mode = .normal
                         await Command.parseCommand(logger: logger)
-                        CommandInput.shared.clear()
+                        await CommandInput.shared.clear()
                         continue
                     }
-                    if input.id == 1115008 && CommandInput.shared.get().isEmpty {
+                    let commandInput = await CommandInput.shared.get()
+                    if input.id == 1115008 && commandInput.isEmpty {
                         // Backspace pressed when the command input is empty
                         UI.mode = .normal
                         continue
                     }
-                    CommandInput.shared.add(input)
+                    await CommandInput.shared.add(input)
                     continue
                 }
 
                 guard
                     let mapping = mappings.first(where: {
-                        if var modifiers = $0.modifiers, modifiers.contains(.shift) {
+                        if var modifiers = $0.modifiers,
+                            modifiers.contains(.shift)
+                        {
                             modifiers.removeAll(where: { $0 == .shift })
-                            return $0.key.uppercased() == input.utf8 && modifiers == input.modifiers
+                            return $0.key.uppercased() == input.utf8
+                                && modifiers == input.modifiers
                         }
                         return $0.key.uppercased() == input.utf8.uppercased()
-                            && ($0.modifiers == input.modifiers || $0.modifiers == nil && input.modifiers.isEmpty)
+                            && ($0.modifiers == input.modifiers
+                                || $0.modifiers == nil
+                                    && input.modifiers.isEmpty)
                     })
                 else {
                     continue
@@ -88,7 +96,7 @@ public class InputQueue {
                     await Player.shared.restartSong()
                 case .startSearching:
                     UI.mode = .command
-                    CommandInput.shared.add("search ")
+                    await CommandInput.shared.add("search ")
                     break
                 case .openCommmandLine:
                     UI.mode = .command

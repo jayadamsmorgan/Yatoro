@@ -40,7 +40,7 @@ public class PlayerPage: Page {
 
     }
 
-    public func render() {
+    public func render() async {
         if currentSong == nil {
             self.currentSong = player.nowPlaying
         }
