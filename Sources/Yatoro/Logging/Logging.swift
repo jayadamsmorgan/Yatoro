@@ -51,14 +51,23 @@ public struct FileLogger: LogHandler, Sendable {
 
     private let label: String
 
-    public init(label: String, filePath: String, logLevel: Logger.Level, metadata: Logger.Metadata = [:]) {
+    public init(
+        label: String,
+        filePath: String,
+        logLevel: Logger.Level,
+        metadata: Logger.Metadata = [:]
+    ) {
         self.label = label
         self.logLevel = logLevel
         self.metadata = metadata
         self.fileURL = URL(string: filePath)!
         let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: filePath) {
-            fileManager.createFile(atPath: filePath, contents: nil, attributes: nil)
+            fileManager.createFile(
+                atPath: filePath,
+                contents: nil,
+                attributes: nil
+            )
         }
         self.fileHandle = try! FileHandle(forUpdating: fileURL)
         self.fileHandle?.seekToEndOfFile()
@@ -72,10 +81,12 @@ public struct FileLogger: LogHandler, Sendable {
         function: String,
         line: UInt
     ) {
-        let metadataString = metadata?.map { "\($0)=\($1)" }.joined(separator: " ") ?? ""
+        let metadataString =
+            metadata?.map { "\($0)=\($1)" }.joined(separator: " ") ?? ""
         let timestamp = Date().formattedLogTimestamp()
         let logLevel = level.rawValue.uppercased()
-        let logMessage = "[\(timestamp)] [\((logLevel))]: \(message) \(metadataString)\n"
+        let logMessage =
+            "[\(timestamp)] [\((logLevel))]: \(message) \(metadataString)\n"
         fileHandle?.write(logMessage.data(using: .utf8)!)
     }
 }

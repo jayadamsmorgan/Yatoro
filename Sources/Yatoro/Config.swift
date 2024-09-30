@@ -24,7 +24,10 @@ public extension Config {
         let fileURL = URL(fileURLWithPath: path)
         if !fm.fileExists(atPath: path) && path == defaultConfigPath {
             do {
-                try fm.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+                try fm.createDirectory(
+                    at: fileURL.deletingLastPathComponent(),
+                    withIntermediateDirectories: true
+                )
             } catch {
                 return nil
             }
@@ -36,7 +39,9 @@ public extension Config {
             let yamlString = try String(contentsOf: fileURL, encoding: .utf8)
             let decoder = YAMLDecoder()
             let config = try decoder.decode(Config.self, from: yamlString)
-            if config.ui == nil && config.logging == nil && config.mappings == nil {
+            if config.ui == nil && config.logging == nil
+                && config.mappings == nil
+            {
                 return nil
             }
             return config
@@ -46,7 +51,11 @@ public extension Config {
         }
     }
 
-    static internal func parseOptions(uiOptions: UIArgOptions, loggingOptions: LoggingArgOptions, configPath: String)
+    static internal func parseOptions(
+        uiOptions: UIArgOptions,
+        loggingOptions: LoggingArgOptions,
+        configPath: String
+    )
         -> Config
     {
         // Loading config from default config path
@@ -59,21 +68,29 @@ public extension Config {
 
         // Logging
         config.logging = config.logging ?? .init()
-        config.logging!.logLevel = loggingOptions.logLevel ?? config.logging!.logLevel
-        config.logging!.ncLogLevel = loggingOptions.ncLogLevel ?? config.logging!.ncLogLevel ?? .silent
+        config.logging!.logLevel =
+            loggingOptions.logLevel ?? config.logging!.logLevel
+        config.logging!.ncLogLevel =
+            loggingOptions.ncLogLevel ?? config.logging!.ncLogLevel ?? .silent
         // Margins
         config.ui = config.ui ?? .init()
         config.ui!.margins = config.ui!.margins ?? .init()
-        config.ui!.margins!.all = uiOptions.margins ?? config.ui!.margins!.all ?? 0
+        config.ui!.margins!.all =
+            uiOptions.margins ?? config.ui!.margins!.all ?? 0
         config.ui!.margins!.top = uiOptions.topMargin ?? config.ui!.margins!.top
-        config.ui!.margins!.left = uiOptions.leftMargin ?? config.ui!.margins!.left
-        config.ui!.margins!.right = uiOptions.rightMargin ?? config.ui!.margins!.right
-        config.ui!.margins!.bottom = uiOptions.bottomMargin ?? config.ui!.margins!.bottom
+        config.ui!.margins!.left =
+            uiOptions.leftMargin ?? config.ui!.margins!.left
+        config.ui!.margins!.right =
+            uiOptions.rightMargin ?? config.ui!.margins!.right
+        config.ui!.margins!.bottom =
+            uiOptions.bottomMargin ?? config.ui!.margins!.bottom
         // Mappings
         if let mappings = config.mappings {
             var newMappings = Mapping.defaultMappings
             for mapping in mappings {
-                let index = newMappings.firstIndex(where: { $0.action == mapping.action })!
+                let index = newMappings.firstIndex(where: {
+                    $0.action == mapping.action
+                })!
                 newMappings[index] = mapping
             }
             // TODO: check for duplicates and other funny stuff

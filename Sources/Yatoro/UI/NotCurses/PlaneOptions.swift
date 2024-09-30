@@ -60,7 +60,8 @@ public enum PlaneOptionFlags: UInt64 {
 }
 
 extension PlaneOptionFlags {
-    fileprivate static func flagsToUInt64(_ flags: [PlaneOptionFlags]) -> UInt64 {
+    fileprivate static func flagsToUInt64(_ flags: [PlaneOptionFlags]) -> UInt64
+    {
         var result: UInt64 = 0
         for flag in flags {
             result |= flag.rawValue

@@ -1,5 +1,7 @@
 extension String {
-    public static func convertToUnsafePointer(from string: String?) -> UnsafePointer<CChar>? {
+    public static func convertToUnsafePointer(from string: String?)
+        -> UnsafePointer<CChar>?
+    {
         guard let unwrappedString = string else {
             return nil
         }

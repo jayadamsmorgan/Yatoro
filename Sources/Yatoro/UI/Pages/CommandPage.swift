@@ -2,62 +2,67 @@ import Logging
 import MusicKit
 import notcurses
 
-// TODO: Move it somewhere later as we would probably need to manage the cursor not only here I guess...
-public struct CursorState {
-    public var x: Int32
-    public var y: Int32
-    public var enabled: Bool
+public actor CommandPage: Page {
 
-    public init(_ pair: (x: Int32, y: Int32), enabled: Bool) {
-        self.x = pair.x
-        self.y = pair.y
-        self.enabled = enabled
-    }
-}
-
-public class CommandPage: Page {
-
-    public var plane: Plane
-    public var logger: Logging.Logger?
-
-    public var width: UInt32
-    public var height: UInt32 = 2
+    private let plane: Plane
+    private let logger: Logging.Logger?
 
     private let output: Output
 
-    private var lastAbsY: Int32 = 0
+    private var state: PageState
 
     private var cursorState = CursorState((0, 0), enabled: false)
 
-    private var size: YatoroSize {
-        if width < 20 {
+    private var size: PageSize {
+        if state.width < 20 {
             return .nano
         }
-        if width < 40 {
+        if state.width < 40 {
             return .mini
         }
-        if width < 60 {
+        if state.width < 60 {
             return .default
         }
-        if width < 80 {
+        if state.width < 80 {
             return .plus
         }
         return .mega
     }
 
-    public init?(stdPlane: Plane, logger: Logger?) {
-        self.plane = stdPlane
-        self.logger = logger
-        self.width = stdPlane.width
+    public func onResize(newPageState: PageState) async {
+        self.state = newPageState
+        ncplane_move_yx(plane.ncplane, state.absY, state.absX)
+        ncplane_resize_simple(plane.ncplane, state.height, state.width)
+    }
 
+    public func getPageState() async -> PageState {
+        self.state
+    }
+
+    public func getMinDimensions() async -> (width: UInt32, height: UInt32) {
+        return (10, 2)
+    }
+
+    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? {
+        nil
+    }
+
+    public init?(stdPlane: Plane, logger: Logger?) {
+        self.logger = logger
+        self.state = .init(
+            absX: 0,
+            absY: Int32(stdPlane.height) - 2,
+            width: stdPlane.width,
+            height: 2
+        )
         guard
             let plane = Plane(
                 in: stdPlane,
                 opts: .init(
                     x: 0,
                     y: Int32(stdPlane.height) - 2,
-                    width: width,
-                    height: height,
+                    width: state.width,
+                    height: state.height,
                     debugID: "COMMAND_PAGE"
                 ),
                 logger: logger
@@ -70,19 +75,6 @@ public class CommandPage: Page {
     }
 
     public func render() async {
-
-        self.width = plane.parentPlane!.width
-
-        let absY = Int32(plane.parentPlane!.height) - 2
-        if absY != lastAbsY {
-            lastAbsY = absY
-            ncplane_move_yx(
-                plane.ncplane,
-                Int32(plane.parentPlane!.height) - 2,
-                0
-            )
-        }
-
         var firstLineLeft = ""
         var firstLineRight = ""
 
@@ -189,30 +181,30 @@ public class CommandPage: Page {
             }
             secondLine = await CommandInput.shared.getLastCommandOutput()
         }
-        if secondLine.count < self.width {
+        if secondLine.count < state.width {
             secondLine += String(
                 repeating: " ",
-                count: Int(self.width) - secondLine.count
+                count: Int(state.width) - secondLine.count
             )
         } else if UI.mode == .command {
             secondLine = String(
-                secondLine.dropFirst(secondLine.count - Int(self.width))
+                secondLine.dropFirst(secondLine.count - Int(state.width))
             )
         }
 
         guard let nowPlaying = Player.shared.nowPlaying else {
             if size == .default || size == .plus || size == .mega {
-                if Int(self.width) - firstLineLeft.count > 0 {
+                if Int(state.width) - firstLineLeft.count > 0 {
                     firstLineLeft += String(
                         repeating: " ",
-                        count: Int(self.width) - firstLineLeft.count
+                        count: Int(state.width) - firstLineLeft.count
                     )
                 }
                 firstLineRight += "--:--/--:--"
             } else {
                 firstLineLeft += String(
                     repeating: " ",
-                    count: Int(self.width) - firstLineLeft.count
+                    count: Int(state.width) - firstLineLeft.count
                 )
             }
             printSections(
@@ -239,13 +231,16 @@ public class CommandPage: Page {
 
         }
 
-        guard self.width > firstLineLeft.count else {
+        guard state.width > firstLineLeft.count else {
             output.putString(firstLineLeft, at: (0, 0))
             return
         }
 
         firstLineLeft.append(
-            String(repeating: " ", count: Int(self.width) - firstLineLeft.count)
+            String(
+                repeating: " ",
+                count: Int(state.width) - firstLineLeft.count
+            )
         )
 
         printSections(
@@ -263,21 +258,8 @@ public class CommandPage: Page {
         output.putString(firstLineLeft, at: (0, 0))
         output.putString(
             firstLineRight,
-            at: (Int32(self.width) - Int32(firstLineRight.count), 0)
+            at: (Int32(state.width) - Int32(firstLineRight.count), 0)
         )
         output.putString(secondLine, at: (0, 1))
     }
-
-    public func onResize() {
-        self.width = plane.parentPlane!.width
-    }
-
-}
-
-public enum YatoroSize {
-    case nano
-    case mini
-    case `default`
-    case plus
-    case mega
 }

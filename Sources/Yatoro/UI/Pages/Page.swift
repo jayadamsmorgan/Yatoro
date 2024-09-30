@@ -2,20 +2,37 @@ import Logging
 import notcurses
 
 public protocol Page {
-    var plane: Plane { get set }
-    var logger: Logger? { get }
-
-    var width: UInt32 { get set }
-    var height: UInt32 { get set }
 
     func render() async
+
+    func onResize(newPageState: PageState) async
+
+    func getPageState() async -> PageState
+
+    func getMinDimensions() async -> (width: UInt32, height: UInt32)
+    func getMaxDimensions() async -> (width: UInt32, height: UInt32)?
 }
 
-public extension Page {
+public enum PageSize {
+    case nano
+    case mini
+    case `default`
+    case plus
+    case mega
+}
 
-    func show() {
-        logger?.trace("Showing page with debugID \(plane.debugID)")
-        ncplane_move_top(self.plane.ncplane)
-        logger?.debug("Showed page with debugID \(plane.debugID)")
+public struct PageState {
+
+    public var absX: Int32
+    public var absY: Int32
+
+    public var width: UInt32
+    public var height: UInt32
+
+    public init(absX: Int32, absY: Int32, width: UInt32, height: UInt32) {
+        self.absX = absX
+        self.absY = absY
+        self.width = width
+        self.height = height
     }
 }

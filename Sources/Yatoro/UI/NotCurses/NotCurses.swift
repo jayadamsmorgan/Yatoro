@@ -14,7 +14,8 @@ public struct NotCurses {
             setlocale(LC_ALL, "")
         }
 
-        guard let pointer = notcurses_core_init(&opts.notcursesOptions, nil) else {
+        guard let pointer = notcurses_core_init(&opts.notcursesOptions, nil)
+        else {
             logger?.error("Failed to initialize notcurses core.")
             return nil
         }

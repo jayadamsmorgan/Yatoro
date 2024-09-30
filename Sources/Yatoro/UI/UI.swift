@@ -12,11 +12,13 @@ public actor UI {
 
     public static var running: Bool = true
 
-    internal static var stateChanged: Bool = true
+    private let stdPlane: Plane
 
-    private var pages: [Page] = []
+    private var pageManager: UIPageManager
 
     internal static var mode: UIMode = .normal
+
+    internal var minRequiredDim: (minWidth: UInt32, minHeight: UInt32) = (0, 0)
 
     public init(logger: Logger?, config: Config) {
         self.logger = logger
@@ -24,7 +26,9 @@ public actor UI {
             logLevel: config.logging!.ncLogLevel!,
             config: config.ui!,
             flags: [
-                .inhibitSetLocale, .noFontChanges, .noWinchSighandler,
+                .inhibitSetLocale,
+                .noFontChanges,
+                .noWinchSighandler,
                 .noQuitSighandlers,
             ]
         )
@@ -40,36 +44,65 @@ public actor UI {
 
         setupSigwinchHandler()
 
+        guard let stdPlane = Plane(in: notcurses, logger: logger) else {
+            fatalError("Failed to initialize notcurses std plane")
+        }
+        self.stdPlane = stdPlane
+
+        guard let commandPage = CommandPage(stdPlane: stdPlane, logger: logger)
+        else {
+            fatalError("Failed to initiate Command Page.")
+        }
+
+        guard
+            let windowTooSmallPage = WindowTooSmallPage(
+                stdPlane: stdPlane,
+                logger: logger
+            )
+        else {
+            fatalError("Failed to initiate Window Too Small Page.")
+        }
+        self.pageManager = .init(
+            layoutRows: 2,
+            layoutColumns: 2,
+            commandPage: commandPage,
+            windowTooSmallPage: windowTooSmallPage
+        )
+
         logger?.info("UI initialized successfully.")
     }
 
     public func start() async {
-        guard let stdPlane = Plane(in: notcurses, logger: logger) else {
-            fatalError("Failed to initialize notcurses std plane")
-        }
-
-        guard let playerPage = PlayerPage(stdPlane: stdPlane, logger: logger)
+        guard
+            let nowPlayingPage = NowPlayingPage(
+                stdPlane: stdPlane,
+                state: PageState(absX: 0, absY: 0, width: 28, height: 13),
+                logger: logger
+            )
         else {
             logger?.critical("Failed to initiate Player Page.")
             stop()
             return
         }
 
-        guard let searchPage = SearchPage(stdPlane: stdPlane, logger: logger)
+        guard
+            let searchPage = SearchPage(
+                stdPlane: stdPlane,
+                state: PageState(absX: 30, absY: 0, width: 28, height: 13),
+                logger: logger
+            )
         else {
             logger?.critical("Failed to initiate Search Page.")
             stop()
             return
         }
 
-        guard let commandPage = CommandPage(stdPlane: stdPlane, logger: logger)
-        else {
-            logger?.critical("Failed to initiate Command Page.")
-            stop()
-            return
-        }
+        self.pageManager.layout = [[nowPlayingPage, searchPage]]
+        self.minRequiredDim = await pageManager.minimumRequiredDiminsions()
+        await pageManager.windowTooSmallPage
+            .setMinRequiredDim(minRequiredDim)
 
-        self.pages = [playerPage, searchPage, commandPage]
+        await pageManager.resizePages(stdPlane.width, stdPlane.height)
 
         await inputQueue.start()
 
@@ -82,23 +115,36 @@ public actor UI {
 
             await handleInput()
 
-            for page in pages {
-                await page.render()
-            }
+            await handleResize()
+
+            await pageManager.renderPages()
 
             notcurses_render(notcurses.pointer)
 
-            if resizeOccurred != 0 {
-                notcurses_refresh(notcurses.pointer, nil, nil)
-                notcurses_render(notcurses.pointer)
-                resizeOccurred = 0
-            }
-
             // TODO: make it configurable through config too
-            try! await Task.sleep(nanoseconds: 3_500_000)
+            try! await Task.sleep(nanoseconds: 5_000_000)
         }
 
         stop()
+    }
+
+    func handleResize() async {
+        // TODO: resizeOccurred is not thread safe property, needs to be fixed
+        if resizeOccurred != 0 {
+            resizeOccurred = 0
+            logger?.trace("Resize occured: Refreshing...")
+            notcurses_refresh(notcurses.pointer, nil, nil)
+            let newWidth = stdPlane.width
+            let newHeight = stdPlane.height
+            logger?.trace(
+                "Resize occured: New width \(newWidth), new height: \(newHeight)"
+            )
+
+            await pageManager.resizePages(newWidth, newHeight)
+
+            logger?.debug("Resize handled.")
+        }
+        await pageManager.windowTooSmallPage.render()
     }
 
     func handleInput() async {
@@ -107,7 +153,6 @@ public actor UI {
         }
         logger?.trace("New input: \(input)")
         await inputQueue.add(input)
-        UI.stateChanged = true
     }
 
     public func stop() {

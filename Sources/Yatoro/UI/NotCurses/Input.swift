@@ -33,7 +33,8 @@ public struct Input {
         self.pixelXOffset = ncinput.xpx
         self.pixelYOffset = ncinput.ypx
 
-        self.eventType = EventType.init(rawValue: ncinput.evtype.rawValue) ?? .unknown
+        self.eventType =
+            EventType.init(rawValue: ncinput.evtype.rawValue) ?? .unknown
 
         var modifiers: [Modifier] = []
         if ncinput_shift_p(&ncinput) {

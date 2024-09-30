@@ -2,28 +2,45 @@ import Logging
 import MusadoraKit
 import notcurses
 
-public struct SearchPage: Page {
+public actor SearchPage: Page {
 
-    public var plane: Plane
-    public var logger: Logger?
+    private let plane: Plane
+    private let logger: Logger?
 
     private let output: Output
 
-    public var width: UInt32 = 28
-    public var height: UInt32 = 13
+    private var state: PageState
 
-    public var lastSearch: MusicCatalogSearchResponse?
     public var currentSearchFilter: MCatalogSearchType = .songs
 
-    public init?(stdPlane: Plane, logger: Logger?) {
+    public func onResize(newPageState: PageState) async {
+        self.state = newPageState
+        ncplane_move_yx(plane.ncplane, state.absY, state.absX)
+        ncplane_resize_simple(plane.ncplane, state.height, state.width)
+    }
+
+    public func getPageState() async -> PageState {
+        self.state
+    }
+
+    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? {
+        nil
+    }
+
+    public func getMinDimensions() async -> (width: UInt32, height: UInt32) {
+        (23, 17)
+    }
+
+    public init?(stdPlane: Plane, state: PageState, logger: Logger?) {
+        self.state = state
         guard
             let plane = Plane(
                 in: stdPlane,
                 opts: .init(
                     x: 30,
                     y: 0,
-                    width: width,
-                    height: height,
+                    width: state.width,
+                    height: state.height,
                     debugID: "SEARCH_PAGE"
                         // flags: [.verticalScrolling]
                 ),
@@ -37,31 +54,8 @@ public struct SearchPage: Page {
         self.output = .init(plane: plane)
     }
 
-    public func onResize() {
-    }
-
     public func render() async {
         output.putString("Search \(currentSearchFilter):", at: (0, 0))
-        guard let lastSearch else {
-            return
-        }
-        switch currentSearchFilter {
-
-        case .songs:
-            renderSongs(items: Array(lastSearch.songs))
-        case .albums:
-            renderAlbums(items: Array(lastSearch.albums))
-        case .playlists:
-            renderPlaylists(items: Array(lastSearch.playlists))
-        case .artists:
-            renderArtists(items: Array(lastSearch.artists))
-        case .stations:
-            renderStations(items: Array(lastSearch.stations))
-        case .radioShows:
-            renderRadioShows(items: Array(lastSearch.radioShows))
-        default:
-            return
-        }
     }
 
     private func renderSongs(items: [Song]) {

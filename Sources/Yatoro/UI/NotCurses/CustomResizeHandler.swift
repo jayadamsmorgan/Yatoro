@@ -9,7 +9,10 @@ func sigwinch_handler(_ signal: Int32) -> Void {
 }
 func setupSigwinchHandler() {
     var action = sigaction()
-    action.__sigaction_u = unsafeBitCast(sigwinch_handler as @convention(c) (Int32) -> Void, to: __sigaction_u.self)
+    action.__sigaction_u = unsafeBitCast(
+        sigwinch_handler as @convention(c) (Int32) -> Void,
+        to: __sigaction_u.self
+    )
     action.sa_flags = 0
     sigemptyset(&action.sa_mask)
 

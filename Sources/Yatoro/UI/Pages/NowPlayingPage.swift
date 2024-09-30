@@ -3,30 +3,52 @@ import Logging
 import MusicKit
 import notcurses
 
-public class PlayerPage: Page {
+public actor NowPlayingPage: Page {
 
     private let player: Player = Player.shared
 
     private let output: Output
 
-    public var plane: Plane
-    public var logger: Logger?
+    private let plane: Plane
+    private let logger: Logger?
 
-    public var width: UInt32 = 28
-    public var height: UInt32 = 13
+    private var state: PageState
 
-    var currentSong: MusicItem?
+    private var currentSong: MusicItem?
 
-    public init?(stdPlane: Plane, logger: Logger?) {
-        self.plane = stdPlane
+    public func onResize(newPageState: PageState) async {
+        self.state = newPageState
+        ncplane_move_yx(plane.ncplane, state.absY, state.absX)
+        ncplane_resize_simple(plane.ncplane, state.height, state.width)
+        ncplane_erase(plane.ncplane)
+    }
+
+    public func getMinDimensions() async -> (width: UInt32, height: UInt32) {
+        (23, 13)
+    }
+
+    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? {
+        nil
+    }
+
+    public func getPageState() async -> PageState {
+        self.state
+    }
+
+    public init?(
+        stdPlane: Plane,
+        state: PageState,
+        logger: Logger?
+    ) {
+        self.state = state
         guard
             let plane = Plane(
                 in: stdPlane,
                 opts: .init(
-                    x: 0,
-                    y: 0,
-                    width: width,
-                    height: height,
+                    x: state.absX,
+                    y: state.absY,
+                    width: state.width,
+                    height: state.height,
                     debugID: "PLAYER_PAGE"
                 ),
                 logger: logger
@@ -37,7 +59,7 @@ public class PlayerPage: Page {
         self.plane = plane
         self.logger = logger
         self.output = .init(plane: plane)
-
+        ncplane_set_bg_rgb8(plane.ncplane, 255, 0, 255)
     }
 
     public func render() async {
@@ -56,11 +78,11 @@ public class PlayerPage: Page {
                 at: (0, 1)
             )  // TODO: playlist recognition
             output.putString(
-                "artist: \(currentSong.artistName ?? "none")",
+                "artist: \(currentSong.artistName)",
                 at: (0, 2)
             )
             output.putString(
-                "song: \(currentSong.title ?? "none")",
+                "song: \(currentSong.title)",
                 at: (0, 3)
             )
             output.putString(
@@ -72,7 +94,7 @@ public class PlayerPage: Page {
             //     at: (0, 5)
             // )
             output.putString(
-                String(repeating: "─", count: Int(self.width)),
+                String(repeating: "─", count: Int(state.width)),
                 at: (0, 11)
             )
             let currentPlaybackTime = player.player.playbackTime
@@ -84,7 +106,7 @@ public class PlayerPage: Page {
                 let pos = calculatePointerPosition(
                     playbackTime: duration,
                     currentPlaybackTime: currentPlaybackTime,
-                    length: Int32(self.width)
+                    length: Int32(state.width)
                 )
                 output.putString("♦", at: (pos, 11))
             } else {
@@ -112,7 +134,7 @@ public class PlayerPage: Page {
     }
 
     private func calculateControlsPosition() -> Int32 {
-        let result = (self.width / 2) - 6
+        let result = (state.width / 2) - 6
         return Int32(result)
     }
 

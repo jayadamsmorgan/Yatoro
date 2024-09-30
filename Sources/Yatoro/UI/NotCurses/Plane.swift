@@ -24,8 +24,15 @@ public class Plane {
         self.opts = opts
         self.debugID = opts.debugID ?? "NOID"
         self.logger = logger
-        guard let ncplane = ncplane_create(plane.ncplane, &self.opts.ncPlaneOptions) else {
-            logger?.error("Unable to create notcurses plane with deubgID \(debugID).")
+        guard
+            let ncplane = ncplane_create(
+                plane.ncplane,
+                &self.opts.ncPlaneOptions
+            )
+        else {
+            logger?.error(
+                "Unable to create notcurses plane with deubgID \(debugID)."
+            )
             return nil
         }
         self.ncplane = ncplane
@@ -35,7 +42,9 @@ public class Plane {
 
         self.update()
 
-        logger?.debug("Plane \(debugID) created with x: \(_x), y: \(_y), width: \(_width), height: \(_height)")
+        logger?.debug(
+            "Plane \(debugID) created with x: \(_x), y: \(_y), width: \(_width), height: \(_height)"
+        )
 
         self.registerPlaneResizeCallback()
     }
@@ -55,7 +64,9 @@ public class Plane {
 
         self.update()
 
-        logger?.debug("Plane \(debugID) created with x: \(_x), y: \(_y), width: \(_width), height: \(_height)")
+        logger?.debug(
+            "Plane \(debugID) created with x: \(_x), y: \(_y), width: \(_width), height: \(_height)"
+        )
 
         self.registerPlaneResizeCallback()
     }
@@ -65,7 +76,8 @@ extension Plane {
 
     private func registerPlaneResizeCallback() {
         ncplane_set_userptr(ncplane, Unmanaged.passRetained(self).toOpaque())
-        let callback: @convention(c) (OpaquePointer?) -> Int32 = { (ptr) -> Int32 in
+        let callback: @convention(c) (OpaquePointer?) -> Int32 = {
+            (ptr) -> Int32 in
             guard let ptr else {
                 return -1
             }
@@ -74,8 +86,10 @@ extension Plane {
             }
             let plane = Unmanaged<Plane>.fromOpaque(context).takeRetainedValue()
             plane.resizeCallback()
-            ncplane_set_userptr(plane.ncplane, Unmanaged.passRetained(plane).toOpaque())  // Has to be set again for some reason...
-            UI.stateChanged = true
+            ncplane_set_userptr(
+                plane.ncplane,
+                Unmanaged.passRetained(plane).toOpaque()
+            )  // Has to be set again for some reason...
             if let notcurses = plane.notcurses {
                 notcurses_refresh(notcurses.pointer, nil, nil)
             }
@@ -86,7 +100,9 @@ extension Plane {
 
     internal func resizeCallback() {
         update()
-        logger?.debug("Plane with debugID \(debugID) resized. Width: \(_width), height: \(_height), x: \(_x), y: \(_y)")
+        logger?.debug(
+            "Plane with debugID \(debugID) resized. Width: \(_width), height: \(_height), x: \(_x), y: \(_y)"
+        )
     }
 }
 
