@@ -30,11 +30,9 @@ extension Logger {
     }
 }
 
-extension Logger.Level: ExpressibleByArgument {
+extension Logger.Level: @retroactive ExpressibleByArgument {}
 
-}
-
-public struct FileLogger: LogHandler, Sendable {
+public struct FileLogger: LogHandler, Sendable, Equatable {
     public var logLevel: Logger.Level
     public var metadata: Logger.Metadata
     public var fileURL: URL
@@ -77,6 +75,7 @@ public struct FileLogger: LogHandler, Sendable {
         level: Logger.Level,
         message: Logger.Message,
         metadata: Logger.Metadata?,
+        source: String,
         file: String,
         function: String,
         line: UInt
