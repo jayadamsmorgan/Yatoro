@@ -179,7 +179,12 @@ public struct Command {
 
         case .quitApplication: UI.running = false
 
-        case .search: break
+        case .search:
+            let phrase = String(arguments[1])
+            await SearchManager.shared.newSearch(
+                for: phrase,
+                in: .catalogSearchSongs
+            )
 
         case .setSongTime: Player.shared.player.playbackTime
 

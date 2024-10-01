@@ -1,3 +1,4 @@
+import Foundation
 import Logging
 import MusadoraKit
 import notcurses
@@ -11,7 +12,8 @@ public actor SearchPage: Page {
 
     private var state: PageState
 
-    public var currentSearchFilter: MCatalogSearchType = .songs
+    private var lastSearchTime: Date
+    private var searchCache: [Page]
 
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
@@ -52,18 +54,47 @@ public actor SearchPage: Page {
         self.plane = plane
         self.logger = logger
         self.output = .init(plane: plane)
+        self.searchCache = []
+        self.lastSearchTime = .now
     }
 
     public func render() async {
-        output.putString("Search \(currentSearchFilter):", at: (0, 0))
+
+        output.putString("Search songs:", at: (0, 0))
+
+        if let result = SearchManager.shared.lastSearchResults[
+            .catalogSearchSongs
+        ] {
+            if searchCache.isEmpty || lastSearchTime != result.timestamp {
+                for item in searchCache {
+                    await (item as! SongSearchItemPage).destroy()
+                }
+                searchCache = []
+                lastSearchTime = result.timestamp
+                let songs = result.result as! MusicItemCollection<Song>
+                for songIndex in songs.indices {
+                    guard
+                        let item = SongSearchItemPage(
+                            in: plane,
+                            position: songIndex,
+                            item: songs[songIndex],
+                            logger: logger
+                        )
+                    else { continue }
+                    self.searchCache.append(item)
+                }
+                for item in searchCache {
+                    await item.render()
+                }
+            }
+        }
     }
 
-    private func renderSongs(items: [Song]) {
-
+    private func renderSong(item: Song, position: Int) -> SearchItem? {
+        nil
     }
 
-    private func renderAlbums(items: [Album]) {
-
+    private func renderAlbum(item: Album, position: Int) {
     }
 
     private func renderStations(items: [Station]) {
@@ -81,5 +112,15 @@ public actor SearchPage: Page {
     private func renderRadioShows(items: [RadioShow]) {
 
     }
+
+}
+
+public struct SearchItem {
+
+    public let plane: Plane
+
+    public let type: MusicItem.Type
+
+    public let item: any MusicItem
 
 }

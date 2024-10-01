@@ -44,11 +44,9 @@ public struct UIPageManager {
             return
         }
         await forEachPage { page, _, _ in
-            Task { await page.render() }
+            await page.render()
         }
-        Task {
-            await commandPage.render()
-        }
+        await commandPage.render()
     }
 
     public func resizePages(_ newWidth: UInt32, _ newHeight: UInt32) async {

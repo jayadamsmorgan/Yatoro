@@ -102,14 +102,16 @@ struct Yatoro: AsyncParsableCommand {
         //     await player.play()
         // }
         // await player.recentlyPlayedRequest()
-        var recommended = await player.getUserRecommendedBatch()
-        if let recommended {
+        SearchManager.shared.logger = logger
+        if let recommended = await SearchManager.shared
+            .getUserRecommendedBatch()
+        {
             logger?.info("\(recommended)")
             await player.playNext(recommended.first!.playlists.first!)
             await player.play()
         }
 
-        var ui = UI(logger: logger, config: config)
+        let ui = UI(logger: logger, config: config)
         await ui.start()
     }
 }
