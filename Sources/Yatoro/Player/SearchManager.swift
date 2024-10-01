@@ -72,7 +72,7 @@ public class SearchManager {
         self.lastSearchResults[type] = .init(
             timestamp: Date.now,
             type: type,
-            searchPhrase: nil,
+            searchPhrase: phrase,
             result: result
         )
 

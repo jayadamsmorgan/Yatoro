@@ -14,14 +14,13 @@ public class SongSearchItemPage: Page {
         item
     }
 
-    public init?(in plane: Plane, position: Int, item: Song, logger: Logger?) {
-        let songHeight: Int32 = 6
-        self.state = .init(
-            absX: 0,
-            absY: 2 + Int32(position) * songHeight,
-            width: plane.width,
-            height: UInt32(songHeight)
-        )
+    public init?(
+        in plane: Plane,
+        state: PageState,
+        item: Song,
+        logger: Logger?
+    ) {
+        self.state = state
         guard
             let plane = Plane(
                 in: plane,
@@ -46,18 +45,19 @@ public class SongSearchItemPage: Page {
     }
 
     public func render() async {
+        ncplane_erase(plane.ncplane)
         let output = Output(plane: plane)
-        output.putString("type: song", at: (Int32(state.width) - 10, 0))
-        output.putString("title: \(item.title)", at: (0, 1))
-        output.putString("artist: \(item.artistName)", at: (0, 2))
+        output.putString("type: song", at: (Int32(state.width) - 12, 0))
+        output.putString("title: \(item.title)", at: (2, 1))
+        output.putString("artist: \(item.artistName)", at: (2, 2))
         output.putString(
             "duration: \(item.duration?.toMMSS() ?? "nil")",
-            at: (0, 3)
+            at: (2, 3)
         )
-        output.putString("album: \(item.albumTitle ?? "nil")", at: (0, 4))
+        output.putString("album: \(item.albumTitle ?? "nil")", at: (2, 4))
         output.putString(
-            String(repeating: "─", count: Int(state.width)),
-            at: (0, 5)
+            String(repeating: "─", count: Int(state.width - 4)),
+            at: (2, 5)
         )
     }
 

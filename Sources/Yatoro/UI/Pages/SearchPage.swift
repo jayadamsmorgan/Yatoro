@@ -15,10 +15,31 @@ public actor SearchPage: Page {
     private var lastSearchTime: Date
     private var searchCache: [Page]
 
+    private var maxItemsDisplayed: Int {
+        (Int(self.state.height) - 4) / 6
+    }
+
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
         ncplane_move_yx(plane.ncplane, state.absY, state.absX)
         ncplane_resize_simple(plane.ncplane, state.height, state.width)
+        var counter = 0
+        for itemIndex in searchCache.indices {
+            let height = await searchCache[itemIndex].getPageState().height
+            let y = 3 + Int32(itemIndex) * Int32(height)
+            await searchCache[itemIndex].onResize(
+                newPageState: .init(
+                    absX: 1,
+                    absY: y,
+                    width: self.state.width - 2,
+                    height: height
+                )
+            )
+            counter += 1
+            if counter < maxItemsDisplayed {
+                await searchCache[itemIndex].render()
+            }
+        }
     }
 
     public func getPageState() async -> PageState {
@@ -42,9 +63,9 @@ public actor SearchPage: Page {
                     x: 30,
                     y: 0,
                     width: state.width,
-                    height: state.height,
-                    debugID: "SEARCH_PAGE"
-                        // flags: [.verticalScrolling]
+                    height: state.height - 3,
+                    debugID: "SEARCH_PAGE",
+                    flags: [.fixed]
                 ),
                 logger: logger
             )
@@ -60,7 +81,41 @@ public actor SearchPage: Page {
 
     public func render() async {
 
-        output.putString("Search songs:", at: (0, 0))
+        ncplane_erase(plane.ncplane)
+
+        output.putString(
+            String(repeating: "─", count: Int(state.width) - 2),
+            at: (1, 0)
+        )
+
+        if let result = SearchManager.shared.lastSearchResults[
+            .catalogSearchSongs
+        ], let searchPhrase = result.searchPhrase {
+            output.putString(
+                "Search songs: \(searchPhrase)",
+                at: (1, 1)
+            )
+        } else {
+            output.putString("Search songs:", at: (1, 1))
+        }
+
+        output.putString(
+            String(repeating: "─", count: Int(state.width) - 2),
+            at: (1, 2)
+        )
+        output.putString("╭", at: (0, 0))
+        output.putString("╮", at: (Int32(state.width) - 1, y: 0))
+        for i in 1..<self.state.height - 1 {
+            output.putString("│", at: (x: 0, y: Int32(i)))
+            output.putString("│", at: (x: Int32(state.width) - 1, y: Int32(i)))
+        }
+        output.putString("├", at: (0, 2))
+        output.putString("┤", at: (Int32(state.width) - 1, 2))
+        output.putString("╰", at: (0, Int32(state.height) - 1))
+        output.putString(
+            "╯",
+            at: (Int32(state.width) - 1, Int32(state.height) - 1)
+        )
 
         if let result = SearchManager.shared.lastSearchResults[
             .catalogSearchSongs
@@ -76,18 +131,32 @@ public actor SearchPage: Page {
                     guard
                         let item = SongSearchItemPage(
                             in: plane,
-                            position: songIndex,
+                            state: .init(
+                                absX: 1,
+                                absY: 3 + Int32(songIndex) * 6,
+                                width: state.width - 2,
+                                height: 6
+                            ),
                             item: songs[songIndex],
                             logger: logger
                         )
                     else { continue }
                     self.searchCache.append(item)
                 }
-                for item in searchCache {
-                    await item.render()
+                var counter = 0
+                for itemIndex in searchCache.indices {
+                    if counter >= maxItemsDisplayed {
+                        break
+                    }
+                    await searchCache[itemIndex].render()
+                    counter += 1
                 }
             }
         }
+        output.putString(
+            String(repeating: "─", count: Int(state.width) - 2),
+            at: (1, Int32(state.height) - 1)
+        )
     }
 
     private func renderSong(item: Song, position: Int) -> SearchItem? {
