@@ -23,16 +23,22 @@ public class AudioPlayerManager {
         player.queue.entries
     }
 
-    var nowPlaying: (any MusicItem)? {
-        player.queue.currentEntry?.item
+    var nowPlaying: Song? {
+        switch player.queue.currentEntry?.item {
+        case .song(let song): return song
+        default: return nil
+        }
     }
 
-    var upNext: (any MusicItem)? {
+    var upNext: Song? {
         if let currentEntry = player.queue.currentEntry {
             let index = player.queue.entries.index(
                 after: player.queue.entries.firstIndex(of: currentEntry)!
             )
-            return player.queue.entries[index].item
+            switch player.queue.entries[index].item {
+            case .song(let song): return song
+            default: return nil
+            }
         }
         return nil
     }

@@ -83,39 +83,16 @@ public actor SearchPage: Page {
 
         ncplane_erase(plane.ncplane)
 
-        output.putString(
-            String(repeating: "─", count: Int(state.width) - 2),
-            at: (1, 0)
-        )
-
         if let result = SearchManager.shared.lastSearchResults[
             .catalogSearchSongs
         ], let searchPhrase = result.searchPhrase {
-            output.putString(
-                "Search songs: \(searchPhrase)",
-                at: (1, 1)
+            output.windowBorder(
+                name: "Search songs: \(searchPhrase)",
+                state: state
             )
         } else {
-            output.putString("Search songs:", at: (1, 1))
+            output.windowBorder(name: "Search songs:", state: state)
         }
-
-        output.putString(
-            String(repeating: "─", count: Int(state.width) - 2),
-            at: (1, 2)
-        )
-        output.putString("╭", at: (0, 0))
-        output.putString("╮", at: (Int32(state.width) - 1, y: 0))
-        for i in 1..<self.state.height - 1 {
-            output.putString("│", at: (x: 0, y: Int32(i)))
-            output.putString("│", at: (x: Int32(state.width) - 1, y: Int32(i)))
-        }
-        output.putString("├", at: (0, 2))
-        output.putString("┤", at: (Int32(state.width) - 1, 2))
-        output.putString("╰", at: (0, Int32(state.height) - 1))
-        output.putString(
-            "╯",
-            at: (Int32(state.width) - 1, Int32(state.height) - 1)
-        )
 
         if let result = SearchManager.shared.lastSearchResults[
             .catalogSearchSongs
@@ -153,10 +130,6 @@ public actor SearchPage: Page {
                 }
             }
         }
-        output.putString(
-            String(repeating: "─", count: Int(state.width) - 2),
-            at: (1, Int32(state.height) - 1)
-        )
     }
 
     private func renderSong(item: Song, position: Int) -> SearchItem? {

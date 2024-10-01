@@ -14,7 +14,7 @@ public actor NowPlayingPage: Page {
 
     private var state: PageState
 
-    private var currentSong: MusicItem?
+    private var currentSong: Song?
 
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
@@ -59,7 +59,6 @@ public actor NowPlayingPage: Page {
         self.plane = plane
         self.logger = logger
         self.output = .init(plane: plane)
-        ncplane_set_bg_rgb8(plane.ncplane, 255, 0, 255)
     }
 
     public func render() async {
@@ -69,65 +68,78 @@ public actor NowPlayingPage: Page {
         if currentSong?.id != player.nowPlaying?.id {
             self.currentSong = player.nowPlaying
             logger?.debug("Player page erase triggered.")
-            ncplane_erase(self.plane.ncplane)
         }
-        if let currentSong = currentSong as? Song {
+        ncplane_erase(self.plane.ncplane)
 
-            output.putString(
-                "station/playlist: \(currentSong.station?.name ?? "none")",
-                at: (0, 1)
-            )  // TODO: playlist recognition
-            output.putString(
-                "artist: \(currentSong.artistName)",
-                at: (0, 2)
-            )
-            output.putString(
-                "song: \(currentSong.title)",
-                at: (0, 3)
-            )
-            output.putString(
-                "album: \(currentSong.albumTitle ?? "none")",
-                at: (0, 4)
-            )
-            // output.putString(
-            //     "up_next: \(player.upNext != nil ? (player.upNext!.title + " - " + player.upNext!.artistName) : "none")",
-            //     at: (0, 5)
-            // )
-            output.putString(
-                String(repeating: "─", count: Int(state.width)),
-                at: (0, 11)
-            )
-            let currentPlaybackTime = player.player.playbackTime
-            if let duration = currentSong.duration {
-                output.putString(
-                    "time: \(currentPlaybackTime.toMMSS()) / \(duration.toMMSS())",
-                    at: (0, 6)
-                )
-                let pos = calculatePointerPosition(
-                    playbackTime: duration,
-                    currentPlaybackTime: currentPlaybackTime,
-                    length: Int32(state.width)
-                )
-                output.putString("♦", at: (pos, 11))
-            } else {
-                output.putString(
-                    "time: \(currentPlaybackTime) / --:--",
-                    at: (0, 6)
-                )
-            }
-        }
+        output.windowBorder(name: "Now Playing:", state: state)
+
+        output.putString(
+            String(repeating: "─", count: Int(state.width - 4)),
+            at: (2, Int32(state.height) - 4)
+        )
+
         let position = calculateControlsPosition()
         if player.status == .playing {
-            output.putString("◀◀   ⏸   ▶▶", at: (position, 12))
+            output.putString(
+                "◀◀   ⏸   ▶▶",
+                at: (position, Int32(state.height) - 3)
+            )
         } else {
-            output.putString("◀◀   ▶   ▶▶", at: (position, 12))
+            output.putString(
+                "◀◀   ▶   ▶▶",
+                at: (position, Int32(state.height) - 3)
+            )
+        }
+
+        guard let currentSong else { return }
+
+        output.putString(
+            "station/playlist: \(currentSong.station?.name ?? "none")",
+            at: (2, 3)
+        )  // TODO: playlist recognition
+        output.putString(
+            "artist: \(currentSong.artistName)",
+            at: (2, 4)
+        )
+        output.putString(
+            "song: \(currentSong.title)",
+            at: (2, 5)
+        )
+        output.putString(
+            "album: \(currentSong.albumTitle ?? "none")",
+            at: (2, 6)
+        )
+        // output.putString(
+        //     "up_next: \(player.upNext != nil ? (player.upNext!.title + " - " + player.upNext!.artistName) : "none")",
+        //     at: (0, 5)
+        // )
+        let currentPlaybackTime = player.player.playbackTime
+        if let duration = currentSong.duration {
+            output.putString(
+                "time: \(currentPlaybackTime.toMMSS()) / \(duration.toMMSS())",
+                at: (2, 8)
+            )
+            let pos = calculatePointerPosition(
+                playbackTime: duration,
+                currentPlaybackTime: currentPlaybackTime,
+                length: state.width - 4
+            )
+            output.putString(
+                "♦",
+                at: (pos + 2, Int32(state.height) - 4)
+            )
+        } else {
+            output.putString(
+                "time: \(currentPlaybackTime) / --:--",
+                at: (2, Int32(state.height) - 4)
+            )
         }
     }
 
     private func calculatePointerPosition(
         playbackTime: TimeInterval,
         currentPlaybackTime: TimeInterval,
-        length: Int32
+        length: UInt32
     ) -> Int32 {
         let result = currentPlaybackTime / playbackTime * Double(length)
         return Int32(floor(result))
