@@ -9,8 +9,6 @@ public actor WindowTooSmallPage: Page {
 
     private var state: PageState
 
-    private let logger: Logger?
-
     private var minRequiredDim: (minWidth: UInt32, minHeight: UInt32) = (0, 0)
 
     public func setMinRequiredDim(
@@ -31,8 +29,7 @@ public actor WindowTooSmallPage: Page {
         nil
     }
 
-    public init?(stdPlane: Plane, logger: Logger?) {
-        self.logger = logger
+    public init?(stdPlane: Plane) {
         guard
             let plane = Plane(
                 in: stdPlane,
@@ -43,8 +40,7 @@ public actor WindowTooSmallPage: Page {
                     height: stdPlane.height,
                     debugID: "WINDOW_TOO_SMALL_PAGE",
                     flags: []
-                ),
-                logger: logger
+                )
             )
         else {
             return nil

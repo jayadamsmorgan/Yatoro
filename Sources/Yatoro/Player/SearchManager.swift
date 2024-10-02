@@ -32,8 +32,6 @@ public class SearchManager {
 
     public static let shared: SearchManager = .init()
 
-    public var logger: Logger?
-
     public var lastSearchResults: [SearchType: SearchResult] = [:]
 
     private init() {}

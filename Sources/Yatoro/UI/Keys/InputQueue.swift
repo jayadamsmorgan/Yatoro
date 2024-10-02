@@ -8,18 +8,15 @@ public actor InputQueue {
 
     private var queue: BlockingQueue<Input>
 
-    private var logger: Logger?
-
     public func add(_ newInput: Input) {
         Task {
             await queue.enqueue(newInput)
         }
     }
 
-    public init(mappings: [Mapping], logger: Logger?) {
+    public init(mappings: [Mapping]) {
         self.mappings = mappings
         self.queue = .init()
-        self.logger = logger
     }
 
     public func start() async {
@@ -39,7 +36,7 @@ public actor InputQueue {
                     guard input.id != 1115121 else {
                         // Enter pressed
                         UI.mode = .normal
-                        await Command.parseCommand(logger: logger)
+                        await Command.parseCommand()
                         await CommandInput.shared.clear()
                         continue
                     }

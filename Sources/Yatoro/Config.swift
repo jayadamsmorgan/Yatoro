@@ -123,7 +123,6 @@ extension Config {
             public var top: UInt32?
             public var bottom: UInt32?
         }
-
     }
 
 }

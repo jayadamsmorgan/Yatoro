@@ -10,7 +10,6 @@ public actor NowPlayingPage: Page {
     private let output: Output
 
     private let plane: Plane
-    private let logger: Logger?
 
     private var state: PageState
 
@@ -37,8 +36,7 @@ public actor NowPlayingPage: Page {
 
     public init?(
         stdPlane: Plane,
-        state: PageState,
-        logger: Logger?
+        state: PageState
     ) {
         self.state = state
         guard
@@ -50,14 +48,12 @@ public actor NowPlayingPage: Page {
                     width: state.width,
                     height: state.height,
                     debugID: "PLAYER_PAGE"
-                ),
-                logger: logger
+                )
             )
         else {
             return nil
         }
         self.plane = plane
-        self.logger = logger
         self.output = .init(plane: plane)
     }
 

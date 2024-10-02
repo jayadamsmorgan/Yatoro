@@ -6,7 +6,6 @@ import notcurses
 public actor SearchPage: Page {
 
     private let plane: Plane
-    private let logger: Logger?
 
     private let output: Output
 
@@ -54,7 +53,7 @@ public actor SearchPage: Page {
         (23, 17)
     }
 
-    public init?(stdPlane: Plane, state: PageState, logger: Logger?) {
+    public init?(stdPlane: Plane, state: PageState) {
         self.state = state
         guard
             let plane = Plane(
@@ -66,14 +65,12 @@ public actor SearchPage: Page {
                     height: state.height - 3,
                     debugID: "SEARCH_PAGE",
                     flags: [.fixed]
-                ),
-                logger: logger
+                )
             )
         else {
             return nil
         }
         self.plane = plane
-        self.logger = logger
         self.output = .init(plane: plane)
         self.searchCache = []
         self.lastSearchTime = .now
@@ -114,8 +111,7 @@ public actor SearchPage: Page {
                                 width: state.width - 2,
                                 height: 6
                             ),
-                            item: songs[songIndex],
-                            logger: logger
+                            item: songs[songIndex]
                         )
                     else { continue }
                     self.searchCache.append(item)

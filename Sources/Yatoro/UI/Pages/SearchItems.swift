@@ -8,7 +8,6 @@ public class SongSearchItemPage: Page {
     private let plane: Plane
 
     private let item: Song
-    private let logger: Logger?
 
     public func getItem() async -> Song {
         item
@@ -17,8 +16,7 @@ public class SongSearchItemPage: Page {
     public init?(
         in plane: Plane,
         state: PageState,
-        item: Song,
-        logger: Logger?
+        item: Song
     ) {
         self.state = state
         guard
@@ -28,14 +26,12 @@ public class SongSearchItemPage: Page {
                     pageState: state,
                     debugID: "SONG_UI_\(item.id)",
                     flags: []
-                ),
-                logger: logger
+                )
             )
         else {
             return nil
         }
         self.plane = plane
-        self.logger = logger
         self.item = item
     }
 

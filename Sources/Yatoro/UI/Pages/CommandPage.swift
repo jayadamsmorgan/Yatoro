@@ -5,7 +5,6 @@ import notcurses
 public actor CommandPage: Page {
 
     private let plane: Plane
-    private let logger: Logging.Logger?
 
     private let output: Output
 
@@ -47,8 +46,7 @@ public actor CommandPage: Page {
         nil
     }
 
-    public init?(stdPlane: Plane, logger: Logger?) {
-        self.logger = logger
+    public init?(stdPlane: Plane) {
         self.state = .init(
             absX: 0,
             absY: Int32(stdPlane.height) - 2,
@@ -64,8 +62,7 @@ public actor CommandPage: Page {
                     width: state.width,
                     height: state.height,
                     debugID: "COMMAND_PAGE"
-                ),
-                logger: logger
+                )
             )
         else {
             return nil
@@ -215,20 +212,17 @@ public actor CommandPage: Page {
             return
         }
 
-        if let nowPlaying = nowPlaying as? Song {
-            firstLineRight +=
-                Player.shared.player.playbackTime.toMMSS() + "/"
-                + (nowPlaying.duration?.toMMSS() ?? "--:--")
+        firstLineRight +=
+            Player.shared.player.playbackTime.toMMSS() + "/"
+            + (nowPlaying.duration?.toMMSS() ?? "--:--")
 
-            switch size {
-            case .nano, .mini: break
-            case .default:
-                firstLineLeft += "\(nowPlaying.title)"
-            case .plus, .mega:
-                firstLineLeft +=
-                    "\(nowPlaying.artistName) - \(nowPlaying.title)"
-            }
-
+        switch size {
+        case .nano, .mini: break
+        case .default:
+            firstLineLeft += "\(nowPlaying.title)"
+        case .plus, .mega:
+            firstLineLeft +=
+                "\(nowPlaying.artistName) - \(nowPlaying.title)"
         }
 
         guard state.width > firstLineLeft.count else {

@@ -4,6 +4,8 @@ import Logging
 
 public let loggerLabel: String = "yatoro"
 
+public var logger: Logger?
+
 extension Logger {
     func trace(_ message: String) {
         trace(Logger.Message(stringLiteral: message))

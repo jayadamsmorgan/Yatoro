@@ -126,7 +126,7 @@ public struct Command {
         .init(name: "setSongTime", action: .setSongTime),
     ]
 
-    public static func parseCommand(logger: Logger?) async {
+    public static func parseCommand() async {
         let commandString = await CommandInput.shared.get()
         let commandParts = commandString.split(separator: " ")
         guard let commandString = commandParts.first else {

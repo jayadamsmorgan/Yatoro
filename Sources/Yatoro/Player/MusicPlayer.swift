@@ -15,8 +15,6 @@ public class AudioPlayerManager {
 
     static let shared = AudioPlayerManager()
 
-    public var logger: Logger?
-
     public let player = ApplicationMusicPlayer.shared
 
     public var queue: ApplicationMusicPlayer.Queue.Entries {

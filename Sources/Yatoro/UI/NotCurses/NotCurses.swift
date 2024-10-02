@@ -5,10 +5,7 @@ public struct NotCurses {
     var pointer: OpaquePointer
     var opts: UIOptions
 
-    private var logger: Logger?
-
-    init?(logger: Logger?, opts: inout UIOptions, setLocale: Bool = true) {
-        self.logger = logger
+    init?(opts: inout UIOptions, setLocale: Bool = true) {
 
         if setLocale {
             setlocale(LC_ALL, "")

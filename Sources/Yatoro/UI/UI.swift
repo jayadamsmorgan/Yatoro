@@ -4,8 +4,6 @@ import notcurses
 
 public actor UI {
 
-    private let logger: Logger?
-
     private let notcurses: NotCurses
 
     private let inputQueue: InputQueue
@@ -20,8 +18,7 @@ public actor UI {
 
     internal var minRequiredDim: (minWidth: UInt32, minHeight: UInt32) = (0, 0)
 
-    public init(logger: Logger?, config: Config) {
-        self.logger = logger
+    public init(config: Config) {
         var opts = UIOptions(
             logLevel: config.logging!.ncLogLevel!,
             config: config.ui!,
@@ -33,10 +30,10 @@ public actor UI {
             ]
         )
 
-        self.inputQueue = .init(mappings: config.mappings!, logger: logger)
+        self.inputQueue = .init(mappings: config.mappings!)
 
         logger?.info("Initializing UI with options: \(opts)")
-        guard let notcurses = NotCurses(logger: logger, opts: &opts) else {
+        guard let notcurses = NotCurses(opts: &opts) else {
             fatalError("Failed to initialize notcurses UI.")
         }
         self.notcurses = notcurses
@@ -44,20 +41,19 @@ public actor UI {
 
         setupSigwinchHandler()
 
-        guard let stdPlane = Plane(in: notcurses, logger: logger) else {
+        guard let stdPlane = Plane(in: notcurses) else {
             fatalError("Failed to initialize notcurses std plane")
         }
         self.stdPlane = stdPlane
 
-        guard let commandPage = CommandPage(stdPlane: stdPlane, logger: logger)
+        guard let commandPage = CommandPage(stdPlane: stdPlane)
         else {
             fatalError("Failed to initiate Command Page.")
         }
 
         guard
             let windowTooSmallPage = WindowTooSmallPage(
-                stdPlane: stdPlane,
-                logger: logger
+                stdPlane: stdPlane
             )
         else {
             fatalError("Failed to initiate Window Too Small Page.")
@@ -76,8 +72,7 @@ public actor UI {
         guard
             let nowPlayingPage = NowPlayingPage(
                 stdPlane: stdPlane,
-                state: PageState(absX: 0, absY: 0, width: 28, height: 13),
-                logger: logger
+                state: PageState(absX: 0, absY: 0, width: 28, height: 13)
             )
         else {
             logger?.critical("Failed to initiate Player Page.")
@@ -88,8 +83,7 @@ public actor UI {
         guard
             let searchPage = SearchPage(
                 stdPlane: stdPlane,
-                state: PageState(absX: 30, absY: 0, width: 28, height: 13),
-                logger: logger
+                state: PageState(absX: 30, absY: 0, width: 28, height: 13)
             )
         else {
             logger?.critical("Failed to initiate Search Page.")

@@ -72,14 +72,13 @@ struct Yatoro: AsyncParsableCommand {
     )
     var configPath: String = Config.defaultConfigPath
 
-    private func initLogging(config: Config.LoggingConfig) -> Logger? {
+    private func initLogging(config: Config.LoggingConfig) {
         guard let logLevel = config.logLevel else {
-            return nil
+            return
         }
-        let logger: Logger = Logger(label: loggerLabel) {
+        logger = Logger(label: loggerLabel) {
             FileLogger(label: $0, filePath: $0 + ".log", logLevel: logLevel)
         }
-        return logger
     }
 
     mutating func run() async throws {
@@ -89,10 +88,11 @@ struct Yatoro: AsyncParsableCommand {
             configPath: configPath
         )
 
-        let logger = initLogging(config: config.logging!)
+        initLogging(config: config.logging!)
+        logger?.info("Starting Yatoro...")
+        logger?.debug("Config: \(config)")
 
         let player = Player.shared
-        player.logger = logger
         await player.authorize()
 
         // Some music to play while started, remove when SearchPage is done :)
@@ -102,7 +102,6 @@ struct Yatoro: AsyncParsableCommand {
         //     await player.play()
         // }
         // await player.recentlyPlayedRequest()
-        SearchManager.shared.logger = logger
         if let recommended = await SearchManager.shared
             .getUserRecommendedBatch()
         {
@@ -111,7 +110,7 @@ struct Yatoro: AsyncParsableCommand {
             await player.play()
         }
 
-        let ui = UI(logger: logger, config: config)
+        let ui = UI(config: config)
         await ui.start()
     }
 }

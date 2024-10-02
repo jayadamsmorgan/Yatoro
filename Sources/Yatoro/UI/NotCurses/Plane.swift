@@ -15,15 +15,13 @@ public class Plane {
     private var _x: Int32 = 0
     private var _y: Int32 = 0
 
-    fileprivate var logger: Logger?
     public var debugID: String
 
     public let type: PlaneType
 
-    public init?(in plane: Plane, opts: PlaneOptions, logger: Logger?) {  // Regular Plane
+    public init?(in plane: Plane, opts: PlaneOptions) {  // Regular Plane
         self.opts = opts
         self.debugID = opts.debugID ?? "NOID"
-        self.logger = logger
         guard
             let ncplane = ncplane_create(
                 plane.ncplane,
@@ -49,7 +47,7 @@ public class Plane {
         self.registerPlaneResizeCallback()
     }
 
-    internal init?(in notcurses: NotCurses, logger: Logger?) {  // STD Plane
+    internal init?(in notcurses: NotCurses) {  // STD Plane
         self.notcurses = notcurses
         self.opts = PlaneOptions()  // not used in std plane but has to be initialized
         guard let ncplane = notcurses_stdplane(notcurses.pointer) else {
@@ -58,7 +56,6 @@ public class Plane {
         }
         self.ncplane = ncplane
         self.debugID = "STD"
-        self.logger = logger
         self.parentPlane = nil
         self.type = .std
 
