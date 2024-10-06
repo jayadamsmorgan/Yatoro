@@ -177,13 +177,52 @@ public extension AudioPlayerManager {
         await addItemsToQueue(items: [item], at: .tail)
     }
 
+    func playLater(_ item: any PlayableMusicItem) async {
+        switch item {
+        case let item as Song:
+            await addItemsToQueue(items: [item], at: .tail)
+        case let item as Playlist:
+            await addItemsToQueue(items: [item], at: .tail)
+        case let item as Station:
+            await addItemsToQueue(items: [item], at: .tail)
+        // TODO: add more
+        default: break
+        }
+    }
+
     func playLater<T>(_ items: MusicItemCollection<T>) async
     where T: PlayableMusicItem {
         await addItemsToQueue(items: items, at: .tail)
     }
 
+    func playLater(_ items: AnyPlayableMusicItemCollection) async {
+        switch items {
+        case let items as MusicItemCollection<Song>:
+            await addItemsToQueue(items: items, at: .tail)
+        case let items as MusicItemCollection<Playlist>:
+            await addItemsToQueue(items: items, at: .tail)
+        case let items as MusicItemCollection<Station>:
+            await addItemsToQueue(items: items, at: .tail)
+        // TODO: add more
+        default: break
+        }
+    }
+
     func playNext<T>(_ item: T) async where T: PlayableMusicItem {
         await addItemsToQueue(items: [item], at: .afterCurrentEntry)
+    }
+
+    func playNext(_ item: any PlayableMusicItem) async {
+        switch item {
+        case let item as Song:
+            await addItemsToQueue(items: [item], at: .afterCurrentEntry)
+        case let item as Playlist:
+            await addItemsToQueue(items: [item], at: .afterCurrentEntry)
+        case let item as Station:
+            await addItemsToQueue(items: [item], at: .afterCurrentEntry)
+        // TODO: add more
+        default: break
+        }
     }
 
     func playNext<T>(_ items: MusicItemCollection<T>) async
@@ -191,7 +230,20 @@ public extension AudioPlayerManager {
         await addItemsToQueue(items: items, at: .afterCurrentEntry)
     }
 
-    private func addItemsToQueue<T>(
+    func playNext(_ items: AnyPlayableMusicItemCollection) async {
+        switch items {
+        case let items as MusicItemCollection<Song>:
+            await addItemsToQueue(items: items, at: .afterCurrentEntry)
+        case let items as MusicItemCollection<Playlist>:
+            await addItemsToQueue(items: items, at: .afterCurrentEntry)
+        case let items as MusicItemCollection<Station>:
+            await addItemsToQueue(items: items, at: .afterCurrentEntry)
+        // TODO: add more
+        default: break
+        }
+    }
+
+    func addItemsToQueue<T>(
         items: MusicItemCollection<T>,
         at position: ApplicationMusicPlayer.Queue.EntryInsertionPosition
     ) async where T: PlayableMusicItem {
@@ -218,3 +270,7 @@ public extension AudioPlayerManager {
     }
 
 }
+
+public protocol AnyPlayableMusicItemCollection {}
+extension MusicItemCollection: AnyPlayableMusicItemCollection
+where Element: PlayableMusicItem {}

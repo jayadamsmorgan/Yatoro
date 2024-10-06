@@ -10,14 +10,20 @@ public struct SearchResult {
 
     public let searchPhrase: String?
 
-    public let result: AnyMusicItemCollection
+    public let result: any AnyMusicItemCollection
 
 }
 
-public protocol AnyMusicItemCollection {}
+public protocol AnyMusicItemCollection: Collection {
+    func item(at index: Int) -> (any MusicItem)?
+}
+
 extension MusicItemCollection: AnyMusicItemCollection where Element: MusicItem {
-    public func item(at index: Int) -> any MusicItem {
-        return self[index]
+    public func item(at index: Int) -> (any MusicItem)? {
+        if (0..<self.count).contains(index) {
+            return self[index]
+        }
+        return nil
     }
 }
 
@@ -38,7 +44,7 @@ public class SearchManager {
 
     public func newSearch(for phrase: String? = nil, in type: SearchType) async
     {
-        var result: AnyMusicItemCollection?
+        var result: (any AnyMusicItemCollection)?
 
         switch type {
 
