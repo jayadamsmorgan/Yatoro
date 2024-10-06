@@ -1,3 +1,4 @@
+import ArgumentParser
 import Logging
 import MusadoraKit
 
@@ -76,6 +77,7 @@ public struct Command {
         case .addToQueue:
             do {
                 let command = try AddToQueueCommand.parse(arguments)
+                logger?.debug("New add to queue command request: \(command)")
                 guard
                     let searchResult = SearchManager.shared.lastSearchResults[
                         command.from
@@ -154,13 +156,84 @@ public struct Command {
         case .quitApplication: UI.running = false
 
         case .search:
-            let phrase = String(arguments[0])
-            await SearchManager.shared.newSearch(
-                for: phrase,
-                in: .catalogSearchSongs
-            )
+            do {
+                let command = try SearchCommand.parse(arguments)
+                logger?.debug("New search command request: \(command)")
+                var searchPhrase = ""
+                for part in command.searchPhrase {
+                    searchPhrase.append("\(part) ")
+                }
+                await SearchManager.shared.newSearch(
+                    for: searchPhrase,
+                    in: command.from ?? .catalogSearchSongs
+                )
+            } catch {
+                let msg = error.localizedDescription
+                logger?.debug(msg)
+                await CommandInput.shared.setLastCommandOutput(msg)
+            }
 
-        case .setSongTime: break
+        case .setSongTime:
+            do {
+                let command = try SetSongTimeCommand.parse(arguments)
+                logger?.debug("New set song time command request: \(command)")
+
+                let error = ValidationError("Unknown time format")
+
+                guard command.time.contains(":") else {
+                    guard let seconds = Int(command.time) else {
+                        throw error
+                    }
+
+                    Player.shared.setTime(
+                        seconds: seconds,
+                        relative: command.relative
+                    )
+                    return
+                }
+
+                let split = command.time.split(separator: ":")
+
+                switch split.count {
+                case 2:  // MM:SS
+                    guard let minutesPart = Int(split[0]) else {
+                        throw error
+                    }
+                    guard let secondsPart = Int(split[1]) else {
+                        throw error
+                    }
+                    let seconds = minutesPart * 60 + secondsPart
+                    Player.shared.setTime(
+                        seconds: seconds,
+                        relative: command.relative
+                    )
+
+                case 3:  // HH:MM:SS
+                    guard let hoursPart = Int(split[0]) else {
+                        throw error
+                    }
+                    guard let minutesPart = Int(split[1]) else {
+                        throw error
+                    }
+                    guard let secondsPart = Int(split[2]) else {
+                        throw error
+                    }
+                    let seconds =
+                        hoursPart * 60 * 60 + minutesPart * 60 + secondsPart
+                    Player.shared.setTime(
+                        seconds: seconds,
+                        relative: command.relative
+                    )
+
+                default:
+                    throw error
+                }
+
+            } catch {
+                let msg = error.localizedDescription
+                logger?.debug(msg)
+                await CommandInput.shared.setLastCommandOutput(msg)
+            }
 
         }
         return

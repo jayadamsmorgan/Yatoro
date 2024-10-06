@@ -27,7 +27,7 @@ extension MusicItemCollection: AnyMusicItemCollection where Element: MusicItem {
     }
 }
 
-public enum SearchType: Hashable {
+public enum SearchType: Hashable, CaseIterable {
     case recentlyPlayedSongs
     case recommended
     case catalogSearchSongs

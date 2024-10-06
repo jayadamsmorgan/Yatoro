@@ -269,6 +269,45 @@ public extension AudioPlayerManager {
         }
     }
 
+    func setTime(seconds: Int, relative: Bool) {
+        guard let nowPlaying else {
+            logger?.debug("Unable to set time for current song: Not playing")
+            return
+        }
+        guard let nowPlayingDuration = nowPlaying.duration else {
+            logger?.debug(
+                "Unable to set time for current song: Undefined duration"
+            )
+            return
+        }
+        if relative {
+            if player.playbackTime + Double(seconds) < 0 {
+                player.playbackTime = 0
+            } else if player.playbackTime + Double(seconds) > nowPlayingDuration
+            {
+                player.playbackTime = nowPlayingDuration
+            } else {
+                player.playbackTime = player.playbackTime + Double(seconds)
+            }
+            logger?.trace("Set time for current song: \(player.playbackTime)")
+            return
+        }
+        guard seconds >= 0 else {
+            logger?.debug(
+                "Unable to set time for current song: Negative seconds."
+            )
+            return
+        }
+        guard Double(seconds) <= nowPlayingDuration else {
+            logger?.debug(
+                "Unable to set time for current song: seconds greater than song duration."
+            )
+            return
+        }
+        player.playbackTime = Double(seconds)
+        logger?.trace("Set time for current song: \(player.playbackTime)")
+    }
+
 }
 
 public protocol AnyPlayableMusicItemCollection {}
