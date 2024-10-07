@@ -18,7 +18,25 @@ public class AudioPlayerManager {
     public let player = ApplicationMusicPlayer.shared
 
     public var queue: ApplicationMusicPlayer.Queue.Entries {
-        player.queue.entries
+        guard let currentEntry = Player.shared.player.queue.currentEntry else {
+            return Player.shared.player.queue.entries
+        }
+
+        guard
+            let currentPosition = Player.shared.player.queue.entries.firstIndex(
+                where: { currentEntry.id == $0.id }
+            )
+        else {
+            return Player.shared.player.queue.entries
+        }
+
+        let entries = ApplicationMusicPlayer.Queue.Entries(
+            player.queue.entries[
+                currentPosition...
+            ]
+        )
+        return entries
+
     }
 
     var nowPlaying: Song? {

@@ -1,8 +1,8 @@
 import Foundation
-import MusadoraKit
+import MusicKit
 import notcurses
 
-public actor SearchPage: Page {
+public actor QueuePage: Page {
 
     private let plane: Plane
 
@@ -10,7 +10,7 @@ public actor SearchPage: Page {
 
     private var state: PageState
 
-    private var lastSearchTime: Date
+    private var currentQueue: ApplicationMusicPlayer.Queue.Entries?
     private var searchCache: [Page]
 
     private var maxItemsDisplayed: Int {
@@ -62,7 +62,7 @@ public actor SearchPage: Page {
                     y: 0,
                     width: state.width,
                     height: state.height - 3,
-                    debugID: "SEARCH_PAGE",
+                    debugID: "QUEUE_PAGE",
                     flags: [.fixed]
                 )
             )
@@ -72,69 +72,58 @@ public actor SearchPage: Page {
         self.plane = plane
         self.output = .init(plane: plane)
         self.searchCache = []
-        self.lastSearchTime = .now
+        self.currentQueue = nil
     }
 
     public func render() async {
 
         ncplane_erase(plane.ncplane)
 
-        if let result = SearchManager.shared.lastSearchResults[
-            .catalogSearchSongs
-        ], let searchPhrase = result.searchPhrase {
-            output.windowBorder(
-                name: "Search songs: \(searchPhrase)",
-                state: state
-            )
-        } else {
-            output.windowBorder(name: "Search songs:", state: state)
-        }
+        output.windowBorder(name: "Player Queue:", state: state)
 
-        if let result = SearchManager.shared.lastSearchResults[
-            .catalogSearchSongs
-        ] {
-            if searchCache.isEmpty || lastSearchTime != result.timestamp {
-                for item in searchCache {
-                    await (item as! SongItemPage).destroy()
+        if currentQueue != Player.shared.queue {
+            logger?.debug("refresh")
+            for item in searchCache {
+                if let item = item as? SongItemPage {
+                    await item.destroy()
                 }
-                searchCache = []
-                lastSearchTime = result.timestamp
-                let songs = result.result as! MusicItemCollection<Song>
-                for songIndex in songs.indices {
+            }
+            searchCache = []
+            currentQueue = Player.shared.queue
+            var i = 0
+            for item in currentQueue! {
+                switch item.item {
+                case .song(let song):
                     guard
-                        let item = SongItemPage(
-                            in: plane,
+                        let page = SongItemPage(
+                            in: self.plane,
                             state: .init(
                                 absX: 1,
-                                absY: 3 + Int32(songIndex) * 6,
+                                absY: 3 + Int32(i) * 6,
                                 width: state.width - 2,
                                 height: 6
                             ),
-                            item: songs[songIndex]
+                            item: song
                         )
-                    else { continue }
-                    self.searchCache.append(item)
-                }
-                var counter = 0
-                for itemIndex in searchCache.indices {
-                    if counter >= maxItemsDisplayed {
-                        break
+                    else {
+                        continue
                     }
-                    await searchCache[itemIndex].render()
-                    counter += 1
+                    i += 1
+                    self.searchCache.append(page)
+                default: break
                 }
             }
         }
+
+        var counter = 0
+        for itemIndex in searchCache.indices {
+            if counter >= maxItemsDisplayed {
+                break
+            }
+            await searchCache[itemIndex].render()
+            counter += 1
+        }
+
     }
-
-}
-
-public struct SearchItem {
-
-    public let plane: Plane
-
-    public let type: MusicItem.Type
-
-    public let item: any MusicItem
 
 }

@@ -91,7 +91,18 @@ public actor UI {
             return
         }
 
-        self.pageManager.layout = [[nowPlayingPage, searchPage]]
+        guard
+            let queuePage = QueuePage(
+                stdPlane: stdPlane,
+                state: PageState(absX: 0, absY: 13, width: 28, height: 13)
+            )
+        else {
+            logger?.critical("Failed to initiate Queue Page.")
+            stop()
+            return
+        }
+
+        self.pageManager.layout = [[nowPlayingPage, queuePage], [searchPage]]
         self.minRequiredDim = await pageManager.minimumRequiredDiminsions()
         await pageManager.windowTooSmallPage
             .setMinRequiredDim(minRequiredDim)

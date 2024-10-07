@@ -2,7 +2,7 @@ import Logging
 import MusicKit
 import notcurses
 
-public class SongSearchItemPage: Page {
+public class SongItemPage: Page {
 
     private var state: PageState
     private let plane: Plane
