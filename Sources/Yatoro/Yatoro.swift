@@ -54,10 +54,37 @@ struct UIArgOptions: ParsableArguments {
     )
     var bottomMargin: UInt32?
 
+    @OptionGroup(title: "Layout", visibility: .default)
+    var layoutOptions: UILayoutOptions
+
+    struct UILayoutOptions: ParsableArguments {
+
+        @Option(
+            name: .long,
+            help: "Amount of rows in UI (default: 2)",
+            completion: .default
+        )
+        var rows: UInt32?
+
+        @Option(
+            name: .long,
+            help: "Amount of columns in UI (default: 2)",
+            completion: .default
+        )
+        var cols: UInt32?
+
+    }
+
 }
 
 @main
 struct Yatoro: AsyncParsableCommand {
+
+    static var configuration: CommandConfiguration = .init(
+        commandName: "Yatoro",
+        abstract: "Apple Music CLI Player",
+        version: yatoroVersion
+    )
 
     @OptionGroup(title: "Logging", visibility: .default)
     var loggingOptions: LoggingArgOptions
