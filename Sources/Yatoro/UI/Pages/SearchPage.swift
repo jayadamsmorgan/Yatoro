@@ -14,7 +14,7 @@ public actor SearchPage: Page {
     private var searchCache: [Page]
 
     private var maxItemsDisplayed: Int {
-        (Int(self.state.height) - 4) / 6
+        (Int(self.state.height) - 3) / 6
     }
 
     public func onResize(newPageState: PageState) async {
