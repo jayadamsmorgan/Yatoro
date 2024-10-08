@@ -10,16 +10,93 @@ public struct UIPageManager {
     var windowTooSmallPage: WindowTooSmallPage
 
     public init(
-        layoutRows: UInt32,
-        layoutColumns: UInt32,
+        layoutConfig: Config.UIConfig.UILayoutConfig,
         commandPage: CommandPage,
-        windowTooSmallPage: WindowTooSmallPage
+        windowTooSmallPage: WindowTooSmallPage,
+        stdPlane: Plane
     ) {
         self.commandPage = commandPage
         self.windowTooSmallPage = windowTooSmallPage
-        self.layout = [[]]
-        self.layoutRows = layoutRows
-        self.layoutColumns = layoutColumns
+        self.layout = []
+        self.layoutRows = layoutConfig.rows
+        self.layoutColumns = layoutConfig.cols
+        for _ in 0..<layoutColumns {
+            layout.append([])
+        }
+
+        var index = 0
+        for i in 0..<Int(layoutColumns) {
+            for _ in 0..<Int(layoutRows) {
+
+                if index == layoutConfig.pages.count {
+                    return
+                }
+
+                let pageType = layoutConfig.pages[index]
+
+                logger?.debug("I \(index)")
+                index += 1
+
+                switch pageType {
+
+                case .nowPlaying:
+                    guard
+                        let nowPlayingPage = NowPlayingPage(
+                            stdPlane: stdPlane,
+                            state: PageState(
+                                absX: 0,
+                                absY: 0,
+                                width: 28,
+                                height: 13
+                            )
+                        )
+                    else {
+                        logger?.critical("Failed to initiate Player Page.")
+                        UI.running = false
+                        return
+                    }
+                    layout[i].append(nowPlayingPage)
+
+                case .queue:
+                    guard
+                        let queuePage = QueuePage(
+                            stdPlane: stdPlane,
+                            state: PageState(
+                                absX: 0,
+                                absY: 13,
+                                width: 28,
+                                height: 13
+                            )
+                        )
+                    else {
+                        logger?.critical("Failed to initiate Queue Page.")
+                        UI.running = false
+                        return
+                    }
+                    layout[i].append(queuePage)
+
+                case .search:
+                    guard
+                        let searchPage = SearchPage(
+                            stdPlane: stdPlane,
+                            state: PageState(
+                                absX: 30,
+                                absY: 0,
+                                width: 28,
+                                height: 13
+                            )
+                        )
+                    else {
+                        logger?.critical("Failed to initiate Search Page.")
+                        UI.running = false
+                        return
+                    }
+                    layout[i].append(searchPage)
+
+                }
+            }
+        }
+
     }
 
     public func forEachPage(
@@ -105,6 +182,7 @@ public struct UIPageManager {
                 )
 
                 await page.onResize(newPageState: newPageState)
+                await page.render()
 
                 currentX += pageWidth
             }

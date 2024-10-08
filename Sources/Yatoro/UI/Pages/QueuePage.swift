@@ -11,33 +11,17 @@ public actor QueuePage: Page {
     private var state: PageState
 
     private var currentQueue: ApplicationMusicPlayer.Queue.Entries?
-    private var searchCache: [Page]
+    private var cache: [Page]
 
     private var maxItemsDisplayed: Int {
-        (Int(self.state.height) - 4) / 6
+        (Int(self.state.height) - 3) / 6
     }
 
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
         ncplane_move_yx(plane.ncplane, state.absY, state.absX)
         ncplane_resize_simple(plane.ncplane, state.height, state.width)
-        var counter = 0
-        for itemIndex in searchCache.indices {
-            let height = await searchCache[itemIndex].getPageState().height
-            let y = 3 + Int32(itemIndex) * Int32(height)
-            await searchCache[itemIndex].onResize(
-                newPageState: .init(
-                    absX: 1,
-                    absY: y,
-                    width: self.state.width - 2,
-                    height: height
-                )
-            )
-            counter += 1
-            if counter < maxItemsDisplayed {
-                await searchCache[itemIndex].render()
-            }
-        }
+        self.currentQueue = nil
     }
 
     public func getPageState() async -> PageState {
@@ -71,7 +55,7 @@ public actor QueuePage: Page {
         }
         self.plane = plane
         self.output = .init(plane: plane)
-        self.searchCache = []
+        self.cache = []
         self.currentQueue = nil
     }
 
@@ -81,47 +65,47 @@ public actor QueuePage: Page {
 
         output.windowBorder(name: "Player Queue:", state: state)
 
-        if currentQueue != Player.shared.queue {
-            logger?.debug("refresh")
-            for item in searchCache {
-                if let item = item as? SongItemPage {
-                    await item.destroy()
-                }
-            }
-            searchCache = []
-            currentQueue = Player.shared.queue
-            var i = 0
-            for item in currentQueue! {
-                switch item.item {
-                case .song(let song):
-                    guard
-                        let page = SongItemPage(
-                            in: self.plane,
-                            state: .init(
-                                absX: 1,
-                                absY: 3 + Int32(i) * 6,
-                                width: state.width - 2,
-                                height: 6
-                            ),
-                            item: song
-                        )
-                    else {
-                        continue
-                    }
-                    i += 1
-                    self.searchCache.append(page)
-                default: break
-                }
+        guard currentQueue != Player.shared.queue else {
+            return
+        }
+        for item in cache {
+            if let item = item as? SongItemPage {
+                await item.destroy()
             }
         }
-
+        cache = []
+        currentQueue = Player.shared.queue
+        var i = 0
+        for item in currentQueue! {
+            switch item.item {
+            case .song(let song):
+                guard
+                    let page = SongItemPage(
+                        in: self.plane,
+                        state: .init(
+                            absX: 1,
+                            absY: 3 + Int32(i) * 6,
+                            width: state.width - 2,
+                            height: 6
+                        ),
+                        item: song
+                    )
+                else {
+                    continue
+                }
+                i += 1
+                self.cache.append(page)
+            default: break
+            }
+        }
         var counter = 0
-        for itemIndex in searchCache.indices {
+        for itemIndex in cache.indices {
             if counter >= maxItemsDisplayed {
                 break
             }
-            await searchCache[itemIndex].render()
+            await cache[itemIndex].render()
             counter += 1
+
         }
 
     }

@@ -21,23 +21,10 @@ public actor SearchPage: Page {
         self.state = newPageState
         ncplane_move_yx(plane.ncplane, state.absY, state.absX)
         ncplane_resize_simple(plane.ncplane, state.height, state.width)
-        var counter = 0
-        for itemIndex in searchCache.indices {
-            let height = await searchCache[itemIndex].getPageState().height
-            let y = 3 + Int32(itemIndex) * Int32(height)
-            await searchCache[itemIndex].onResize(
-                newPageState: .init(
-                    absX: 1,
-                    absY: y,
-                    width: self.state.width - 2,
-                    height: height
-                )
-            )
-            counter += 1
-            if counter < maxItemsDisplayed {
-                await searchCache[itemIndex].render()
-            }
+        for item in searchCache {
+            await (item as! SongItemPage).destroy()
         }
+        self.searchCache = []
     }
 
     public func getPageState() async -> PageState {

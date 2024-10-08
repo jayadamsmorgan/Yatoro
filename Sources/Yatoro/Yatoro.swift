@@ -88,7 +88,7 @@ struct Yatoro: AsyncParsableCommand {
             configPath: configPath
         )
 
-        initLogging(config: config.logging!)
+        initLogging(config: config.logging)
         logger?.info("Starting Yatoro...")
         logger?.debug("Config: \(config)")
 

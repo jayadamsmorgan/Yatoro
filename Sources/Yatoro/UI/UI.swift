@@ -20,8 +20,8 @@ public actor UI {
 
     public init(config: Config) {
         var opts = UIOptions(
-            logLevel: config.logging!.ncLogLevel!,
-            config: config.ui!,
+            logLevel: config.logging.ncLogLevel,
+            config: config.ui,
             flags: [
                 .inhibitSetLocale,
                 .noFontChanges,
@@ -30,7 +30,7 @@ public actor UI {
             ]
         )
 
-        self.inputQueue = .init(mappings: config.mappings!)
+        self.inputQueue = .init(mappings: config.mappings)
 
         logger?.info("Initializing UI with options: \(opts)")
         guard let notcurses = NotCurses(opts: &opts) else {
@@ -59,50 +59,16 @@ public actor UI {
             fatalError("Failed to initiate Window Too Small Page.")
         }
         self.pageManager = .init(
-            layoutRows: 2,
-            layoutColumns: 2,
+            layoutConfig: config.ui.layout,
             commandPage: commandPage,
-            windowTooSmallPage: windowTooSmallPage
+            windowTooSmallPage: windowTooSmallPage,
+            stdPlane: stdPlane
         )
 
         logger?.info("UI initialized successfully.")
     }
 
     public func start() async {
-        guard
-            let nowPlayingPage = NowPlayingPage(
-                stdPlane: stdPlane,
-                state: PageState(absX: 0, absY: 0, width: 28, height: 13)
-            )
-        else {
-            logger?.critical("Failed to initiate Player Page.")
-            stop()
-            return
-        }
-
-        guard
-            let searchPage = SearchPage(
-                stdPlane: stdPlane,
-                state: PageState(absX: 30, absY: 0, width: 28, height: 13)
-            )
-        else {
-            logger?.critical("Failed to initiate Search Page.")
-            stop()
-            return
-        }
-
-        guard
-            let queuePage = QueuePage(
-                stdPlane: stdPlane,
-                state: PageState(absX: 0, absY: 13, width: 28, height: 13)
-            )
-        else {
-            logger?.critical("Failed to initiate Queue Page.")
-            stop()
-            return
-        }
-
-        self.pageManager.layout = [[nowPlayingPage, queuePage], [searchPage]]
         self.minRequiredDim = await pageManager.minimumRequiredDiminsions()
         await pageManager.windowTooSmallPage
             .setMinRequiredDim(minRequiredDim)
