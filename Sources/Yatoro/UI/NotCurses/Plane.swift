@@ -40,7 +40,7 @@ public class Plane {
 
         self.update()
 
-        logger?.debug(
+        logger?.trace(
             "Plane \(debugID) created with x: \(_x), y: \(_y), width: \(_width), height: \(_height)"
         )
 
@@ -61,7 +61,7 @@ public class Plane {
 
         self.update()
 
-        logger?.debug(
+        logger?.trace(
             "Plane \(debugID) created with x: \(_x), y: \(_y), width: \(_width), height: \(_height)"
         )
 
@@ -88,7 +88,7 @@ extension Plane {
                 Unmanaged.passRetained(plane).toOpaque()
             )  // Has to be set again for some reason...
             if let notcurses = plane.notcurses {
-                notcurses_refresh(notcurses.pointer, nil, nil)
+                notcurses.refresh()
             }
             return 0
         }
@@ -97,7 +97,7 @@ extension Plane {
 
     internal func resizeCallback() {
         update()
-        logger?.debug(
+        logger?.trace(
             "Plane with debugID \(debugID) resized. Width: \(_width), height: \(_height), x: \(_x), y: \(_y)"
         )
     }
@@ -193,4 +193,75 @@ public extension Plane {
             move(x: _x, y: newValue)
         }
     }
+}
+
+extension Plane {
+
+    func putString(_ string: String, at position: (x: Int32, y: Int32)) {
+        ncplane_putstr_yx(ncplane, position.y, position.x, string)
+    }
+
+    func windowBorder(name: String? = nil, state: PageState) {
+        putString(
+            String(repeating: "─", count: Int(state.width) - 2),
+            at: (1, 0)
+        )
+        putString("╭", at: (0, 0))
+        putString("╮", at: (Int32(state.width) - 1, y: 0))
+        for i in 1..<state.height - 1 {
+            putString("│", at: (x: 0, y: Int32(i)))
+            putString("│", at: (x: Int32(state.width) - 1, y: Int32(i)))
+        }
+        if let name {
+            putString(name, at: (1, 1))
+            putString("├", at: (0, 2))
+            putString("┤", at: (Int32(state.width) - 1, 2))
+            putString(
+                String(repeating: "─", count: Int(state.width) - 2),
+                at: (1, 2)
+            )
+        }
+        putString("╰", at: (0, Int32(state.height) - 1))
+        putString(
+            "╯",
+            at: (Int32(state.width) - 1, Int32(state.height) - 1)
+        )
+        putString(
+            String(repeating: "─", count: Int(state.width) - 2),
+            at: (1, Int32(state.height) - 1)
+        )
+    }
+
+}
+
+public extension Plane {
+
+    func erase() {
+        ncplane_erase(ncplane)
+    }
+
+    func destroy() {
+        ncplane_destroy(ncplane)
+    }
+
+}
+
+public extension Plane {
+
+    func moveOnTopOfZStack() {
+        ncplane_move_top(ncplane)
+    }
+
+    func moveToBottomOfZStack() {
+        ncplane_move_bottom(ncplane)
+    }
+}
+
+public extension Plane {
+
+    func updateByPageState(_ state: PageState) {
+        move(x: state.absX, y: state.absY)
+        resize(width: state.width, height: state.height)
+    }
+
 }

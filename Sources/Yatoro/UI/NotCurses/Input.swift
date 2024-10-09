@@ -13,7 +13,10 @@ public struct Input {
     public let pixelXOffset: Int32
     public let pixelYOffset: Int32
 
-    public init?(notcurses: NotCurses) {
+    public init?() {
+        guard let notcurses = UI.notcurses else {
+            return nil
+        }
         var ncinput = ncinput()
         guard notcurses_get_nblock(notcurses.pointer, &ncinput) != 0 else {
             return nil
@@ -28,13 +31,12 @@ public struct Input {
                 ncinput.utf8.2,
                 ncinput.utf8.3,
                 ncinput.utf8.4,
-            ])!  // Should not fail I think...
+            ])!
 
         self.pixelXOffset = ncinput.xpx
         self.pixelYOffset = ncinput.ypx
 
-        self.eventType =
-            EventType.init(rawValue: ncinput.evtype.rawValue) ?? .unknown
+        self.eventType = EventType.init(rawValue: ncinput.evtype.rawValue) ?? .unknown
 
         var modifiers: [Modifier] = []
         if ncinput_shift_p(&ncinput) {

@@ -42,15 +42,13 @@ public class SearchManager {
 
     private init() {}
 
-    public func newSearch(for phrase: String? = nil, in type: SearchType) async
-    {
+    public func newSearch(for phrase: String? = nil, in type: SearchType) async {
         var result: (any AnyMusicItemCollection)?
 
         switch type {
 
         case .recentlyPlayedSongs:
-            let res: MusicItemCollection<Song>? =
-                await getRecentlyPlayed()
+            let res: MusicItemCollection<Song>? = await getRecentlyPlayed()
             result = res
 
         case .recommended:
@@ -58,16 +56,12 @@ public class SearchManager {
 
         case .catalogSearchSongs:
             guard let phrase else { return }
-            let res: MusicItemCollection<Song>? = await searchCatalogBatch(
-                for: phrase
-            )
+            let res: MusicItemCollection<Song>? = await searchCatalogBatch(for: phrase)
             result = res
 
         case .librarySearchSongs:
             guard let phrase else { return }
-            let res: MusicItemCollection<Song>? = await searchUserLibraryBatch(
-                for: phrase
-            )
+            let res: MusicItemCollection<Song>? = await searchUserLibraryBatch(for: phrase)
             result = res
 
         }
@@ -87,7 +81,9 @@ public class SearchManager {
 // Requesting
 public extension SearchManager {
 
-    func getRecentlyPlayed<T>(limit: Int = 10) async
+    func getRecentlyPlayed<T>(
+        limit: Int = 10
+    ) async
         -> MusicItemCollection<T>?
     where T: Decodable, T: MusicRecentlyPlayedRequestable {
         logger?.trace(
@@ -107,7 +103,9 @@ public extension SearchManager {
         }
     }
 
-    func getRecentlyPlayedContainer(limit: Int = 10) async
+    func getRecentlyPlayedContainer(
+        limit: Int = 10
+    ) async
         -> MusicItemCollection<RecentlyPlayedMusicItem>?
     {
         logger?.trace(
@@ -131,7 +129,9 @@ public extension SearchManager {
 
     func getUserRecommendedBatch(
         limit: Int = 10
-    ) async -> MusicItemCollection<MusicPersonalRecommendation>? {
+    ) async
+        -> MusicItemCollection<MusicPersonalRecommendation>?
+    {
         logger?.trace(
             "Get user recommended batch: Requesting with limit \(limit)..."
         )
@@ -152,7 +152,8 @@ public extension SearchManager {
     func getUserLibraryBatch<T>(
         limit: Int = 10,
         onlyOfflineContent: Bool = false
-    ) async -> MusicItemCollection<T>?
+    ) async
+        -> MusicItemCollection<T>?
     where T: MusicLibraryRequestable {
         logger?.trace(
             "Get user library batch for \(T.self): Requesting with limit: \(limit), onlyOfflineContent: \(onlyOfflineContent)..."
@@ -175,7 +176,8 @@ public extension SearchManager {
     func searchCatalogBatch<T>(
         for term: String,
         limit: Int = 10
-    ) async -> MusicItemCollection<T>?
+    ) async
+        -> MusicItemCollection<T>?
     where T: MusicCatalogSearchable {
         logger?.trace(
             "Search catalog batch for \(T.self): Requesting with term \(term), limit \(limit)..."
@@ -241,7 +243,8 @@ public extension SearchManager {
     func searchUserLibraryBatch<T>(
         for term: String,
         limit: Int = 10
-    ) async -> MusicItemCollection<T>?
+    ) async
+        -> MusicItemCollection<T>?
     where T: MusicLibrarySearchable {
         logger?.trace(
             "Search user library batch for \(T.self): Requesting with term \(term), limit \(limit)..."
@@ -256,7 +259,6 @@ public extension SearchManager {
         request.limit = limit
         do {
             let response = try await request.response()
-            logger?.trace("")
             var collection: MusicItemCollection<T>?
             switch T.self {
             case is Song.Type:
@@ -295,7 +297,9 @@ public extension SearchManager {
         }
     }
 
-    func getAllCatalogCharts(limit: Int = 10) async
+    func getAllCatalogCharts(
+        limit: Int = 10
+    ) async
         -> MusicCatalogChartsResponse?
     {
         logger?.trace("Get all catalog charts: Requesting...")
@@ -317,7 +321,9 @@ public extension SearchManager {
 
     func getSpecificCatalogCharts<T>(
         limit: Int = 10
-    ) async -> [MusicCatalogChart<T>]? where T: MusicCatalogChartRequestable {
+    ) async
+        -> [MusicCatalogChart<T>]? where T: MusicCatalogChartRequestable
+    {
         logger?.trace("Get catalog charts for type \(T.self): Requesting...")
         var request = MusicCatalogChartsRequest(types: [T.self])
         request.limit = limit

@@ -56,13 +56,11 @@ public actor InputQueue {
                             modifiers.contains(.shift)
                         {
                             modifiers.removeAll(where: { $0 == .shift })
-                            return $0.key.uppercased() == input.utf8
-                                && modifiers == input.modifiers
+                            return $0.key.uppercased() == input.utf8 && modifiers == input.modifiers
                         }
                         return $0.key.uppercased() == input.utf8.uppercased()
                             && ($0.modifiers == input.modifiers
-                                || $0.modifiers == nil
-                                    && input.modifiers.isEmpty)
+                                || $0.modifiers == nil && input.modifiers.isEmpty)
                     })
                 else {
                     continue

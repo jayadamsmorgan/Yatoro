@@ -1,11 +1,8 @@
 import Logging
-import notcurses
 
 public actor WindowTooSmallPage: Page {
 
     private let plane: Plane
-
-    private let output: Output
 
     private var state: PageState
 
@@ -17,17 +14,11 @@ public actor WindowTooSmallPage: Page {
         self.minRequiredDim = minRequiredDim
     }
 
-    public func getPageState() async -> PageState {
-        self.state
-    }
+    public func getPageState() async -> PageState { self.state }
 
-    public func getMinDimensions() async -> (width: UInt32, height: UInt32) {
-        (0, 0)
-    }
+    public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (0, 0) }
 
-    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? {
-        nil
-    }
+    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? { nil }
 
     public init?(stdPlane: Plane) {
         guard
@@ -52,45 +43,43 @@ public actor WindowTooSmallPage: Page {
             width: stdPlane.width,
             height: stdPlane.height
         )
-        self.output = .init(plane: plane)
     }
 
     public func windowTooSmall() -> Bool {
-        return self.state.height - 2 < minRequiredDim.minHeight
-            || self.state.width < minRequiredDim.minWidth
+        return (self.state.height - 2 < minRequiredDim.minHeight)
+            || (self.state.width < minRequiredDim.minWidth)
     }
 
     public func render() async {
-        ncplane_erase(plane.ncplane)
+        plane.erase()
 
         guard windowTooSmall() else {
-            ncplane_move_bottom(plane.ncplane)
+            plane.moveToBottomOfZStack()
             return
         }
-        ncplane_move_top(plane.ncplane)
+        plane.moveOnTopOfZStack()
 
         for i in 0..<self.state.height {
-            output.putString(
+            plane.putString(
                 String(repeating: " ", count: Int(self.state.width)),
                 at: (0, Int32(i))
             )
         }
-        let output = Output(plane: plane)
         let halfWidth = Int32(state.width) / 2
         let halfHeight = Int32(state.height) / 2
-        output.putString(
+        plane.putString(
             "Terminal size too small:",
             at: (halfWidth - 12, halfHeight - 2)
         )
-        output.putString(
+        plane.putString(
             "Width: \(state.width), Height: \(state.height)",
             at: (halfWidth - 12, halfHeight - 1)
         )
-        output.putString(
+        plane.putString(
             "Needed for current config:",
             at: (halfWidth - 13, halfHeight + 1)
         )
-        output.putString(
+        plane.putString(
             "Width: \(minRequiredDim.minWidth), Height: \(minRequiredDim.minHeight)",
             at: (halfWidth - 12, halfHeight + 2)
         )

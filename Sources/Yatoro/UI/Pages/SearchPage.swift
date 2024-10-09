@@ -1,12 +1,9 @@
 import Foundation
 import MusadoraKit
-import notcurses
 
 public actor SearchPage: Page {
 
     private let plane: Plane
-
-    private let output: Output
 
     private var state: PageState
 
@@ -19,25 +16,18 @@ public actor SearchPage: Page {
 
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
-        ncplane_move_yx(plane.ncplane, state.absY, state.absX)
-        ncplane_resize_simple(plane.ncplane, state.height, state.width)
-        for item in searchCache {
-            await (item as! SongItemPage).destroy()
+        plane.updateByPageState(state)
+        for case let item as SongItemPage in searchCache {
+            await item.destroy()
         }
         self.searchCache = []
     }
 
-    public func getPageState() async -> PageState {
-        self.state
-    }
+    public func getPageState() async -> PageState { self.state }
 
-    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? {
-        nil
-    }
+    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? { nil }
 
-    public func getMinDimensions() async -> (width: UInt32, height: UInt32) {
-        (23, 17)
-    }
+    public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 17) }
 
     public init?(stdPlane: Plane, state: PageState) {
         self.state = state
@@ -57,71 +47,61 @@ public actor SearchPage: Page {
             return nil
         }
         self.plane = plane
-        self.output = .init(plane: plane)
         self.searchCache = []
         self.lastSearchTime = .now
     }
 
     public func render() async {
 
-        ncplane_erase(plane.ncplane)
+        plane.erase()
 
-        if let result = SearchManager.shared.lastSearchResults[
-            .catalogSearchSongs
-        ], let searchPhrase = result.searchPhrase {
-            output.windowBorder(
+        if let result = SearchManager.shared.lastSearchResults[.catalogSearchSongs],
+            let searchPhrase = result.searchPhrase
+        {
+            plane.windowBorder(
                 name: "Search songs: \(searchPhrase)",
                 state: state
             )
         } else {
-            output.windowBorder(name: "Search songs:", state: state)
+            plane.windowBorder(name: "Search songs:", state: state)
         }
 
-        if let result = SearchManager.shared.lastSearchResults[
-            .catalogSearchSongs
-        ] {
-            if searchCache.isEmpty || lastSearchTime != result.timestamp {
-                for item in searchCache {
-                    await (item as! SongItemPage).destroy()
-                }
-                searchCache = []
-                lastSearchTime = result.timestamp
-                let songs = result.result as! MusicItemCollection<Song>
-                for songIndex in songs.indices {
-                    guard
-                        let item = SongItemPage(
-                            in: plane,
-                            state: .init(
-                                absX: 1,
-                                absY: 3 + Int32(songIndex) * 6,
-                                width: state.width - 2,
-                                height: 6
-                            ),
-                            item: songs[songIndex]
-                        )
-                    else { continue }
-                    self.searchCache.append(item)
-                }
-                var counter = 0
-                for itemIndex in searchCache.indices {
-                    if counter >= maxItemsDisplayed {
-                        break
-                    }
-                    await searchCache[itemIndex].render()
-                    counter += 1
-                }
+        guard let result = SearchManager.shared.lastSearchResults[.catalogSearchSongs] else {
+            return
+        }
+        guard searchCache.isEmpty || lastSearchTime != result.timestamp else {
+            return
+        }
+
+        for case let item as SongItemPage in searchCache {
+            await item.destroy()
+        }
+
+        searchCache = []
+        lastSearchTime = result.timestamp
+        let songs = result.result as! MusicItemCollection<Song>
+        for songIndex in songs.indices {
+            guard
+                let item = SongItemPage(
+                    in: plane,
+                    state: .init(
+                        absX: 1,
+                        absY: 3 + Int32(songIndex) * 6,
+                        width: state.width - 2,
+                        height: 6
+                    ),
+                    item: songs[songIndex]
+                )
+            else { continue }
+            self.searchCache.append(item)
+        }
+        for itemIndex in searchCache.indices {
+            if itemIndex >= maxItemsDisplayed {
+                break
             }
+            await searchCache[itemIndex].render()
         }
+
     }
-
-}
-
-public struct SearchItem {
-
-    public let plane: Plane
-
-    public let type: MusicItem.Type
-
-    public let item: any MusicItem
 
 }

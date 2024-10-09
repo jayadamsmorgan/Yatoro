@@ -9,15 +9,11 @@ public let yatoroBuildUUID = UUID().uuidString
 #if DEBUG
 
 public let yatoroVersion: String =
-    readyForRelease
-    ? "\(yatoroVersionCore)-dev"
-    : "dev-\(yatoroVersionCore)-\(yatoroBuildUUID)"
+    readyForRelease ? "\(yatoroVersionCore)-dev" : "dev-\(yatoroVersionCore)-\(yatoroBuildUUID)"
 
 #else
 
 public let yatoroVersion: String =
-    readyForRelease
-    ? yatoroVersionCore
-    : "rel-\(yatoroVersionCore)-\(yatoroBuildUUID)"
+    readyForRelease ? yatoroVersionCore : "rel-\(yatoroVersionCore)-\(yatoroBuildUUID)"
 
 #endif

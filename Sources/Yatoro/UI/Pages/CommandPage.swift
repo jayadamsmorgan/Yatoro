@@ -1,12 +1,9 @@
 import Logging
 import MusicKit
-import notcurses
 
 public actor CommandPage: Page {
 
     private let plane: Plane
-
-    private let output: Output
 
     private var state: PageState
 
@@ -30,21 +27,14 @@ public actor CommandPage: Page {
 
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
-        ncplane_move_yx(plane.ncplane, state.absY, state.absX)
-        ncplane_resize_simple(plane.ncplane, state.height, state.width)
+        plane.updateByPageState(state)
     }
 
-    public func getPageState() async -> PageState {
-        self.state
-    }
+    public func getPageState() async -> PageState { self.state }
 
-    public func getMinDimensions() async -> (width: UInt32, height: UInt32) {
-        return (10, 2)
-    }
+    public func getMinDimensions() async -> (width: UInt32, height: UInt32) { return (10, 2) }
 
-    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? {
-        nil
-    }
+    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? { nil }
 
     public init?(stdPlane: Plane) {
         self.state = .init(
@@ -68,7 +58,6 @@ public actor CommandPage: Page {
             return nil
         }
         self.plane = plane
-        self.output = .init(plane: plane)
     }
 
     public func render() async {
@@ -156,24 +145,20 @@ public actor CommandPage: Page {
         var secondLine: String
         if (UI.mode == .command) {
             secondLine = ":\(await CommandInput.shared.get())"
-            let absolutePlanePositionY = ncplane_abs_y(self.plane.ncplane)
+            let absolutePlanePositionY = state.absY
             let cursorY = absolutePlanePositionY + 1
             let cursorX =
                 Int32(await CommandInput.shared.getCursorPosition()) + 1
             if (cursorState.x != cursorX || !cursorState.enabled) {
                 logger?.debug("Cursor update")
-                notcurses_cursor_enable(
-                    plane.parentPlane!.notcurses!.pointer,
-                    cursorY,
-                    cursorX
-                )
+                UI.notcurses?.enableCursor(at: (cursorX, cursorY))
                 self.cursorState.x = cursorX
                 self.cursorState.y = cursorY
                 self.cursorState.enabled = true
             }
         } else {
             if (cursorState.enabled) {
-                notcurses_cursor_disable(plane.parentPlane!.notcurses!.pointer)
+                UI.notcurses?.disableCursor()
                 cursorState.enabled = false
             }
             secondLine = await CommandInput.shared.getLastCommandOutput()
@@ -226,7 +211,7 @@ public actor CommandPage: Page {
         }
 
         guard state.width > firstLineLeft.count else {
-            output.putString(firstLineLeft, at: (0, 0))
+            plane.putString(firstLineLeft, at: (0, 0))
             return
         }
 
@@ -249,11 +234,11 @@ public actor CommandPage: Page {
         firstLineRight: String,
         secondLine: String
     ) {
-        output.putString(firstLineLeft, at: (0, 0))
-        output.putString(
+        plane.putString(firstLineLeft, at: (0, 0))
+        plane.putString(
             firstLineRight,
             at: (Int32(state.width) - Int32(firstLineRight.count), 0)
         )
-        output.putString(secondLine, at: (0, 1))
+        plane.putString(secondLine, at: (0, 1))
     }
 }

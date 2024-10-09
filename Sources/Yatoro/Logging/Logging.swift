@@ -82,12 +82,10 @@ public struct FileLogger: LogHandler, Sendable, Equatable {
         function: String,
         line: UInt
     ) {
-        let metadataString =
-            metadata?.map { "\($0)=\($1)" }.joined(separator: " ") ?? ""
+        let metadataString = metadata?.map { "\($0)=\($1)" }.joined(separator: " ") ?? ""
         let timestamp = Date().formattedLogTimestamp()
         let logLevel = level.rawValue.uppercased()
-        let logMessage =
-            "[\(timestamp)] [\((logLevel))]: \(message) \(metadataString)\n"
+        let logMessage = "[\(timestamp)] [\((logLevel))]: \(message) \(metadataString)\n"
         fileHandle?.write(logMessage.data(using: .utf8)!)
     }
 }

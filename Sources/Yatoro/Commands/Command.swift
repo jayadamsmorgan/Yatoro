@@ -28,17 +28,9 @@ public struct Command {
         .init(name: "stop", short: "s", action: .stop),
         .init(name: "clearQueue", short: "c", action: .clearQueue),
         .init(name: "playNext", short: "pn", action: .playNext),
-        .init(
-            name: "startSeekingForward",
-            short: "sf",
-            action: .startSeekingForward
-        ),
+        .init(name: "startSeekingForward", short: "sf", action: .startSeekingForward),
         .init(name: "playPrevious", short: "b", action: .playPrevious),
-        .init(
-            name: "startSeekingBackward",
-            short: "sb",
-            action: .startSeekingBackward
-        ),
+        .init(name: "startSeekingBackward", short: "sb", action: .startSeekingBackward),
         .init(name: "stopSeeking", short: "ss", action: .stopSeeking),
         .init(name: "restartSong", short: "r", action: .restartSong),
         .init(name: "quitApplication", short: "q", action: .quitApplication),

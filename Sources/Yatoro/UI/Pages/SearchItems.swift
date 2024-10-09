@@ -1,6 +1,5 @@
 import Logging
 import MusicKit
-import notcurses
 
 public class SongItemPage: Page {
 
@@ -9,9 +8,7 @@ public class SongItemPage: Page {
 
     private let item: Song
 
-    public func getItem() async -> Song {
-        item
-    }
+    public func getItem() async -> Song { item }
 
     public init?(
         in plane: Plane,
@@ -36,22 +33,22 @@ public class SongItemPage: Page {
     }
 
     public func destroy() async {
-        ncplane_erase(plane.ncplane)
-        ncplane_destroy(plane.ncplane)
+        plane.erase()
+        plane.destroy()
     }
 
     public func render() async {
-        ncplane_erase(plane.ncplane)
-        let output = Output(plane: plane)
-        output.putString("type: song", at: (Int32(state.width) - 12, 0))
-        output.putString("title: \(item.title)", at: (2, 1))
-        output.putString("artist: \(item.artistName)", at: (2, 2))
-        output.putString(
+        plane.erase()
+
+        plane.putString("type: song", at: (Int32(state.width) - 12, 0))
+        plane.putString("title: \(item.title)", at: (2, 1))
+        plane.putString("artist: \(item.artistName)", at: (2, 2))
+        plane.putString(
             "duration: \(item.duration?.toMMSS() ?? "nil")",
             at: (2, 3)
         )
-        output.putString("album: \(item.albumTitle ?? "nil")", at: (2, 4))
-        output.putString(
+        plane.putString("album: \(item.albumTitle ?? "nil")", at: (2, 4))
+        plane.putString(
             String(repeating: "─", count: Int(state.width - 4)),
             at: (2, 5)
         )
@@ -59,20 +56,13 @@ public class SongItemPage: Page {
 
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
-        ncplane_resize_simple(plane.ncplane, state.height, state.width)
-        ncplane_move_yx(plane.ncplane, state.absY, state.absX)
+        plane.updateByPageState(state)
     }
 
-    public func getPageState() async -> PageState {
-        state
-    }
+    public func getPageState() async -> PageState { state }
 
-    public func getMinDimensions() async -> (width: UInt32, height: UInt32) {
-        (12, state.height)
-    }
+    public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (12, state.height) }
 
-    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? {
-        nil
-    }
+    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? { nil }
 
 }

@@ -31,9 +31,7 @@ public class AudioPlayerManager {
         }
 
         let entries = ApplicationMusicPlayer.Queue.Entries(
-            player.queue.entries[
-                currentPosition...
-            ]
+            player.queue.entries[currentPosition...]
         )
         return entries
 
@@ -191,11 +189,16 @@ public extension AudioPlayerManager {
         player.queue.entries = []
     }
 
-    func playLater<T>(_ item: T) async where T: PlayableMusicItem {
+    func playLater<T>(
+        _ item: T
+    ) async
+    where T: PlayableMusicItem {
         await addItemsToQueue(items: [item], at: .tail)
     }
 
-    func playLater(_ item: any PlayableMusicItem) async {
+    func playLater(
+        _ item: any PlayableMusicItem
+    ) async {
         switch item {
         case let item as Song:
             await addItemsToQueue(items: [item], at: .tail)
@@ -208,12 +211,16 @@ public extension AudioPlayerManager {
         }
     }
 
-    func playLater<T>(_ items: MusicItemCollection<T>) async
+    func playLater<T>(
+        _ items: MusicItemCollection<T>
+    ) async
     where T: PlayableMusicItem {
         await addItemsToQueue(items: items, at: .tail)
     }
 
-    func playLater(_ items: AnyPlayableMusicItemCollection) async {
+    func playLater(
+        _ items: AnyPlayableMusicItemCollection
+    ) async {
         switch items {
         case let items as MusicItemCollection<Song>:
             await addItemsToQueue(items: items, at: .tail)
@@ -226,11 +233,16 @@ public extension AudioPlayerManager {
         }
     }
 
-    func playNext<T>(_ item: T) async where T: PlayableMusicItem {
+    func playNext<T>(
+        _ item: T
+    ) async
+    where T: PlayableMusicItem {
         await addItemsToQueue(items: [item], at: .afterCurrentEntry)
     }
 
-    func playNext(_ item: any PlayableMusicItem) async {
+    func playNext(
+        _ item: any PlayableMusicItem
+    ) async {
         switch item {
         case let item as Song:
             await addItemsToQueue(items: [item], at: .afterCurrentEntry)
@@ -243,12 +255,16 @@ public extension AudioPlayerManager {
         }
     }
 
-    func playNext<T>(_ items: MusicItemCollection<T>) async
+    func playNext<T>(
+        _ items: MusicItemCollection<T>
+    ) async
     where T: PlayableMusicItem {
         await addItemsToQueue(items: items, at: .afterCurrentEntry)
     }
 
-    func playNext(_ items: AnyPlayableMusicItemCollection) async {
+    func playNext(
+        _ items: AnyPlayableMusicItemCollection
+    ) async {
         switch items {
         case let items as MusicItemCollection<Song>:
             await addItemsToQueue(items: items, at: .afterCurrentEntry)
@@ -264,7 +280,8 @@ public extension AudioPlayerManager {
     func addItemsToQueue<T>(
         items: MusicItemCollection<T>,
         at position: ApplicationMusicPlayer.Queue.EntryInsertionPosition
-    ) async where T: PlayableMusicItem {
+    ) async
+    where T: PlayableMusicItem {
         do {
             if player.queue.entries.isEmpty {
                 player.queue = .init(for: items)
@@ -287,7 +304,10 @@ public extension AudioPlayerManager {
         }
     }
 
-    func setTime(seconds: Int, relative: Bool) {
+    func setTime(
+        seconds: Int,
+        relative: Bool
+    ) {
         guard let nowPlaying else {
             logger?.debug("Unable to set time for current song: Not playing")
             return
@@ -301,8 +321,7 @@ public extension AudioPlayerManager {
         if relative {
             if player.playbackTime + Double(seconds) < 0 {
                 player.playbackTime = 0
-            } else if player.playbackTime + Double(seconds) > nowPlayingDuration
-            {
+            } else if player.playbackTime + Double(seconds) > nowPlayingDuration {
                 player.playbackTime = nowPlayingDuration
             } else {
                 player.playbackTime = player.playbackTime + Double(seconds)

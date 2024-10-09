@@ -94,6 +94,12 @@ public extension Config {
             config.ui.margins.bottom = marginBot
         }
         // UI - Layout
+        if let cols = uiOptions.layoutOptions.cols {
+            config.ui.layout.cols = cols
+        }
+        if let rows = uiOptions.layoutOptions.rows {
+            config.ui.layout.rows = rows
+        }
 
         // Mappings processing
         var newMappings = Mapping.defaultMappings
@@ -185,15 +191,13 @@ extension Config.UIConfig.UILayoutConfig: Decodable {
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+
         self.rows =
-            try container.decodeIfPresent(UInt32.self, forKey: .rows)
-            ?? 2
+            try container.decodeIfPresent(UInt32.self, forKey: .rows) ?? 2
         self.cols =
-            try container.decodeIfPresent(UInt32.self, forKey: .cols)
-            ?? 2
+            try container.decodeIfPresent(UInt32.self, forKey: .cols) ?? 2
         self.pages =
-            try container.decodeIfPresent([Pages].self, forKey: .pages)
-            ?? [.nowPlaying, .search, .queue]
+            try container.decodeIfPresent([Pages].self, forKey: .pages) ?? [.nowPlaying, .search, .queue]
     }
 
 }
@@ -208,14 +212,13 @@ extension Config: Decodable {
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+
         self.mappings =
-            try container.decodeIfPresent([Mapping].self, forKey: .mappings)
-            ?? []
+            try container.decodeIfPresent([Mapping].self, forKey: .mappings) ?? []
         self.ui =
             try container.decodeIfPresent(UIConfig.self, forKey: .ui) ?? .init()
         self.logging =
-            try container.decodeIfPresent(LoggingConfig.self, forKey: .logging)
-            ?? .init()
+            try container.decodeIfPresent(LoggingConfig.self, forKey: .logging) ?? .init()
     }
 
 }
@@ -229,13 +232,11 @@ extension Config.LoggingConfig: Decodable {
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.logLevel = try container.decodeIfPresent(
-            Logger.Level.self,
-            forKey: .logLevel
-        )
+
+        self.logLevel =
+            try container.decodeIfPresent(Logger.Level.self, forKey: .logLevel)
         self.ncLogLevel =
-            try container.decodeIfPresent(UILogLevel.self, forKey: .ncLogLevel)
-            ?? .silent
+            try container.decodeIfPresent(UILogLevel.self, forKey: .ncLogLevel) ?? .silent
     }
 
 }
@@ -249,12 +250,11 @@ extension Config.UIConfig: Decodable {
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+
         self.margins =
-            try container.decodeIfPresent(Margins.self, forKey: .margins)
-            ?? .init()
+            try container.decodeIfPresent(Margins.self, forKey: .margins) ?? .init()
         self.layout =
-            try container.decodeIfPresent(UILayoutConfig.self, forKey: .layout)
-            ?? .init()
+            try container.decodeIfPresent(UILayoutConfig.self, forKey: .layout) ?? .init()
     }
 
 }
@@ -271,12 +271,15 @@ extension Config.UIConfig.Margins: Decodable {
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.all = try container.decodeIfPresent(UInt32.self, forKey: .all) ?? 0
+
+        self.all =
+            try container.decodeIfPresent(UInt32.self, forKey: .all) ?? 0
         self.left =
             try container.decodeIfPresent(UInt32.self, forKey: .left)
         self.right =
             try container.decodeIfPresent(UInt32.self, forKey: .right)
-        self.top = try container.decodeIfPresent(UInt32.self, forKey: .top)
+        self.top =
+            try container.decodeIfPresent(UInt32.self, forKey: .top)
         self.bottom =
             try container.decodeIfPresent(UInt32.self, forKey: .bottom)
     }

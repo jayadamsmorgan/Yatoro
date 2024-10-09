@@ -1,10 +1,9 @@
 import Foundation
 import Logging
-import notcurses
 
 public actor UI {
 
-    private let notcurses: NotCurses
+    internal static var notcurses: NotCurses?
 
     private let inputQueue: InputQueue
 
@@ -36,7 +35,7 @@ public actor UI {
         guard let notcurses = NotCurses(opts: &opts) else {
             fatalError("Failed to initialize notcurses UI.")
         }
-        self.notcurses = notcurses
+        UI.notcurses = notcurses
         logger?.debug("Notcurses initialized.")
 
         setupSigwinchHandler()
@@ -70,8 +69,7 @@ public actor UI {
 
     public func start() async {
         self.minRequiredDim = await pageManager.minimumRequiredDiminsions()
-        await pageManager.windowTooSmallPage
-            .setMinRequiredDim(minRequiredDim)
+        await pageManager.windowTooSmallPage.setMinRequiredDim(minRequiredDim)
 
         await pageManager.resizePages(stdPlane.width, stdPlane.height)
 
@@ -90,7 +88,7 @@ public actor UI {
 
             await pageManager.renderPages()
 
-            notcurses_render(notcurses.pointer)
+            UI.notcurses?.render()
 
             // TODO: make it configurable through config too
             try! await Task.sleep(nanoseconds: 5_000_000)
@@ -104,7 +102,7 @@ public actor UI {
         if resizeOccurred != 0 {
             resizeOccurred = 0
             logger?.trace("Resize occured: Refreshing...")
-            notcurses_refresh(notcurses.pointer, nil, nil)
+            UI.notcurses?.refresh()
             let newWidth = stdPlane.width
             let newHeight = stdPlane.height
             logger?.trace(
@@ -119,7 +117,7 @@ public actor UI {
     }
 
     func handleInput() async {
-        guard let input = Input(notcurses: notcurses) else {
+        guard let input = Input() else {
             return
         }
         logger?.trace("New input: \(input)")
@@ -128,7 +126,7 @@ public actor UI {
 
     public func stop() {
         logger?.info("Stopping Yatoro...")
-        notcurses_stop(notcurses.pointer)
+        UI.notcurses?.stop()
         logger?.debug("Notcurses stopped.")
         logger?.info("Yatoro stopped.\n")
         exit(EXIT_SUCCESS)

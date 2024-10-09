@@ -7,6 +7,7 @@ func sigwinch_handler(_ signal: Int32) -> Void {
     // Set the flag
     resizeOccurred = 1
 }
+
 func setupSigwinchHandler() {
     var action = sigaction()
     action.__sigaction_u = unsafeBitCast(

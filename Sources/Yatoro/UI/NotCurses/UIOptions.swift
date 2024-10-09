@@ -79,7 +79,12 @@ public enum UIOptionFlag: UInt64 {
     case scrolling = 0x0200
 
     public static func cliMode() -> [UIOptionFlag] {
-        [.noAlternateScreen, .noClearBitmaps, .preserveCursor, .scrolling]
+        [
+            .noAlternateScreen,
+            .noClearBitmaps,
+            .preserveCursor,
+            .scrolling,
+        ]
     }
 
     fileprivate static func flagsToUInt64(flags: [UIOptionFlag]) -> UInt64 {

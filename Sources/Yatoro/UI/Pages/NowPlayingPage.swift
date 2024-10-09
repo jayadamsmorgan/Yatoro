@@ -1,13 +1,10 @@
 import Foundation
 import Logging
 import MusicKit
-import notcurses
 
 public actor NowPlayingPage: Page {
 
     private let player: Player = Player.shared
-
-    private let output: Output
 
     private let plane: Plane
 
@@ -17,22 +14,15 @@ public actor NowPlayingPage: Page {
 
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
-        ncplane_move_yx(plane.ncplane, state.absY, state.absX)
-        ncplane_resize_simple(plane.ncplane, state.height, state.width)
-        ncplane_erase(plane.ncplane)
+        plane.updateByPageState(state)
+        plane.erase()
     }
 
-    public func getMinDimensions() async -> (width: UInt32, height: UInt32) {
-        (23, 13)
-    }
+    public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 13) }
 
-    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? {
-        nil
-    }
+    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? { nil }
 
-    public func getPageState() async -> PageState {
-        self.state
-    }
+    public func getPageState() async -> PageState { self.state }
 
     public init?(
         stdPlane: Plane,
@@ -54,7 +44,6 @@ public actor NowPlayingPage: Page {
             return nil
         }
         self.plane = plane
-        self.output = .init(plane: plane)
     }
 
     public func render() async {
@@ -65,23 +54,23 @@ public actor NowPlayingPage: Page {
             self.currentSong = player.nowPlaying
             logger?.debug("Player page erase triggered.")
         }
-        ncplane_erase(self.plane.ncplane)
+        plane.erase()
 
-        output.windowBorder(name: "Now Playing:", state: state)
+        plane.windowBorder(name: "Now Playing:", state: state)
 
-        output.putString(
+        plane.putString(
             String(repeating: "─", count: Int(state.width - 4)),
             at: (2, Int32(state.height) - 4)
         )
 
         let position = calculateControlsPosition()
         if player.status == .playing {
-            output.putString(
+            plane.putString(
                 "◀◀   ⏸   ▶▶",
                 at: (position, Int32(state.height) - 3)
             )
         } else {
-            output.putString(
+            plane.putString(
                 "◀◀   ▶   ▶▶",
                 at: (position, Int32(state.height) - 3)
             )
@@ -89,29 +78,25 @@ public actor NowPlayingPage: Page {
 
         guard let currentSong else { return }
 
-        output.putString(
+        plane.putString(
             "station/playlist: \(currentSong.station?.name ?? "none")",
             at: (2, 3)
         )  // TODO: playlist recognition
-        output.putString(
+        plane.putString(
             "artist: \(currentSong.artistName)",
             at: (2, 4)
         )
-        output.putString(
+        plane.putString(
             "song: \(currentSong.title)",
             at: (2, 5)
         )
-        output.putString(
+        plane.putString(
             "album: \(currentSong.albumTitle ?? "none")",
             at: (2, 6)
         )
-        // output.putString(
-        //     "up_next: \(player.upNext != nil ? (player.upNext!.title + " - " + player.upNext!.artistName) : "none")",
-        //     at: (0, 5)
-        // )
         let currentPlaybackTime = player.player.playbackTime
         if let duration = currentSong.duration {
-            output.putString(
+            plane.putString(
                 "time: \(currentPlaybackTime.toMMSS()) / \(duration.toMMSS())",
                 at: (2, 8)
             )
@@ -120,12 +105,12 @@ public actor NowPlayingPage: Page {
                 currentPlaybackTime: currentPlaybackTime,
                 length: state.width - 4
             )
-            output.putString(
+            plane.putString(
                 "♦",
                 at: (pos + 2, Int32(state.height) - 4)
             )
         } else {
-            output.putString(
+            plane.putString(
                 "time: \(currentPlaybackTime) / --:--",
                 at: (2, Int32(state.height) - 4)
             )

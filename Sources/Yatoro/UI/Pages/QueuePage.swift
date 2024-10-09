@@ -1,12 +1,9 @@
 import Foundation
 import MusicKit
-import notcurses
 
 public actor QueuePage: Page {
 
     private let plane: Plane
-
-    private let output: Output
 
     private var state: PageState
 
@@ -19,22 +16,15 @@ public actor QueuePage: Page {
 
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
-        ncplane_move_yx(plane.ncplane, state.absY, state.absX)
-        ncplane_resize_simple(plane.ncplane, state.height, state.width)
+        plane.updateByPageState(state)
         self.currentQueue = nil
     }
 
-    public func getPageState() async -> PageState {
-        self.state
-    }
+    public func getPageState() async -> PageState { self.state }
 
-    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? {
-        nil
-    }
+    public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? { nil }
 
-    public func getMinDimensions() async -> (width: UInt32, height: UInt32) {
-        (23, 17)
-    }
+    public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 17) }
 
     public init?(stdPlane: Plane, state: PageState) {
         self.state = state
@@ -54,24 +44,21 @@ public actor QueuePage: Page {
             return nil
         }
         self.plane = plane
-        self.output = .init(plane: plane)
         self.cache = []
         self.currentQueue = nil
     }
 
     public func render() async {
 
-        ncplane_erase(plane.ncplane)
+        plane.erase()
 
-        output.windowBorder(name: "Player Queue:", state: state)
+        plane.windowBorder(name: "Player Queue:", state: state)
 
         guard currentQueue != Player.shared.queue else {
             return
         }
-        for item in cache {
-            if let item = item as? SongItemPage {
-                await item.destroy()
-            }
+        for case let item as SongItemPage in cache {
+            await item.destroy()
         }
         cache = []
         currentQueue = Player.shared.queue
@@ -98,13 +85,11 @@ public actor QueuePage: Page {
             default: break
             }
         }
-        var counter = 0
         for itemIndex in cache.indices {
-            if counter >= maxItemsDisplayed {
+            if itemIndex >= maxItemsDisplayed {
                 break
             }
             await cache[itemIndex].render()
-            counter += 1
 
         }
 

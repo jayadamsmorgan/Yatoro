@@ -1,5 +1,4 @@
 import Logging
-import notcurses
 
 public protocol Page {
 
@@ -29,7 +28,12 @@ public struct PageState {
     public var width: UInt32
     public var height: UInt32
 
-    public init(absX: Int32, absY: Int32, width: UInt32, height: UInt32) {
+    public init(
+        absX: Int32,
+        absY: Int32,
+        width: UInt32,
+        height: UInt32
+    ) {
         self.absX = absX
         self.absY = absY
         self.width = width

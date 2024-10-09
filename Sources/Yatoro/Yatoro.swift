@@ -122,21 +122,6 @@ struct Yatoro: AsyncParsableCommand {
         let player = Player.shared
         await player.authorize()
 
-        // Some music to play while started, remove when SearchPage is done :)
-        // let result = await player.defaultSearch(for: "classic music")
-        // if let songs = result?.songs {
-        //     await player.playNext(songs)
-        //     await player.play()
-        // }
-        // await player.recentlyPlayedRequest()
-        if let recommended = await SearchManager.shared
-            .getUserRecommendedBatch()
-        {
-            logger?.info("\(recommended)")
-            await player.playNext(recommended.first!.playlists.first!)
-            await player.play()
-        }
-
         let ui = UI(config: config)
         await ui.start()
     }

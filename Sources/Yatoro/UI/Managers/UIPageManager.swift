@@ -100,8 +100,7 @@ public struct UIPageManager {
     }
 
     public func forEachPage(
-        _ action: @escaping (_ page: Page, _ row: UInt32, _ col: UInt32) async
-            -> Void
+        _ action: @escaping (_ page: Page, _ row: UInt32, _ col: UInt32) async -> Void
     ) async {
         var col: UInt32 = 0
         var row: UInt32 = 0
@@ -126,7 +125,10 @@ public struct UIPageManager {
         await commandPage.render()
     }
 
-    public func resizePages(_ newWidth: UInt32, _ newHeight: UInt32) async {
+    public func resizePages(
+        _ newWidth: UInt32,
+        _ newHeight: UInt32
+    ) async {
         await windowTooSmallPage.onResize(
             newPageState: .init(
                 absX: 0,
@@ -191,7 +193,8 @@ public struct UIPageManager {
     }
 
     public func minimumRequiredDiminsions() async -> (
-        minWidth: UInt32, minHeight: UInt32
+        minWidth: UInt32,
+        minHeight: UInt32
     ) {
         // key: col, val: width
         var minWidthMap: [UInt32: UInt32] = [:]
@@ -203,15 +206,13 @@ public struct UIPageManager {
         // If that makes sense...
         await forEachPage { page, row, col in
             let minDim = await page.getMinDimensions()
-            if minWidthMap[col] == nil
-                || (minWidthMap[col] != nil
-                    && minWidthMap[col]! < minDim.width)
+            if (minWidthMap[col] == nil)
+                || (minWidthMap[col] != nil && minWidthMap[col]! < minDim.width)
             {
                 minWidthMap[col] = minDim.width
             }
-            if minHeightMap[row] == nil
-                || (minHeightMap[row] != nil
-                    && minHeightMap[row]! < minDim.height)
+            if (minHeightMap[row] == nil)
+                || (minHeightMap[row] != nil && minHeightMap[row]! < minDim.height)
             {
                 minHeightMap[row] = minDim.height
             }
