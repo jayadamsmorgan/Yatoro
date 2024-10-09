@@ -1,3 +1,5 @@
+import SwiftNotCurses
+
 public actor CommandInput {
 
     private var inputs: [Character]

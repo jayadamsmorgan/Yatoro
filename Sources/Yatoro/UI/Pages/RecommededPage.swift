@@ -1,4 +1,5 @@
 import MusicKit
+import SwiftNotCurses
 
 public actor RecommendedPage: Page {
 

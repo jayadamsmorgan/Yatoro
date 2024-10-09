@@ -1,6 +1,7 @@
 import Foundation
 import Logging
 import MusicKit
+import SwiftNotCurses
 
 public actor NowPlayingPage: Page {
 
@@ -56,7 +57,7 @@ public actor NowPlayingPage: Page {
         }
         plane.erase()
 
-        plane.windowBorder(name: "Now Playing:", state: state)
+        plane.windowBorder(name: "Now Playing:", width: state.width, height: state.height)
 
         plane.putString(
             String(repeating: "─", count: Int(state.width - 4)),

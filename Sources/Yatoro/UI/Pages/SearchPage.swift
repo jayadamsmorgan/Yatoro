@@ -1,5 +1,6 @@
 import Foundation
 import MusadoraKit
+import SwiftNotCurses
 
 public actor SearchPage: Page {
 
@@ -60,10 +61,15 @@ public actor SearchPage: Page {
         {
             plane.windowBorder(
                 name: "Search songs: \(searchPhrase)",
-                state: state
+                width: state.width,
+                height: state.height
             )
         } else {
-            plane.windowBorder(name: "Search songs:", state: state)
+            plane.windowBorder(
+                name: "Search songs:",
+                width: state.width,
+                height: state.height
+            )
         }
 
         guard let result = SearchManager.shared.lastSearchResults[.catalogSearchSongs] else {

@@ -27,6 +27,10 @@ let package = Package(
                 .brew(["notcurses"]),
             ]
         ),
+        .target(
+            name: "SwiftNotCurses",
+            dependencies: ["notcurses"]
+        ),
         .executableTarget(
             name: "yatoro",
             dependencies: [
@@ -37,8 +41,9 @@ let package = Package(
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "MusadoraKit", package: "MusadoraKit"),
                 .product(name: "Yams", package: "Yams"),
-                "notcurses",
+                "SwiftNotCurses",
             ],
+            path: "Sources/Yatoro",
             linkerSettings: [
                 .unsafeFlags([
                     "-Xlinker", "-sectcreate",

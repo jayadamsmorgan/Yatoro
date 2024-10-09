@@ -1,4 +1,5 @@
 import Logging
+import SwiftNotCurses
 
 public actor WindowTooSmallPage: Page {
 

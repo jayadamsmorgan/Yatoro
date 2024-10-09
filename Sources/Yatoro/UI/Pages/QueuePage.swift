@@ -1,5 +1,6 @@
 import Foundation
 import MusicKit
+import SwiftNotCurses
 
 public actor QueuePage: Page {
 
@@ -52,7 +53,7 @@ public actor QueuePage: Page {
 
         plane.erase()
 
-        plane.windowBorder(name: "Player Queue:", state: state)
+        plane.windowBorder(name: "Player Queue:", width: state.width, height: state.height)
 
         guard currentQueue != Player.shared.queue else {
             return

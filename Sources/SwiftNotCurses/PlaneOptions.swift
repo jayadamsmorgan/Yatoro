@@ -16,25 +16,6 @@ public class PlaneOptions {
 
     internal var ncPlaneOptions: ncplane_options
 
-    public convenience init(
-        pageState: PageState,
-        debugID: String? = nil,
-        flags: [PlaneOptionFlags] = [],
-        bottomMargin: UInt32 = 0,
-        rightMargin: UInt32 = 0
-    ) {
-        self.init(
-            x: pageState.absX,
-            y: pageState.absY,
-            width: pageState.width,
-            height: pageState.height,
-            debugID: debugID,
-            flags: flags,
-            bottomMargin: bottomMargin,
-            rightMargin: rightMargin
-        )
-    }
-
     public init(
         x: Int32 = 0,
         y: Int32 = 0,
@@ -79,12 +60,25 @@ public enum PlaneOptionFlags: UInt64 {
 }
 
 extension PlaneOptionFlags {
-    fileprivate static func flagsToUInt64(_ flags: [PlaneOptionFlags]) -> UInt64
-    {
+    fileprivate static func flagsToUInt64(_ flags: [PlaneOptionFlags]) -> UInt64 {
         var result: UInt64 = 0
         for flag in flags {
             result |= flag.rawValue
         }
         return result
+    }
+}
+
+extension String {
+    public static func convertToUnsafePointer(from string: String?)
+        -> UnsafePointer<CChar>?
+    {
+        guard let unwrappedString = string else {
+            return nil
+        }
+        let cString = unwrappedString.cString(using: .utf8)
+        return cString?.withUnsafeBufferPointer { buffer in
+            return buffer.baseAddress
+        }
     }
 }

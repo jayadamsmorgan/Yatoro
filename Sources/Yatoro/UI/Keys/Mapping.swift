@@ -1,3 +1,5 @@
+import SwiftNotCurses
+
 public struct Mapping: Decodable {
 
     public var key: String

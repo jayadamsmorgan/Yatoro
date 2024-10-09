@@ -13,10 +13,7 @@ public struct Input {
     public let pixelXOffset: Int32
     public let pixelYOffset: Int32
 
-    public init?() {
-        guard let notcurses = UI.notcurses else {
-            return nil
-        }
+    public init?(notcurses: NotCurses) {
         var ncinput = ncinput()
         guard notcurses_get_nblock(notcurses.pointer, &ncinput) != 0 else {
             return nil

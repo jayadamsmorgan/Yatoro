@@ -1,11 +1,10 @@
-import Logging
 import notcurses
 
 public class Plane {
     internal let ncplane: OpaquePointer
-    internal let parentPlane: Plane?
+    public let parentPlane: Plane?
 
-    internal let notcurses: NotCurses?
+    public let notcurses: NotCurses?
 
     internal var opts: PlaneOptions
 
@@ -28,9 +27,6 @@ public class Plane {
                 &self.opts.ncPlaneOptions
             )
         else {
-            logger?.error(
-                "Unable to create notcurses plane with deubgID \(debugID)."
-            )
             return nil
         }
         self.ncplane = ncplane
@@ -39,19 +35,13 @@ public class Plane {
         self.type = .regular
 
         self.update()
-
-        logger?.trace(
-            "Plane \(debugID) created with x: \(_x), y: \(_y), width: \(_width), height: \(_height)"
-        )
-
         self.registerPlaneResizeCallback()
     }
 
-    internal init?(in notcurses: NotCurses) {  // STD Plane
+    public init?(in notcurses: NotCurses) {  // STD Plane
         self.notcurses = notcurses
         self.opts = PlaneOptions()  // not used in std plane but has to be initialized
         guard let ncplane = notcurses_stdplane(notcurses.pointer) else {
-            logger?.critical("Unable to create notcurses std plane.")
             return nil
         }
         self.ncplane = ncplane
@@ -60,10 +50,6 @@ public class Plane {
         self.type = .std
 
         self.update()
-
-        logger?.trace(
-            "Plane \(debugID) created with x: \(_x), y: \(_y), width: \(_width), height: \(_height)"
-        )
 
         self.registerPlaneResizeCallback()
     }
@@ -97,9 +83,6 @@ extension Plane {
 
     internal func resizeCallback() {
         update()
-        logger?.trace(
-            "Plane with debugID \(debugID) resized. Width: \(_width), height: \(_height), x: \(_x), y: \(_y)"
-        )
     }
 }
 
@@ -195,40 +178,40 @@ public extension Plane {
     }
 }
 
-extension Plane {
+public extension Plane {
 
     func putString(_ string: String, at position: (x: Int32, y: Int32)) {
         ncplane_putstr_yx(ncplane, position.y, position.x, string)
     }
 
-    func windowBorder(name: String? = nil, state: PageState) {
+    func windowBorder(name: String? = nil, width: UInt32, height: UInt32) {
         putString(
-            String(repeating: "─", count: Int(state.width) - 2),
+            String(repeating: "─", count: Int(width) - 2),
             at: (1, 0)
         )
         putString("╭", at: (0, 0))
-        putString("╮", at: (Int32(state.width) - 1, y: 0))
-        for i in 1..<state.height - 1 {
+        putString("╮", at: (Int32(width) - 1, y: 0))
+        for i in 1..<height - 1 {
             putString("│", at: (x: 0, y: Int32(i)))
-            putString("│", at: (x: Int32(state.width) - 1, y: Int32(i)))
+            putString("│", at: (x: Int32(width) - 1, y: Int32(i)))
         }
         if let name {
             putString(name, at: (1, 1))
             putString("├", at: (0, 2))
-            putString("┤", at: (Int32(state.width) - 1, 2))
+            putString("┤", at: (Int32(width) - 1, 2))
             putString(
-                String(repeating: "─", count: Int(state.width) - 2),
+                String(repeating: "─", count: Int(width) - 2),
                 at: (1, 2)
             )
         }
-        putString("╰", at: (0, Int32(state.height) - 1))
+        putString("╰", at: (0, Int32(height) - 1))
         putString(
             "╯",
-            at: (Int32(state.width) - 1, Int32(state.height) - 1)
+            at: (Int32(width) - 1, Int32(height) - 1)
         )
         putString(
-            String(repeating: "─", count: Int(state.width) - 2),
-            at: (1, Int32(state.height) - 1)
+            String(repeating: "─", count: Int(width) - 2),
+            at: (1, Int32(height) - 1)
         )
     }
 
@@ -255,13 +238,4 @@ public extension Plane {
     func moveToBottomOfZStack() {
         ncplane_move_bottom(ncplane)
     }
-}
-
-public extension Plane {
-
-    func updateByPageState(_ state: PageState) {
-        move(x: state.absX, y: state.absY)
-        resize(width: state.width, height: state.height)
-    }
-
 }

@@ -1,5 +1,6 @@
 import Logging
 import MusicKit
+import SwiftNotCurses
 
 public class SongItemPage: Page {
 

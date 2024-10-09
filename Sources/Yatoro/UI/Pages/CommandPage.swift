@@ -1,5 +1,6 @@
 import Logging
 import MusicKit
+import SwiftNotCurses
 
 public actor CommandPage: Page {
 

@@ -1,5 +1,6 @@
 import Foundation
 import Logging
+import SwiftNotCurses
 import notcurses
 
 public actor InputQueue {

@@ -1,6 +1,7 @@
 import ArgumentParser
 import Logging
 import MusicKit
+import SwiftNotCurses
 
 struct LoggingArgOptions: ParsableArguments {
     @Option(

@@ -1,3 +1,5 @@
+import SwiftNotCurses
+
 public struct UIPageManager {
 
     var layoutRows: UInt32  // From left to right

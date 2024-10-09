@@ -1,5 +1,6 @@
 import Foundation
 import Logging
+import SwiftNotCurses
 
 public actor UI {
 
@@ -117,7 +118,10 @@ public actor UI {
     }
 
     func handleInput() async {
-        guard let input = Input() else {
+        guard let notcurses = UI.notcurses else {
+            return
+        }
+        guard let input = Input(notcurses: notcurses) else {
             return
         }
         logger?.trace("New input: \(input)")
