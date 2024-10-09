@@ -28,7 +28,7 @@ let package = Package(
             ]
         ),
         .executableTarget(
-            name: "Yatoro",
+            name: "yatoro",
             dependencies: [
                 .product(
                     name: "ArgumentParser",
@@ -50,7 +50,7 @@ let package = Package(
         ),
         .testTarget(
             name: "YatoroTests",
-            dependencies: ["Yatoro"]
+            dependencies: ["yatoro"]
         ),
     ]
 )

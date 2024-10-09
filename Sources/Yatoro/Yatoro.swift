@@ -81,7 +81,7 @@ struct UIArgOptions: ParsableArguments {
 struct Yatoro: AsyncParsableCommand {
 
     static var configuration: CommandConfiguration = .init(
-        commandName: "Yatoro",
+        commandName: "yatoro",
         abstract: "Apple Music CLI Player",
         version: yatoroVersion
     )
