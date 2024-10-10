@@ -2,7 +2,8 @@ import Foundation
 import Logging
 import SwiftNotCurses
 
-public actor UI {
+@MainActor
+public class UI {
 
     internal static var notcurses: NotCurses?
 
@@ -18,7 +19,7 @@ public actor UI {
 
     internal var minRequiredDim: (minWidth: UInt32, minHeight: UInt32) = (0, 0)
 
-    public init(config: Config) {
+    public init(config: Config) async {
         var opts = UIOptions(
             logLevel: config.logging.ncLogLevel,
             config: config.ui,
@@ -39,8 +40,6 @@ public actor UI {
         UI.notcurses = notcurses
         logger?.debug("Notcurses initialized.")
 
-        setupSigwinchHandler()
-
         guard let stdPlane = Plane(in: notcurses) else {
             fatalError("Failed to initialize notcurses std plane")
         }
@@ -58,12 +57,14 @@ public actor UI {
         else {
             fatalError("Failed to initiate Window Too Small Page.")
         }
-        self.pageManager = .init(
+        self.pageManager = await .init(
             layoutConfig: config.ui.layout,
             commandPage: commandPage,
             windowTooSmallPage: windowTooSmallPage,
             stdPlane: stdPlane
         )
+
+        setupSigwinchHandler(onResize: handleResize)
 
         logger?.info("UI initialized successfully.")
     }
@@ -85,8 +86,6 @@ public actor UI {
 
             await handleInput()
 
-            await handleResize()
-
             await pageManager.renderPages()
 
             UI.notcurses?.render()
@@ -99,22 +98,17 @@ public actor UI {
     }
 
     func handleResize() async {
-        // TODO: resizeOccurred is not thread safe property, needs to be fixed
-        if resizeOccurred != 0 {
-            resizeOccurred = 0
-            logger?.trace("Resize occured: Refreshing...")
-            UI.notcurses?.refresh()
-            let newWidth = stdPlane.width
-            let newHeight = stdPlane.height
-            logger?.trace(
-                "Resize occured: New width \(newWidth), new height: \(newHeight)"
-            )
+        logger?.trace("Resize occured: Refreshing...")
+        UI.notcurses?.refresh()
+        let newWidth = stdPlane.width
+        let newHeight = stdPlane.height
+        logger?.trace(
+            "Resize occured: New width \(newWidth), new height: \(newHeight)"
+        )
 
-            await pageManager.resizePages(newWidth, newHeight)
+        await pageManager.resizePages(newWidth, newHeight)
 
-            logger?.debug("Resize handled.")
-        }
-        await pageManager.windowTooSmallPage.render()
+        logger?.debug("Resize handled.")
     }
 
     func handleInput() async {
@@ -125,7 +119,7 @@ public actor UI {
             return
         }
         logger?.trace("New input: \(input)")
-        await inputQueue.add(input)
+        inputQueue.add(input)
     }
 
     public func stop() {

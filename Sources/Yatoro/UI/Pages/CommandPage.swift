@@ -2,7 +2,8 @@ import Logging
 import MusicKit
 import SwiftNotCurses
 
-public actor CommandPage: Page {
+@MainActor
+public class CommandPage: Page {
 
     private let plane: Plane
 

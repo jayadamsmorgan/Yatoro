@@ -1,8 +1,8 @@
 import ArgumentParser
 import Logging
-import MusadoraKit
+import MusicKit
 
-public struct Command {
+public struct Command: Sendable {
     public let name: String
     public let shortName: String?
     public var action: CommandAction?
@@ -38,6 +38,7 @@ public struct Command {
         .init(name: "setSongTime", short: "set", action: .setSongTime),
     ]
 
+    @MainActor
     public static func parseCommand() async {
         let commandString = await CommandInput.shared.get()
         let commandParts = Array(commandString.split(separator: " "))
@@ -71,9 +72,7 @@ public struct Command {
                 let command = try AddToQueueCommand.parse(arguments)
                 logger?.debug("New add to queue command request: \(command)")
                 guard
-                    let searchResult = SearchManager.shared.lastSearchResults[
-                        command.from
-                    ]
+                    let searchResult = SearchManager.shared.lastSearchResults[command.from]
                 else {
                     let msg = "No last \(command.from) search result"
                     logger?.debug(msg)
@@ -127,7 +126,7 @@ public struct Command {
 
         case .play: await Player.shared.play()
 
-        case .pause: Player.shared.pause()
+        case .pause: await Player.shared.pause()
 
         case .stop: break
 
@@ -177,7 +176,7 @@ public struct Command {
                         throw error
                     }
 
-                    Player.shared.setTime(
+                    await Player.shared.setTime(
                         seconds: seconds,
                         relative: command.relative
                     )
@@ -195,7 +194,7 @@ public struct Command {
                         throw error
                     }
                     let seconds = minutesPart * 60 + secondsPart
-                    Player.shared.setTime(
+                    await Player.shared.setTime(
                         seconds: seconds,
                         relative: command.relative
                     )
@@ -212,7 +211,7 @@ public struct Command {
                     }
                     let seconds =
                         hoursPart * 60 * 60 + minutesPart * 60 + secondsPart
-                    Player.shared.setTime(
+                    await Player.shared.setTime(
                         seconds: seconds,
                         relative: command.relative
                     )
@@ -232,7 +231,7 @@ public struct Command {
     }
 }
 
-public enum CommandAction {
+public enum CommandAction: Sendable {
     case addToQueue
     case playPauseToggle
     case play

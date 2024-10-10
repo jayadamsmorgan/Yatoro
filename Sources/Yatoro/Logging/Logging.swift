@@ -4,7 +4,7 @@ import Logging
 
 public let loggerLabel: String = "yatoro"
 
-public var logger: Logger?
+@MainActor public var logger: Logger?
 
 extension Logger {
     func trace(_ message: String) {

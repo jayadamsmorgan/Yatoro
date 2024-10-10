@@ -1,6 +1,6 @@
 import Foundation
 import Logging
-import MusadoraKit
+import MusicKit
 
 public struct SearchResult {
 
@@ -27,7 +27,7 @@ extension MusicItemCollection: AnyMusicItemCollection where Element: MusicItem {
     }
 }
 
-public enum SearchType: Hashable, CaseIterable {
+public enum SearchType: Hashable, CaseIterable, Sendable {
     case recentlyPlayedSongs
     case recommended
     case catalogSearchSongs
@@ -36,7 +36,7 @@ public enum SearchType: Hashable, CaseIterable {
 
 public class SearchManager {
 
-    public static let shared: SearchManager = .init()
+    @MainActor public static let shared: SearchManager = .init()
 
     public var lastSearchResults: [SearchType: SearchResult] = [:]
 
@@ -86,17 +86,17 @@ public extension SearchManager {
     ) async
         -> MusicItemCollection<T>?
     where T: Decodable, T: MusicRecentlyPlayedRequestable {
-        logger?.trace(
+        await logger?.trace(
             "Get recently played for \(T.self): Requesting with limit \(limit)..."
         )
         var request = MusicRecentlyPlayedRequest<T>()
         request.limit = limit
         do {
             let response = try await request.response()
-            logger?.debug("Recently played response success: \(response)")
+            await logger?.debug("Recently played response success: \(response)")
             return response.items
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Failed to make recently played request: \(error.localizedDescription)"
             )
             return nil
@@ -108,19 +108,19 @@ public extension SearchManager {
     ) async
         -> MusicItemCollection<RecentlyPlayedMusicItem>?
     {
-        logger?.trace(
+        await logger?.trace(
             "Get recently played container: Requesting with limit \(limit)..."
         )
         var request = MusicRecentlyPlayedContainerRequest()
         request.limit = limit
         do {
             let response = try await request.response()
-            logger?.debug(
+            await logger?.debug(
                 "Recently played container response success: \(response)"
             )
             return response.items
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Failed to make recently played container request: \(error.localizedDescription)"
             )
             return nil
@@ -132,17 +132,17 @@ public extension SearchManager {
     ) async
         -> MusicItemCollection<MusicPersonalRecommendation>?
     {
-        logger?.trace(
+        await logger?.trace(
             "Get user recommended batch: Requesting with limit \(limit)..."
         )
         var request = MusicPersonalRecommendationsRequest()
         request.limit = limit
         do {
             let response = try await request.response()
-            logger?.debug("Get user recommended batch: success: \(response)")
+            await logger?.debug("Get user recommended batch: success: \(response)")
             return response.recommendations
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Failed to get user recommended batch: \(error.localizedDescription)"
             )
             return nil
@@ -155,7 +155,7 @@ public extension SearchManager {
     ) async
         -> MusicItemCollection<T>?
     where T: MusicLibraryRequestable {
-        logger?.trace(
+        await logger?.trace(
             "Get user library batch for \(T.self): Requesting with limit: \(limit), onlyOfflineContent: \(onlyOfflineContent)..."
         )
         var request = MusicLibraryRequest<T>()
@@ -163,10 +163,10 @@ public extension SearchManager {
         request.includeOnlyDownloadedContent = onlyOfflineContent
         do {
             let response = try await request.response()
-            logger?.debug("Get user library batch: success: \(response)")
+            await logger?.debug("Get user library batch: success: \(response)")
             return response.items
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Failed to make user library song request: \(error.localizedDescription)"
             )
             return nil
@@ -179,12 +179,12 @@ public extension SearchManager {
     ) async
         -> MusicItemCollection<T>?
     where T: MusicCatalogSearchable {
-        logger?.trace(
+        await logger?.trace(
             "Search catalog batch for \(T.self): Requesting with term \(term), limit \(limit)..."
         )
         var request = MusicCatalogSearchRequest(term: term, types: [T.self])
         if T.self == CatalogTopResult.self {
-            logger?.trace(
+            await logger?.trace(
                 "Search catalog batch for \(T.self): Including top results."
             )
             request.includeTopResults = true
@@ -192,7 +192,7 @@ public extension SearchManager {
         request.limit = limit
         do {
             let response = try await request.response()
-            logger?.trace(
+            await logger?.trace(
                 "Search catalog batch for \(T.self): Response success \(response)"
             )
             var collection: MusicItemCollection<T>?
@@ -218,22 +218,22 @@ public extension SearchManager {
             case is MusicVideo.Type:
                 collection = response.musicVideos as? MusicItemCollection<T>
             default:
-                logger?.error(
+                await logger?.error(
                     "Failed to search catalog batch: Type \(T.self) is not supported."
                 )
             }
             guard let collection else {
-                logger?.error(
+                await logger?.error(
                     "Failed to search catalog batch: Unable to transform \(T.self) as \(T.self)"
                 )
                 return nil
             }
-            logger?.debug(
+            await logger?.debug(
                 "Search catalog batch for \(T.self): Success: \(collection)"
             )
             return collection
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Failed to search catalog batch for \(T.self): \(error.localizedDescription)"
             )
             return nil
@@ -246,12 +246,12 @@ public extension SearchManager {
     ) async
         -> MusicItemCollection<T>?
     where T: MusicLibrarySearchable {
-        logger?.trace(
+        await logger?.trace(
             "Search user library batch for \(T.self): Requesting with term \(term), limit \(limit)..."
         )
         var request = MusicLibrarySearchRequest(term: term, types: [T.self])
         if T.self == LibraryTopResult.self {
-            logger?.trace(
+            await logger?.trace(
                 "Search user library batch for \(T.self): Including top results."
             )
             request.includeTopResults = true
@@ -274,23 +274,23 @@ public extension SearchManager {
             case is MusicVideo.Type:
                 collection = response.musicVideos as? MusicItemCollection<T>
             default:
-                logger?.error(
+                await logger?.error(
                     "Search user library failed: Unsupported type \(T.self)."
                 )
                 return nil
             }
             guard let collection else {
-                logger?.error(
+                await logger?.error(
                     "Search user library failed: Unable to transform \(T.self) type as \(T.self) type."
                 )
                 return nil
             }
-            logger?.debug(
+            await logger?.debug(
                 "Searching user library for \(T.self): success: \(collection)"
             )
             return collection
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Failed to search user library: Request error: \(error.localizedDescription)"
             )
             return nil
@@ -302,17 +302,17 @@ public extension SearchManager {
     ) async
         -> MusicCatalogChartsResponse?
     {
-        logger?.trace("Get all catalog charts: Requesting...")
+        await logger?.trace("Get all catalog charts: Requesting...")
         var request = MusicCatalogChartsRequest(types: [
             Song.self, Playlist.self, Album.self, MusicVideo.self,
         ])
         request.limit = limit
         do {
             let response = try await request.response()
-            logger?.trace("Get all catalog charts: success: \(response)")
+            await logger?.trace("Get all catalog charts: success: \(response)")
             return response
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Failed to get all catalog charts: \(error.localizedDescription)"
             )
             return nil
@@ -324,7 +324,7 @@ public extension SearchManager {
     ) async
         -> [MusicCatalogChart<T>]? where T: MusicCatalogChartRequestable
     {
-        logger?.trace("Get catalog charts for type \(T.self): Requesting...")
+        await logger?.trace("Get catalog charts for type \(T.self): Requesting...")
         var request = MusicCatalogChartsRequest(types: [T.self])
         request.limit = limit
         do {
@@ -340,20 +340,20 @@ public extension SearchManager {
             case is MusicVideo.Type:
                 result = response.musicVideoCharts as? [MusicCatalogChart<T>]
             default:
-                logger?.error(
+                await logger?.error(
                     "Failed to get catalog charts for type \(T.self): Unsupported type."
                 )
                 return nil
             }
             guard let result else {
-                logger?.error(
+                await logger?.error(
                     "Failed to get catalog charts: Unable to transform \(T.self) as \(T.self)."
                 )
                 return nil
             }
             return result
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Failed to get catalog charts for type \(T.self): \(error.localizedDescription)"
             )
             return nil
@@ -367,7 +367,7 @@ public extension SearchManager {
         -> MusicItemCollection<T>?
     {
         guard previousBatch.hasNextBatch else {
-            logger?.trace(
+            await logger?.trace(
                 "Previous batch does not have next batch."
             )
             return nil
@@ -375,13 +375,13 @@ public extension SearchManager {
         do {
             let response = try await previousBatch.nextBatch(limit: limit)
             guard let response else {
-                logger?.debug("Next batch is nil, should not happen.")
+                await logger?.debug("Next batch is nil, should not happen.")
                 return nil
             }
-            logger?.trace("Next batch success: \(response)")
+            await logger?.trace("Next batch success: \(response)")
             return response
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Failed to load next batch for previous batch \(previousBatch): \(error.localizedDescription)"
             )
             return nil
@@ -395,7 +395,7 @@ public extension SearchManager {
     ) async
         -> MusicLibrarySectionedResponse<T, V>?
     where T: MusicLibrarySectionRequestable, V: MusicLibraryRequestable {
-        logger?.trace(
+        await logger?.trace(
             "Get user library sectioned for section \(T.self) items \(V.self):"
                 + " Requesting with term \(term ?? "'nil'"), limit \(limit), onlyOfflineContent: \(onlyOfflineContent)"
         )
@@ -408,12 +408,12 @@ public extension SearchManager {
         // Items here could also be filtered by more complicated filters and sorted, probably not needed for now
         do {
             let response = try await request.response()
-            logger?.debug(
+            await logger?.debug(
                 "Get user library sectioned for section \(T.self) items \(V.self): success: \(response)"
             )
             return response
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Get user library sectioned for section \(T.self) items \(V.self): \(error.localizedDescription)"
             )
             return nil

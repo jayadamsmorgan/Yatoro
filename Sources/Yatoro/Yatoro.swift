@@ -81,7 +81,7 @@ struct UIArgOptions: ParsableArguments {
 @main
 struct Yatoro: AsyncParsableCommand {
 
-    static var configuration: CommandConfiguration = .init(
+    static let configuration: CommandConfiguration = .init(
         commandName: "yatoro",
         abstract: "Apple Music CLI Player",
         version: yatoroVersion
@@ -100,7 +100,7 @@ struct Yatoro: AsyncParsableCommand {
     )
     var configPath: String = Config.defaultConfigPath
 
-    private func initLogging(config: Config.LoggingConfig) {
+    @MainActor private func initLogging(config: Config.LoggingConfig) {
         guard let logLevel = config.logLevel else {
             return
         }
@@ -109,6 +109,7 @@ struct Yatoro: AsyncParsableCommand {
         }
     }
 
+    @MainActor
     mutating func run() async throws {
         let config = Config.parseOptions(
             uiOptions: uiOptions,
@@ -123,7 +124,7 @@ struct Yatoro: AsyncParsableCommand {
         let player = Player.shared
         await player.authorize()
 
-        let ui = UI(config: config)
+        let ui = await UI(config: config)
         await ui.start()
     }
 }

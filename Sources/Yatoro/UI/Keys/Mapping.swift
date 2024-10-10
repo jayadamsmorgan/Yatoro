@@ -30,7 +30,7 @@ public struct Mapping: Decodable {
 }
 
 public extension Mapping {
-    static let defaultMappings: [Mapping] = [
+    @MainActor static let defaultMappings: [Mapping] = [
         .init("p", mod: nil, action: .playPauseToggle),
         .init("P", mod: [.shift], action: .play),
         .init("p", mod: [.ctrl], action: .pause),

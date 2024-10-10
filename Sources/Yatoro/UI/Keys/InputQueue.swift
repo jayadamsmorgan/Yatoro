@@ -3,7 +3,8 @@ import Logging
 import SwiftNotCurses
 import notcurses
 
-public actor InputQueue {
+@MainActor
+public class InputQueue {
 
     public var mappings: [Mapping]
 
@@ -72,7 +73,7 @@ public actor InputQueue {
                 case .play:
                     await Player.shared.play()
                 case .pause:
-                    Player.shared.pause()
+                    await Player.shared.pause()
                 case .stop:
                     // TODO
                     break

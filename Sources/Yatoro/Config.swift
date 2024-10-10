@@ -59,7 +59,7 @@ public extension Config {
         }
     }
 
-    static internal func parseOptions(
+    @MainActor static internal func parseOptions(
         uiOptions: UIArgOptions,
         loggingOptions: LoggingArgOptions,
         configPath: String

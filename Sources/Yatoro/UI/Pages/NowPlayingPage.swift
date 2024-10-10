@@ -3,7 +3,8 @@ import Logging
 import MusicKit
 import SwiftNotCurses
 
-public actor NowPlayingPage: Page {
+@MainActor
+public class NowPlayingPage: Page {
 
     private let player: Player = Player.shared
 

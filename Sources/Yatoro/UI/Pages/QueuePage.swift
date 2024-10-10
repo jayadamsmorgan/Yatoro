@@ -2,7 +2,8 @@ import Foundation
 import MusicKit
 import SwiftNotCurses
 
-public actor QueuePage: Page {
+@MainActor
+public class QueuePage: Page {
 
     private let plane: Plane
 

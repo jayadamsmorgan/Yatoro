@@ -1,8 +1,9 @@
 import Foundation
-import MusadoraKit
+import MusicKit
 import SwiftNotCurses
 
-public actor SearchPage: Page {
+@MainActor
+public class SearchPage: Page {
 
     private let plane: Plane
 

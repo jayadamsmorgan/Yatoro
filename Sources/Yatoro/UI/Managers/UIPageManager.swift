@@ -1,5 +1,6 @@
 import SwiftNotCurses
 
+@MainActor
 public struct UIPageManager {
 
     var layoutRows: UInt32  // From left to right
@@ -16,7 +17,7 @@ public struct UIPageManager {
         commandPage: CommandPage,
         windowTooSmallPage: WindowTooSmallPage,
         stdPlane: Plane
-    ) {
+    ) async {
         self.commandPage = commandPage
         self.windowTooSmallPage = windowTooSmallPage
         self.layout = []
@@ -36,7 +37,6 @@ public struct UIPageManager {
 
                 let pageType = layoutConfig.pages[index]
 
-                logger?.debug("I \(index)")
                 index += 1
 
                 switch pageType {
@@ -102,7 +102,7 @@ public struct UIPageManager {
     }
 
     public func forEachPage(
-        _ action: @escaping (_ page: Page, _ row: UInt32, _ col: UInt32) async -> Void
+        _ action: @MainActor @escaping (_ page: Page, _ row: UInt32, _ col: UInt32) async -> Void
     ) async {
         var col: UInt32 = 0
         var row: UInt32 = 0
@@ -117,7 +117,7 @@ public struct UIPageManager {
     }
 
     public func renderPages() async {
-        if await windowTooSmallPage.windowTooSmall() {
+        if windowTooSmallPage.windowTooSmall() {
             await windowTooSmallPage.render()
             return
         }

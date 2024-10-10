@@ -1,7 +1,8 @@
 import Logging
 import SwiftNotCurses
 
-public actor WindowTooSmallPage: Page {
+@MainActor
+public class WindowTooSmallPage: Page {
 
     private let plane: Plane
 

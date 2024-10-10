@@ -30,8 +30,6 @@ public actor SelectionManager {
             return
         }
 
-        let state = await newSelectable.getPageState()
-
     }
 
     public func addSelectables(_ newSelectables: [any SelectablePage]) async {

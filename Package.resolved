@@ -1,15 +1,6 @@
 {
-  "originHash" : "aa89518d842adcfa7bce7a4cfa3e9bba5f5a8ae852b1df240846849c2c0df550",
+  "originHash" : "a665c64191739096e2779c4c67a653958b7882d124bfe4b670d1c5180e1c93a7",
   "pins" : [
-    {
-      "identity" : "musadorakit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/rryam/MusadoraKit.git",
-      "state" : {
-        "revision" : "01e0d8d80fa5eef8912792cbdf1e227f0d635503",
-        "version" : "5.0.3"
-      }
-    },
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",

@@ -1,5 +1,6 @@
 import Logging
 
+@MainActor
 public protocol Page {
 
     func render() async
@@ -20,7 +21,7 @@ public enum PageSize {
     case mega
 }
 
-public struct PageState {
+public struct PageState: Sendable {
 
     public var absX: Int32
     public var absY: Int32

@@ -1,7 +1,7 @@
 import AVFoundation
 import Logging
 import MediaPlayer
-import MusadoraKit
+@preconcurrency import MusicKit
 
 public typealias Player = AudioPlayerManager
 
@@ -11,23 +11,23 @@ public typealias CatalogTopResult = MusicCatalogSearchResponse.TopResult
 extension CatalogTopResult: @retroactive MusicCatalogSearchable {}
 extension LibraryTopResult: @retroactive MusicLibrarySearchable {}
 
-public class AudioPlayerManager {
+public final class AudioPlayerManager: Sendable {
 
-    static let shared = AudioPlayerManager()
+    @MainActor static let shared = AudioPlayerManager()
 
     public let player = ApplicationMusicPlayer.shared
 
     public var queue: ApplicationMusicPlayer.Queue.Entries {
-        guard let currentEntry = Player.shared.player.queue.currentEntry else {
-            return Player.shared.player.queue.entries
+        guard let currentEntry = player.queue.currentEntry else {
+            return player.queue.entries
         }
 
         guard
-            let currentPosition = Player.shared.player.queue.entries.firstIndex(
+            let currentPosition = player.queue.entries.firstIndex(
                 where: { currentEntry.id == $0.id }
             )
         else {
-            return Player.shared.player.queue.entries
+            return player.queue.entries
         }
 
         let entries = ApplicationMusicPlayer.Queue.Entries(
@@ -66,15 +66,15 @@ public class AudioPlayerManager {
 public extension AudioPlayerManager {
 
     func authorize() async {
-        logger?.trace("Sending music authorization request...")
+        await logger?.trace("Sending music authorization request...")
         let authorizationStatus = await MusicAuthorization.request()
         guard authorizationStatus == .authorized else {
-            logger?.debug(
+            await logger?.debug(
                 "Music authorization not granted. Status: \(authorizationStatus.description)"
             )
             fatalError("Cannot authorize Apple Music request.")
         }
-        logger?.debug("Music authorization granted.")
+        await logger?.debug("Music authorization granted.")
     }
 
 }
@@ -83,29 +83,29 @@ public extension AudioPlayerManager {
 public extension AudioPlayerManager {
 
     private func _play() async throws {
-        logger?.trace("Trying to play...")
+        await logger?.trace("Trying to play...")
         let playerStatus = player.state.playbackStatus
-        logger?.trace("Player status: \(playerStatus)")
+        await logger?.trace("Player status: \(playerStatus)")
         switch player.state.playbackStatus {
         case .paused:
-            logger?.trace("Trying to continue playing...")
+            await logger?.trace("Trying to continue playing...")
             try await player.play()
-            logger?.trace("Player playing.")
+            await logger?.trace("Player playing.")
             return
         case .playing:
-            logger?.debug("Player is already playing.")
+            await logger?.debug("Player is already playing.")
             return
         case .stopped:
             try await player.play()
         case .interrupted:
-            logger?.critical("Something went wrong: Player status interrupted.")
+            await logger?.critical("Something went wrong: Player status interrupted.")
             return
         case .seekingForward, .seekingBackward:
-            logger?.trace("Trying to stop seeking...")
+            await logger?.trace("Trying to stop seeking...")
             player.endSeeking()
             return
         @unknown default:
-            logger?.error("Unknown player status \(playerStatus).")
+            await logger?.error("Unknown player status \(playerStatus).")
             return
         }
     }
@@ -114,38 +114,38 @@ public extension AudioPlayerManager {
         do {
             try await _play()
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Error playing: \(error.localizedDescription) \(type(of: error))"
             )
         }
     }
 
-    func pause() {
-        logger?.trace("Trying to pause...")
+    func pause() async {
+        await logger?.trace("Trying to pause...")
         let playerStatus = player.state.playbackStatus
-        logger?.trace("Player status: \(playerStatus)")
+        await logger?.trace("Player status: \(playerStatus)")
         switch player.state.playbackStatus {
         case .paused:
-            logger?.debug("Player is already paused.")
+            await logger?.debug("Player is already paused.")
             return
         case .playing:
             player.pause()
-            logger?.trace("Player paused.")
+            await logger?.trace("Player paused.")
             return
         case .stopped:
-            logger?.error("Trying to pause stopped player.")
+            await logger?.error("Trying to pause stopped player.")
             return
         case .interrupted:
-            logger?.critical("Something went wrong: Player status interrupted.")
+            await logger?.critical("Something went wrong: Player status interrupted.")
             return
         case .seekingForward, .seekingBackward:
-            logger?.trace("Trying to stop seeking...")
+            await logger?.trace("Trying to stop seeking...")
             player.endSeeking()
             player.pause()
-            logger?.trace("Player stopped seeking and paused.")
+            await logger?.trace("Player stopped seeking and paused.")
             return
         @unknown default:
-            logger?.error("Unknown player status \(playerStatus).")
+            await logger?.error("Unknown player status \(playerStatus).")
             return
         }
     }
@@ -155,7 +155,7 @@ public extension AudioPlayerManager {
         case .paused:
             await self.play()
         case .playing:
-            self.pause()
+            await self.pause()
         case .stopped:
             await self.play()
         default:
@@ -171,7 +171,7 @@ public extension AudioPlayerManager {
         do {
             try await player.skipToNextEntry()
         } catch {
-            logger?.error("Failed to play next: \(error.localizedDescription)")
+            await logger?.error("Failed to play next: \(error.localizedDescription)")
         }
     }
 
@@ -179,7 +179,7 @@ public extension AudioPlayerManager {
         do {
             try await player.skipToPreviousEntry()
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Failed to play previous: \(error.localizedDescription)"
             )
         }
@@ -289,31 +289,31 @@ public extension AudioPlayerManager {
                 try await player.queue.insert(items, position: position)
             }
         } catch {
-            logger?.error(
+            await logger?.error(
                 "Unable to add songs to player queue: \(error.localizedDescription)"
             )
             return
         }
         do {
             if !player.isPreparedToPlay {
-                logger?.trace("Preparing player...")
+                await logger?.trace("Preparing player...")
                 try await player.prepareToPlay()
             }
         } catch {
-            logger?.critical("Unable to prepare player: \(error)")
+            await logger?.critical("Unable to prepare player: \(error)")
         }
     }
 
     func setTime(
         seconds: Int,
         relative: Bool
-    ) {
+    ) async {
         guard let nowPlaying else {
-            logger?.debug("Unable to set time for current song: Not playing")
+            await logger?.debug("Unable to set time for current song: Not playing")
             return
         }
         guard let nowPlayingDuration = nowPlaying.duration else {
-            logger?.debug(
+            await logger?.debug(
                 "Unable to set time for current song: Undefined duration"
             )
             return
@@ -326,23 +326,23 @@ public extension AudioPlayerManager {
             } else {
                 player.playbackTime = player.playbackTime + Double(seconds)
             }
-            logger?.trace("Set time for current song: \(player.playbackTime)")
+            await logger?.trace("Set time for current song: \(player.playbackTime)")
             return
         }
         guard seconds >= 0 else {
-            logger?.debug(
+            await logger?.debug(
                 "Unable to set time for current song: Negative seconds."
             )
             return
         }
         guard Double(seconds) <= nowPlayingDuration else {
-            logger?.debug(
+            await logger?.debug(
                 "Unable to set time for current song: seconds greater than song duration."
             )
             return
         }
         player.playbackTime = Double(seconds)
-        logger?.trace("Set time for current song: \(player.playbackTime)")
+        await logger?.trace("Set time for current song: \(player.playbackTime)")
     }
 
 }

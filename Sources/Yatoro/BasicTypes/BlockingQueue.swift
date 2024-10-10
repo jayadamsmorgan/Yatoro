@@ -1,6 +1,6 @@
 import Foundation
 
-public actor BlockingQueue<T> {
+public actor BlockingQueue<T: Sendable> {
     private var queue = [T]()
     private var continuations: [CheckedContinuation<T, Never>] = []
 

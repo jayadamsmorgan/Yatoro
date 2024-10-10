@@ -1,6 +1,6 @@
 import notcurses
 
-public struct Input {
+public struct Input: Sendable {
     public let id: UInt32
     public let x: Int32
     public let y: Int32
@@ -63,7 +63,7 @@ public struct Input {
         self.modifiers = modifiers
     }
 
-    public enum Modifier: String, Decodable {
+    public enum Modifier: String, Decodable, Sendable {
         case shift
         case ctrl
         case alt
@@ -74,7 +74,7 @@ public struct Input {
         case numlock
     }
 
-    public enum EventType: UInt32 {
+    public enum EventType: UInt32, Sendable {
         case unknown = 0
         case press = 1
         case `repeat` = 2

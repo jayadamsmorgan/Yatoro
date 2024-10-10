@@ -1,7 +1,8 @@
 import MusicKit
 import SwiftNotCurses
 
-public actor RecommendedPage: Page {
+@MainActor
+public class RecommendedPage: Page {
 
     typealias Recommendations = MusicItemCollection<MusicPersonalRecommendation>
 

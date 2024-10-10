@@ -2,6 +2,7 @@ import Logging
 import MusicKit
 import SwiftNotCurses
 
+@MainActor
 public class SongItemPage: Page {
 
     private var state: PageState
