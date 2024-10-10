@@ -107,6 +107,7 @@ public class UI {
         )
 
         await pageManager.resizePages(newWidth, newHeight)
+        await pageManager.windowTooSmallPage.render()
 
         logger?.debug("Resize handled.")
     }
