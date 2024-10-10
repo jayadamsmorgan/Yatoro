@@ -94,6 +94,10 @@ public extension Config {
         if let marginBot = uiOptions.bottomMargin {
             config.ui.margins.bottom = marginBot
         }
+        // UI - Frame delay
+        if let frameDelay = uiOptions.frameDelay {
+            config.ui.frameDelay = frameDelay
+        }
         // UI - Layout
         if let cols = uiOptions.layoutOptions.cols {
             config.ui.layout.cols = cols
@@ -138,11 +142,13 @@ extension Config {
     public struct UIConfig {
 
         var margins: Margins
+        var frameDelay: UInt64
         var layout: UILayoutConfig
 
         public init() {
             self.margins = .init()
             self.layout = .init()
+            self.frameDelay = 5_000_000
         }
 
         public struct Margins {
@@ -247,6 +253,7 @@ extension Config.UIConfig: Decodable {
     enum CodingKeys: String, CodingKey {
         case margins
         case layout
+        case frameDelay
     }
 
     public init(from decoder: any Decoder) throws {
@@ -256,6 +263,8 @@ extension Config.UIConfig: Decodable {
             try container.decodeIfPresent(Margins.self, forKey: .margins) ?? .init()
         self.layout =
             try container.decodeIfPresent(UILayoutConfig.self, forKey: .layout) ?? .init()
+        self.frameDelay =
+            try container.decodeIfPresent(UInt64.self, forKey: .frameDelay) ?? 5_000_000
     }
 
 }

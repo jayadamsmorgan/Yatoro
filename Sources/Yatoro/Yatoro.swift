@@ -55,6 +55,13 @@ struct UIArgOptions: ParsableArguments {
     )
     var bottomMargin: UInt32?
 
+    @Option(
+        name: .shortAndLong,
+        help: "Set UI frame delay in nanoseconds (default: 5_000_000)",
+        completion: .default
+    )
+    var frameDelay: UInt64?
+
     @OptionGroup(title: "Layout", visibility: .default)
     var layoutOptions: UILayoutOptions
 

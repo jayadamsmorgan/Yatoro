@@ -17,6 +17,8 @@ public class UI {
 
     internal static var mode: UIMode = .normal
 
+    private let frameDelay: UInt64
+
     internal var minRequiredDim: (minWidth: UInt32, minHeight: UInt32) = (0, 0)
 
     public init(config: Config) async {
@@ -30,6 +32,8 @@ public class UI {
                 .noQuitSighandlers,
             ]
         )
+
+        self.frameDelay = config.ui.frameDelay
 
         self.inputQueue = .init(mappings: config.mappings)
 
@@ -90,8 +94,7 @@ public class UI {
 
             UI.notcurses?.render()
 
-            // TODO: make it configurable through config too
-            try! await Task.sleep(nanoseconds: 5_000_000)
+            try! await Task.sleep(nanoseconds: frameDelay)
         }
 
         stop()
