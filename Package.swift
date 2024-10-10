@@ -39,6 +39,9 @@ let package = Package(
                 "SwiftNotCurses",
             ],
             path: "Sources/Yatoro",
+            exclude: [
+                "Resources/Info.plist"
+            ],
             linkerSettings: [
                 .unsafeFlags([
                     "-Xlinker", "-sectcreate",
