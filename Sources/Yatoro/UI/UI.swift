@@ -69,6 +69,7 @@ public class UI {
         )
 
         setupSigwinchHandler(onResize: handleResize)
+        setupSigintHandler(onStop: stop)
 
         logger?.info("UI initialized successfully.")
     }
