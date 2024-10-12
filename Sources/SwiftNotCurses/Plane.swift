@@ -1,3 +1,4 @@
+import Foundation
 import notcurses
 
 public class Plane {
@@ -17,6 +18,38 @@ public class Plane {
     public var debugID: String
 
     public let type: PlaneType
+
+    private var _backgroundColor: Color?
+
+    public var backgroundColor: Color? {
+        get {
+            _backgroundColor
+        }
+        set(newValue) {
+            if let newValue {
+                setBackgroundColor(newValue)
+            } else {
+                setDefaultBackgroundColor()
+            }
+            _backgroundColor = newValue
+        }
+    }
+
+    private var _foregroundColor: Color?
+
+    public var foregroundColor: Color? {
+        get {
+            _foregroundColor
+        }
+        set(newValue) {
+            if let newValue {
+                setForegroundColor(newValue)
+            } else {
+                setDefaultForegroundColor()
+            }
+            _foregroundColor = newValue
+        }
+    }
 
     public init?(in plane: Plane, opts: PlaneOptions) {  // Regular Plane
         self.opts = opts
@@ -223,6 +256,15 @@ public extension Plane {
         ncplane_erase(ncplane)
     }
 
+    func blank() {
+        for i in 0..<self.height {
+            self.putString(
+                String.init(repeating: " ", count: Int(self.width)),
+                at: (0, Int32(i))
+            )
+        }
+    }
+
     func destroy() {
         ncplane_destroy(ncplane)
     }
@@ -238,4 +280,42 @@ public extension Plane {
     func moveToBottomOfZStack() {
         ncplane_move_bottom(ncplane)
     }
+}
+
+public extension Plane {
+
+    func setForegroundColor(_ color: Color) {
+        switch color.type {
+        case .palette:
+            ncplane_set_fg_palindex(ncplane, UInt32(color.paletteIndex))
+        case .rgb:
+            ncplane_set_fg_rgb8(ncplane, UInt32(color.red), UInt32(color.green), UInt32(color.blue))
+        }
+        ncplane_set_fg_alpha(ncplane, Int32(color.alpha))
+        _foregroundColor = color
+    }
+
+    func setBackgroundColor(_ color: Color) {
+        switch color.type {
+        case .palette:
+            ncplane_set_bg_palindex(ncplane, UInt32(color.paletteIndex))
+        case .rgb:
+            ncplane_set_bg_rgb8(ncplane, UInt32(color.red), UInt32(color.green), UInt32(color.blue))
+        }
+        ncplane_set_bg_alpha(ncplane, Int32(color.alpha))
+        _backgroundColor = color
+    }
+
+    func setDefaultForegroundColor() {
+        ncplane_set_fg_default(ncplane)
+        ncplane_set_fg_alpha(ncplane, 255)
+        _foregroundColor = nil
+    }
+
+    func setDefaultBackgroundColor() {
+        ncplane_set_bg_default(ncplane)
+        ncplane_set_bg_alpha(ncplane, 255)
+        _backgroundColor = nil
+    }
+
 }

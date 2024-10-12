@@ -19,8 +19,6 @@ public class UI {
 
     private let frameDelay: UInt64
 
-    internal var minRequiredDim: (minWidth: UInt32, minHeight: UInt32) = (0, 0)
-
     public init(config: Config) async {
         var opts = UIOptions(
             logLevel: config.logging.ncLogLevel,
@@ -49,22 +47,8 @@ public class UI {
         }
         self.stdPlane = stdPlane
 
-        guard let commandPage = CommandPage(stdPlane: stdPlane)
-        else {
-            fatalError("Failed to initiate Command Page.")
-        }
-
-        guard
-            let windowTooSmallPage = WindowTooSmallPage(
-                stdPlane: stdPlane
-            )
-        else {
-            fatalError("Failed to initiate Window Too Small Page.")
-        }
         self.pageManager = await .init(
-            layoutConfig: config.ui.layout,
-            commandPage: commandPage,
-            windowTooSmallPage: windowTooSmallPage,
+            uiConfig: config.ui,
             stdPlane: stdPlane
         )
 
@@ -75,8 +59,6 @@ public class UI {
     }
 
     public func start() async {
-        self.minRequiredDim = await pageManager.minimumRequiredDiminsions()
-        await pageManager.windowTooSmallPage.setMinRequiredDim(minRequiredDim)
 
         await pageManager.resizePages(stdPlane.width, stdPlane.height)
 

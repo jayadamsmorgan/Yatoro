@@ -13,14 +13,25 @@ public struct UIPageManager {
     var windowTooSmallPage: WindowTooSmallPage
 
     public init(
-        layoutConfig: Config.UIConfig.UILayoutConfig,
-        commandPage: CommandPage,
-        windowTooSmallPage: WindowTooSmallPage,
+        uiConfig: Config.UIConfig,
         stdPlane: Plane
     ) async {
+        guard let commandPage = CommandPage(stdPlane: stdPlane)
+        else {
+            fatalError("Failed to initiate Command Page.")
+        }
+
+        guard
+            let windowTooSmallPage = WindowTooSmallPage(
+                stdPlane: stdPlane
+            )
+        else {
+            fatalError("Failed to initiate Window Too Small Page.")
+        }
         self.commandPage = commandPage
         self.windowTooSmallPage = windowTooSmallPage
         self.layout = []
+        let layoutConfig = uiConfig.layout
         self.layoutRows = layoutConfig.rows
         self.layoutColumns = layoutConfig.cols
         for _ in 0..<layoutColumns {
@@ -45,6 +56,7 @@ public struct UIPageManager {
                     guard
                         let nowPlayingPage = NowPlayingPage(
                             stdPlane: stdPlane,
+                            colorConfig: uiConfig.colors.nowPlaying,
                             state: PageState(
                                 absX: 0,
                                 absY: 0,
@@ -98,7 +110,7 @@ public struct UIPageManager {
                 }
             }
         }
-
+        await setMinimumRequiredDiminsions()
     }
 
     public func forEachPage(
@@ -194,10 +206,7 @@ public struct UIPageManager {
         }
     }
 
-    public func minimumRequiredDiminsions() async -> (
-        minWidth: UInt32,
-        minHeight: UInt32
-    ) {
+    private func setMinimumRequiredDiminsions() async {
         // key: col, val: width
         var minWidthMap: [UInt32: UInt32] = [:]
         // key: row, val: height
@@ -228,7 +237,7 @@ public struct UIPageManager {
         for height in minHeightMap.values {
             minHeight += height
         }
-        return (minWidth, minHeight)
+        await windowTooSmallPage.setMinRequiredDim((minWidth, minHeight))
     }
 
 }

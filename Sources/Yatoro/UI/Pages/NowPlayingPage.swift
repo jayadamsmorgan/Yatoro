@@ -28,35 +28,30 @@ public class NowPlayingPage: Page {
 
     public init?(
         stdPlane: Plane,
+        colorConfig: Config.UIConfig.Colors.NowPlaying,
         state: PageState
     ) {
         self.state = state
         guard
             let plane = Plane(
                 in: stdPlane,
-                opts: .init(
-                    x: state.absX,
-                    y: state.absY,
-                    width: state.width,
-                    height: state.height,
-                    debugID: "PLAYER_PAGE"
-                )
+                state: state,
+                debugID: "NOW_PLAYING_PAGE"
             )
         else {
             return nil
         }
         self.plane = plane
+        plane.backgroundColor = colorConfig.page.background
+        plane.foregroundColor = colorConfig.page.foreground
     }
 
     public func render() async {
-        if currentSong == nil {
-            self.currentSong = player.nowPlaying
-        }
-        if currentSong?.id != player.nowPlaying?.id {
+        if currentSong == nil || currentSong?.id != player.nowPlaying?.id {
             self.currentSong = player.nowPlaying
             logger?.debug("Player page erase triggered.")
         }
-        plane.erase()
+        plane.blank()
 
         plane.windowBorder(name: "Now Playing:", width: state.width, height: state.height)
 

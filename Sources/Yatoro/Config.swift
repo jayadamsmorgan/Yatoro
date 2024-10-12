@@ -144,11 +144,13 @@ extension Config {
         var margins: Margins
         var frameDelay: UInt64
         var layout: UILayoutConfig
+        var colors: Colors
 
         public init() {
             self.margins = .init()
             self.layout = .init()
             self.frameDelay = 5_000_000
+            self.colors = .init()
         }
 
         public struct Margins {
@@ -162,6 +164,182 @@ extension Config {
                 self.all = 0
             }
 
+        }
+    }
+}
+
+extension Plane.Color: Decodable {
+
+    enum CodingKeys: String, CodingKey {
+        case r
+        case red
+
+        case g
+        case green
+
+        case b
+        case blue
+    }
+
+    public init(from decoder: any Decoder) throws {
+        self.init()
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.red =
+            try container.decodeIfPresent(UInt8.self, forKey: .r)
+            ?? container.decodeIfPresent(UInt8.self, forKey: .red)
+            ?? 0
+        self.green =
+            try container.decodeIfPresent(UInt8.self, forKey: .g)
+            ?? container.decodeIfPresent(UInt8.self, forKey: .green)
+            ?? 0
+        self.blue =
+            try container.decodeIfPresent(UInt8.self, forKey: .b)
+            ?? container.decodeIfPresent(UInt8.self, forKey: .blue)
+            ?? 0
+    }
+
+    public init?(hex: String) {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+
+        if hexSanitized.hasPrefix("#") {
+            hexSanitized.remove(at: hexSanitized.startIndex)
+        }
+
+        guard hexSanitized.count == 6 else {
+            return nil
+        }
+
+        var rgbValue: UInt64 = 0
+        Scanner(string: hexSanitized).scanHexInt64(&rgbValue)
+
+        self.init()
+        self.red = UInt8((rgbValue & 0xFF0000) >> 16)
+        self.green = UInt8((rgbValue & 0x00FF00) >> 8)
+        self.blue = UInt8(rgbValue & 0x0000FF)
+    }
+
+}
+
+extension Config.UIConfig {
+
+    public struct Colors {
+
+        public init() {
+            self.nowPlaying = .init()
+        }
+
+        public var nowPlaying: NowPlaying
+
+        public struct ColorPair {
+            var foreground: Plane.Color?
+            var background: Plane.Color?
+
+            public init() {
+                self.foreground = nil
+                self.background = nil
+            }
+
+        }
+
+        public struct NowPlaying {
+            public var page: ColorPair
+            public var border: ColorPair
+            public var pageName: ColorPair
+            public var slider: ColorPair
+            public var sliderKnob: ColorPair
+            public var controls: ColorPair
+            public var itemDescriptionLeft: ColorPair
+            public var itemDescriptionRight: ColorPair
+
+            public init() {
+                self.page = .init()
+                self.border = .init()
+                self.pageName = .init()
+                self.slider = .init()
+                self.sliderKnob = .init()
+                self.controls = .init()
+                self.itemDescriptionLeft = .init()
+                self.itemDescriptionRight = .init()
+            }
+        }
+
+    }
+
+}
+
+extension Config.UIConfig.Colors.NowPlaying: Decodable {
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case page
+        case border
+        case slider
+        case sliderKnob
+        case controls
+
+        case itemDescLeft
+
+        case itemDescRight
+    }
+
+    public init(from decoder: any Decoder) throws {
+        self.init()
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.page =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .page)
+            ?? .init()
+        self.border =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .border)
+            ?? .init()
+        self.slider =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .slider)
+            ?? .init()
+        self.sliderKnob =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .sliderKnob)
+            ?? .init()
+        self.itemDescriptionLeft =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .itemDescLeft)
+            ?? .init()
+        self.itemDescriptionRight =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .itemDescRight)
+            ?? .init()
+    }
+
+}
+
+extension Config.UIConfig.Colors: Decodable {
+
+    enum CodingKeys: String, CodingKey {
+        case nowPlaying
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.nowPlaying = try container.decodeIfPresent(NowPlaying.self, forKey: .nowPlaying) ?? .init()
+    }
+
+}
+
+extension Config.UIConfig.Colors.ColorPair: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case fg
+        case bg
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let fgStr = try container.decodeIfPresent(String.self, forKey: .fg) {
+            if let defaultColor = Plane.Color.DefaultColors(rawValue: fgStr) {
+                self.foreground = .init(color: defaultColor)
+            } else {
+                self.foreground = .init(hex: fgStr)
+            }
+        }
+        if let bgStr = try container.decodeIfPresent(String.self, forKey: .bg) {
+            if let defaultColor = Plane.Color.DefaultColors(rawValue: bgStr) {
+                self.background = .init(color: defaultColor)
+            } else {
+                self.background = .init(hex: bgStr)
+            }
         }
     }
 }
@@ -254,6 +432,7 @@ extension Config.UIConfig: Decodable {
         case margins
         case layout
         case frameDelay
+        case colors
     }
 
     public init(from decoder: any Decoder) throws {
@@ -265,6 +444,8 @@ extension Config.UIConfig: Decodable {
             try container.decodeIfPresent(UILayoutConfig.self, forKey: .layout) ?? .init()
         self.frameDelay =
             try container.decodeIfPresent(UInt64.self, forKey: .frameDelay) ?? 5_000_000
+        self.colors =
+            try container.decodeIfPresent(Colors.self, forKey: .colors) ?? .init()
     }
 
 }
