@@ -1,6 +1,6 @@
 import SwiftNotCurses
 
-public struct Mapping: Decodable {
+public struct Mapping: Codable {
 
     public var key: String
     public var modifiers: [Input.Modifier]?
@@ -12,7 +12,7 @@ public struct Mapping: Decodable {
         self.action = action
     }
 
-    public enum Action: String, Decodable {
+    public enum Action: String, Codable {
         case playPauseToggle
         case play
         case pause

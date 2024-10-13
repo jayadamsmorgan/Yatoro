@@ -5,7 +5,7 @@ public extension Plane {
 
     struct Color: Sendable {
 
-        public enum ColorType: Sendable {
+        public enum ColorType: Sendable, Codable {
             case palette
             case rgb
         }
@@ -36,6 +36,28 @@ public extension Plane {
             case brightMagenta
             case brightCyan
             case brightWhite
+        }
+
+        public var paletteName: String {
+            switch self.paletteIndex {
+            case 0: return "black"
+            case 1: return "red"
+            case 2: return "green"
+            case 3: return "yellow"
+            case 4: return "blue"
+            case 5: return "magenta"
+            case 6: return "cyan"
+            case 7: return "white"
+            case 8: return "brightBlack"
+            case 9: return "brightRed"
+            case 10: return "brightGreen"
+            case 11: return "brightYellow"
+            case 12: return "brightBlue"
+            case 13: return "brightMagenta"
+            case 14: return "brightCyan"
+            case 15: return "brightWhite"
+            default: return "unknownPalette\(paletteIndex)"
+            }
         }
 
         public init() {

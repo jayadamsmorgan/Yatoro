@@ -126,7 +126,7 @@ struct Yatoro: AsyncParsableCommand {
 
         initLogging(config: config.logging)
         logger?.info("Starting Yatoro...")
-        logger?.debug("Config: \(config)")
+        logger?.debug("Config:\n\(config)")
 
         let player = Player.shared
         await player.authorize()

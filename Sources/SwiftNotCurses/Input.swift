@@ -63,7 +63,7 @@ public struct Input: Sendable {
         self.modifiers = modifiers
     }
 
-    public enum Modifier: String, Decodable, Sendable {
+    public enum Modifier: String, Codable, Sendable {
         case shift
         case ctrl
         case alt

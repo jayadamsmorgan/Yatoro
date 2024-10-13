@@ -44,12 +44,13 @@ public class NowPlayingPage: Page {
         self.plane = plane
         plane.backgroundColor = colorConfig.page.background
         plane.foregroundColor = colorConfig.page.foreground
+
+        self.currentSong = player.nowPlaying
     }
 
     public func render() async {
         if currentSong == nil || currentSong?.id != player.nowPlaying?.id {
             self.currentSong = player.nowPlaying
-            logger?.debug("Player page erase triggered.")
         }
         plane.blank()
 

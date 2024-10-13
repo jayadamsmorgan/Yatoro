@@ -168,7 +168,14 @@ extension Config {
     }
 }
 
-extension Plane.Color: Decodable {
+extension Plane.Color: Codable {
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.red, forKey: .r)
+        try container.encode(self.green, forKey: .g)
+        try container.encode(self.blue, forKey: .b)
+    }
 
     enum CodingKeys: String, CodingKey {
         case r
@@ -179,6 +186,8 @@ extension Plane.Color: Decodable {
 
         case b
         case blue
+
+        case type
     }
 
     public init(from decoder: any Decoder) throws {
@@ -267,10 +276,11 @@ extension Config.UIConfig {
 
 }
 
-extension Config.UIConfig.Colors.NowPlaying: Decodable {
+extension Config.UIConfig.Colors.NowPlaying: Codable {
 
     enum CodingKeys: String, CodingKey, CaseIterable {
         case page
+        case pageName
         case border
         case slider
         case sliderKnob
@@ -282,10 +292,12 @@ extension Config.UIConfig.Colors.NowPlaying: Decodable {
     }
 
     public init(from decoder: any Decoder) throws {
-        self.init()
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.page =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .page)
+            ?? .init()
+        self.pageName =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .pageName)
             ?? .init()
         self.border =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .border)
@@ -302,11 +314,26 @@ extension Config.UIConfig.Colors.NowPlaying: Decodable {
         self.itemDescriptionRight =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .itemDescRight)
             ?? .init()
+        self.controls =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .controls)
+            ?? .init()
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.page, forKey: .page)
+        try container.encode(self.pageName, forKey: .pageName)
+        try container.encode(self.border, forKey: .border)
+        try container.encode(self.itemDescriptionLeft, forKey: .itemDescLeft)
+        try container.encode(self.itemDescriptionRight, forKey: .itemDescRight)
+        try container.encode(self.slider, forKey: .slider)
+        try container.encode(self.sliderKnob, forKey: .sliderKnob)
+        try container.encode(self.controls, forKey: .controls)
     }
 
 }
 
-extension Config.UIConfig.Colors: Decodable {
+extension Config.UIConfig.Colors: Codable {
 
     enum CodingKeys: String, CodingKey {
         case nowPlaying
@@ -319,7 +346,7 @@ extension Config.UIConfig.Colors: Decodable {
 
 }
 
-extension Config.UIConfig.Colors.ColorPair: Decodable {
+extension Config.UIConfig.Colors.ColorPair: Codable {
     enum CodingKeys: String, CodingKey {
         case fg
         case bg
@@ -342,6 +369,26 @@ extension Config.UIConfig.Colors.ColorPair: Decodable {
             }
         }
     }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if let foreground {
+            switch foreground.type {
+            case .palette:
+                try container.encode(foreground.paletteName, forKey: .fg)
+            case .rgb:
+                try container.encode(foreground, forKey: .fg)
+            }
+        }
+        if let background {
+            switch background.type {
+            case .palette:
+                try container.encode(background.paletteName, forKey: .bg)
+            case .rgb:
+                try container.encode(background, forKey: .bg)
+            }
+        }
+    }
 }
 
 extension Config.UIConfig {
@@ -352,7 +399,7 @@ extension Config.UIConfig {
 
         public var pages: [Pages]
 
-        public enum Pages: String, Decodable {
+        public enum Pages: String, Codable {
             case nowPlaying
             case queue
             case search
@@ -366,7 +413,7 @@ extension Config.UIConfig {
     }
 }
 
-extension Config.UIConfig.UILayoutConfig: Decodable {
+extension Config.UIConfig.UILayoutConfig: Codable {
 
     enum CodingKeys: String, CodingKey {
         case rows
@@ -387,7 +434,7 @@ extension Config.UIConfig.UILayoutConfig: Decodable {
 
 }
 
-extension Config: Decodable {
+extension Config: Codable {
 
     enum CodingKeys: String, CodingKey {
         case mappings
@@ -406,9 +453,16 @@ extension Config: Decodable {
             try container.decodeIfPresent(LoggingConfig.self, forKey: .logging) ?? .init()
     }
 
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.ui, forKey: .ui)
+        try container.encode(self.logging, forKey: .logging)
+        try container.encode(self.mappings, forKey: .mappings)
+    }
+
 }
 
-extension Config.LoggingConfig: Decodable {
+extension Config.LoggingConfig: Codable {
 
     enum CodingKeys: String, CodingKey {
         case logLevel
@@ -424,9 +478,15 @@ extension Config.LoggingConfig: Decodable {
             try container.decodeIfPresent(UILogLevel.self, forKey: .ncLogLevel) ?? .silent
     }
 
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.logLevel, forKey: .logLevel)
+        try container.encode(self.ncLogLevel.rawValue, forKey: .ncLogLevel)
+    }
+
 }
 
-extension Config.UIConfig: Decodable {
+extension Config.UIConfig: Codable {
 
     enum CodingKeys: String, CodingKey {
         case margins
@@ -450,7 +510,7 @@ extension Config.UIConfig: Decodable {
 
 }
 
-extension Config.UIConfig.Margins: Decodable {
+extension Config.UIConfig.Margins: Codable {
 
     enum CodingKeys: String, CodingKey {
         case all
@@ -473,5 +533,16 @@ extension Config.UIConfig.Margins: Decodable {
             try container.decodeIfPresent(UInt32.self, forKey: .top)
         self.bottom =
             try container.decodeIfPresent(UInt32.self, forKey: .bottom)
+    }
+}
+
+extension Config: CustomStringConvertible {
+    public var description: String {
+        let encoder = YAMLEncoder()
+        do {
+            return try encoder.encode(self)
+        } catch {
+            return "Encoding error"
+        }
     }
 }
