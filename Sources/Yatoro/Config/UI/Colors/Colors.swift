@@ -7,9 +7,11 @@ extension Config.UIConfig {
 
         public init() {
             self.nowPlaying = .init()
+            self.commandLine = .init()
         }
 
         public var nowPlaying: NowPlaying
+        public var commandLine: CommandLine
 
         public struct ColorPair {
             var foreground: Plane.Color?
@@ -28,11 +30,13 @@ extension Config.UIConfig.Colors: Codable {
 
     enum CodingKeys: String, CodingKey {
         case nowPlaying
+        case commandLine
     }
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.nowPlaying = try container.decodeIfPresent(NowPlaying.self, forKey: .nowPlaying) ?? .init()
+        self.commandLine = try container.decodeIfPresent(CommandLine.self, forKey: .commandLine) ?? .init()
     }
 
 }
