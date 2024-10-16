@@ -280,6 +280,14 @@ public extension Plane {
     func moveToBottomOfZStack() {
         ncplane_move_bottom(ncplane)
     }
+
+    func moveAbove(other plane: Plane) {
+        ncplane_move_above(self.ncplane, plane.ncplane)
+    }
+
+    func moveBelow(other plane: Plane) {
+        ncplane_move_below(self.ncplane, plane.ncplane)
+    }
 }
 
 public extension Plane {
