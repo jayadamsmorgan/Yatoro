@@ -39,6 +39,12 @@ extension Config.UIConfig.Colors: Codable {
         self.commandLine = try container.decodeIfPresent(CommandLine.self, forKey: .commandLine) ?? .init()
     }
 
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(nowPlaying, forKey: .nowPlaying)
+        try container.encode(commandLine, forKey: .commandLine)
+    }
+
 }
 
 extension Config.UIConfig.Colors.ColorPair: Codable {
