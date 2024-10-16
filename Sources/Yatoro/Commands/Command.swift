@@ -154,10 +154,12 @@ public struct Command: Sendable {
                 for part in command.searchPhrase {
                     searchPhrase.append("\(part) ")
                 }
-                await SearchManager.shared.newSearch(
-                    for: searchPhrase,
-                    in: command.from ?? .catalogSearchSongs
-                )
+                Task {
+                    await SearchManager.shared.newSearch(
+                        for: searchPhrase,
+                        in: command.from ?? .catalogSearchSongs
+                    )
+                }
             } catch {
                 let msg = error.localizedDescription
                 logger?.debug(msg)
