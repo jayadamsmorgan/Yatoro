@@ -2,7 +2,8 @@ extension Config.UIConfig.Colors {
 
     public struct CommandLine {
         public var page: ColorPair
-        public var mode: ColorPair
+        public var modeNormal: ColorPair
+        public var modeCommand: ColorPair
         public var playStatus: ColorPair
         public var time: ColorPair
         public var input: ColorPair
@@ -12,7 +13,8 @@ extension Config.UIConfig.Colors {
 
         public init() {
             self.page = .init()
-            self.mode = .init()
+            self.modeNormal = .init()
+            self.modeCommand = .init()
             self.playStatus = .init()
             self.time = .init()
             self.input = .init()
@@ -28,7 +30,8 @@ extension Config.UIConfig.Colors.CommandLine: Codable {
 
     enum CodingKeys: String, CodingKey {
         case page
-        case mode
+        case modeNormal
+        case modeCommand
         case playStatus
         case time
         case input
@@ -42,8 +45,11 @@ extension Config.UIConfig.Colors.CommandLine: Codable {
         self.page =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .page)
             ?? .init()
-        self.mode =
-            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .mode)
+        self.modeNormal =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .modeNormal)
+            ?? .init()
+        self.modeCommand =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .modeCommand)
             ?? .init()
         self.playStatus =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .playStatus)
@@ -68,7 +74,8 @@ extension Config.UIConfig.Colors.CommandLine: Codable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.page, forKey: .page)
-        try container.encode(self.mode, forKey: .mode)
+        try container.encode(self.modeNormal, forKey: .modeNormal)
+        try container.encode(self.modeCommand, forKey: .modeCommand)
         try container.encode(self.playStatus, forKey: .playStatus)
         try container.encode(self.time, forKey: .time)
         try container.encode(self.input, forKey: .input)

@@ -15,6 +15,9 @@ public class CommandPage: Page {
     private var nowPlayingDashPlane: Plane
     private var nowPlayingTitlePlane: Plane
 
+    private var modeNormalColor: Config.UIConfig.Colors.ColorPair
+    private var modeCommandColor: Config.UIConfig.Colors.ColorPair
+
     private var state: PageState
 
     private var cursorState = CursorState((0, 0), enabled: false)
@@ -205,8 +208,8 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        modePlane.backgroundColor = colorConfig.mode.background
-        modePlane.foregroundColor = colorConfig.mode.foreground
+        self.modeNormalColor = colorConfig.modeNormal
+        self.modeCommandColor = colorConfig.modeCommand
         self.modePlane = modePlane
 
         guard
@@ -230,6 +233,16 @@ public class CommandPage: Page {
 
     func renderMode() {
         modePlane.erase()
+
+        switch UI.mode {
+        case .normal:
+            modePlane.backgroundColor = self.modeNormalColor.background
+            modePlane.foregroundColor = self.modeNormalColor.foreground
+        case .command:
+            modePlane.backgroundColor = self.modeCommandColor.background
+            modePlane.foregroundColor = self.modeCommandColor.foreground
+        }
+
         switch size {
         case .nano, .mini:
             modePlane.updateByPageState(.init(absX: 0, absY: 0, width: 1, height: 1))
