@@ -2,7 +2,7 @@ extension Config.UIConfig.Colors {
 
     public struct CommandLine {
         public var page: ColorPair
-        public var stateStatus: ColorPair
+        public var mode: ColorPair
         public var playStatus: ColorPair
         public var time: ColorPair
         public var input: ColorPair
@@ -12,7 +12,7 @@ extension Config.UIConfig.Colors {
 
         public init() {
             self.page = .init()
-            self.stateStatus = .init()
+            self.mode = .init()
             self.playStatus = .init()
             self.time = .init()
             self.input = .init()
@@ -28,7 +28,7 @@ extension Config.UIConfig.Colors.CommandLine: Codable {
 
     enum CodingKeys: String, CodingKey {
         case page
-        case stateStatus
+        case mode
         case playStatus
         case time
         case input
@@ -42,8 +42,8 @@ extension Config.UIConfig.Colors.CommandLine: Codable {
         self.page =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .page)
             ?? .init()
-        self.stateStatus =
-            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .stateStatus)
+        self.mode =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .mode)
             ?? .init()
         self.playStatus =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .playStatus)
@@ -68,7 +68,7 @@ extension Config.UIConfig.Colors.CommandLine: Codable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.page, forKey: .page)
-        try container.encode(self.stateStatus, forKey: .stateStatus)
+        try container.encode(self.mode, forKey: .mode)
         try container.encode(self.playStatus, forKey: .playStatus)
         try container.encode(self.time, forKey: .time)
         try container.encode(self.input, forKey: .input)

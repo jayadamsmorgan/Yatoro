@@ -51,6 +51,7 @@ public class UI {
             uiConfig: config.ui,
             stdPlane: stdPlane
         )
+        await handleResize()
 
         setupSigwinchHandler(onResize: handleResize)
         setupSigintHandler(onStop: stop)

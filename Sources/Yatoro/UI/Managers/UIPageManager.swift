@@ -16,7 +16,11 @@ public struct UIPageManager {
         uiConfig: Config.UIConfig,
         stdPlane: Plane
     ) async {
-        guard let commandPage = CommandPage(stdPlane: stdPlane)
+        guard
+            let commandPage = CommandPage(
+                stdPlane: stdPlane,
+                colorConfig: uiConfig.colors.commandLine
+            )
         else {
             fatalError("Failed to initiate Command Page.")
         }
