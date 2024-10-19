@@ -166,50 +166,47 @@ public struct UIPageManager {
         let commandPageHeight: UInt32 = 2
         let availableHeight = newHeight - commandPageHeight
 
-        let numRows = UInt32(layout.count)
-        if numRows == 0 {
+        let numColumns = UInt32(layout.count)
+        if numColumns == 0 {
             return
         }
 
-        let baseRowHeight = availableHeight / numRows
-        let extraHeight = availableHeight % numRows
+        let baseColumnWidth = newWidth / numColumns
+        let extraWidth = newWidth % numColumns
 
-        var currentY: UInt32 = 0
+        var currentX: UInt32 = 0
 
-        for (rowIndex, rowLine) in layout.enumerated() {
-            let numColumns = UInt32(rowLine.count)
-            if numColumns == 0 {
+        for (colIndex, colLine) in layout.enumerated() {
+            let columnWidth = baseColumnWidth + (UInt32(colIndex) < extraWidth ? 1 : 0)
+
+            let numRows = UInt32(colLine.count)
+            if numRows == 0 {
                 continue
             }
 
-            let rowHeight =
-                baseRowHeight + (UInt32(rowIndex) < extraHeight ? 1 : 0)
+            let baseRowHeight = availableHeight / numRows
+            let extraHeight = availableHeight % numRows
 
-            let baseColumnWidth = newWidth / numColumns
-            let extraWidth = newWidth % numColumns
+            var currentY: UInt32 = 0
 
-            var currentX: UInt32 = 0
-
-            for (colIndex, page) in rowLine.enumerated() {
-                let pageWidth =
-                    baseColumnWidth + (UInt32(colIndex) < extraWidth ? 1 : 0)
+            for (rowIndex, page) in colLine.enumerated() {
+                let pageHeight = baseRowHeight + (UInt32(rowIndex) < extraHeight ? 1 : 0)
 
                 let newPageState = PageState(
                     absX: Int32(currentX),
                     absY: Int32(currentY),
-                    width: pageWidth,
-                    height: rowHeight
+                    width: columnWidth,
+                    height: pageHeight
                 )
 
                 await page.onResize(newPageState: newPageState)
                 await page.render()
 
-                currentX += pageWidth
+                currentY += pageHeight
             }
-            currentY += rowHeight
+            currentX += columnWidth
         }
     }
-
     private func setMinimumRequiredDiminsions() async {
         // key: col, val: width
         var minWidthMap: [UInt32: UInt32] = [:]
