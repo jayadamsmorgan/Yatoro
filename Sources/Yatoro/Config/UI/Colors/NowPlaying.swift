@@ -7,8 +7,14 @@ extension Config.UIConfig.Colors {
         public var slider: ColorPair
         public var sliderKnob: ColorPair
         public var controls: ColorPair
-        public var itemDescriptionLeft: ColorPair
-        public var itemDescriptionRight: ColorPair
+        public var artistLeft: ColorPair
+        public var artistRight: ColorPair
+        public var songLeft: ColorPair
+        public var songRight: ColorPair
+        public var albumLeft: ColorPair
+        public var albumRight: ColorPair
+        public var currentTime: ColorPair
+        public var duration: ColorPair
 
         public init() {
             self.page = .init()
@@ -17,8 +23,14 @@ extension Config.UIConfig.Colors {
             self.slider = .init()
             self.sliderKnob = .init()
             self.controls = .init()
-            self.itemDescriptionLeft = .init()
-            self.itemDescriptionRight = .init()
+            self.artistLeft = .init()
+            self.artistRight = .init()
+            self.songLeft = .init()
+            self.songRight = .init()
+            self.albumLeft = .init()
+            self.albumRight = .init()
+            self.currentTime = .init()
+            self.duration = .init()
         }
     }
 }
@@ -33,9 +45,14 @@ extension Config.UIConfig.Colors.NowPlaying: Codable {
         case sliderKnob
         case controls
 
-        case itemDescLeft
-
-        case itemDescRight
+        case artistLeft
+        case artistRight
+        case songLeft
+        case songRight
+        case albumLeft
+        case albumRight
+        case currentTime
+        case duration
     }
 
     public init(from decoder: any Decoder) throws {
@@ -55,14 +72,33 @@ extension Config.UIConfig.Colors.NowPlaying: Codable {
         self.sliderKnob =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .sliderKnob)
             ?? .init()
-        self.itemDescriptionLeft =
-            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .itemDescLeft)
-            ?? .init()
-        self.itemDescriptionRight =
-            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .itemDescRight)
-            ?? .init()
         self.controls =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .controls)
+            ?? .init()
+
+        self.artistLeft =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .artistLeft)
+            ?? .init()
+        self.artistRight =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .artistRight)
+            ?? .init()
+        self.songLeft =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .songLeft)
+            ?? .init()
+        self.songRight =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .songRight)
+            ?? .init()
+        self.albumLeft =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .albumLeft)
+            ?? .init()
+        self.albumRight =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .albumRight)
+            ?? .init()
+        self.currentTime =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .currentTime)
+            ?? .init()
+        self.duration =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .duration)
             ?? .init()
     }
 
@@ -71,11 +107,18 @@ extension Config.UIConfig.Colors.NowPlaying: Codable {
         try container.encode(self.page, forKey: .page)
         try container.encode(self.pageName, forKey: .pageName)
         try container.encode(self.border, forKey: .border)
-        try container.encode(self.itemDescriptionLeft, forKey: .itemDescLeft)
-        try container.encode(self.itemDescriptionRight, forKey: .itemDescRight)
         try container.encode(self.slider, forKey: .slider)
         try container.encode(self.sliderKnob, forKey: .sliderKnob)
         try container.encode(self.controls, forKey: .controls)
+
+        try container.encode(self.artistLeft, forKey: .artistLeft)
+        try container.encode(self.artistRight, forKey: .artistRight)
+        try container.encode(self.songLeft, forKey: .songLeft)
+        try container.encode(self.songRight, forKey: .songRight)
+        try container.encode(self.albumLeft, forKey: .albumLeft)
+        try container.encode(self.albumRight, forKey: .albumRight)
+        try container.encode(self.currentTime, forKey: .currentTime)
+        try container.encode(self.duration, forKey: .duration)
     }
 
 }

@@ -16,8 +16,14 @@ public class NowPlayingPage: Page {
     private let sliderPlane: Plane
     private let sliderKnobPlane: Plane
     private let controlsPlane: Plane
-    private let itemDescLeftPlane: Plane
-    private let itemDescRightPlane: Plane
+    private let artistLeftPlane: Plane
+    private let artistRightPlane: Plane
+    private let songLeftPlane: Plane
+    private let songRightPlane: Plane
+    private let albumLeftPlane: Plane
+    private let albumRightPlane: Plane
+    private let currentTimePlane: Plane
+    private let durationPlane: Plane
 
     private var state: PageState
 
@@ -47,14 +53,6 @@ public class NowPlayingPage: Page {
         )
         borderPlane.erase()
         borderPlane.windowBorder(width: state.width, height: state.height)
-        itemDescLeftPlane.updateByPageState(
-            .init(
-                absX: 2,
-                absY: 2,
-                width: 8,
-                height: 3
-            )
-        )
         let sliderWidth = UInt32(Double(state.width) / 1.5)
         sliderPlane.updateByPageState(
             .init(
@@ -222,43 +220,151 @@ public class NowPlayingPage: Page {
         self.controlsPlane = controlsPlane
 
         guard
-            let itemDescRightPlane = Plane(
+            let artistLeftPlane = Plane(
                 in: plane,
                 state: .init(
                     absX: 2,
                     absY: 2,
-                    width: 1,
-                    height: 3
+                    width: 7,
+                    height: 1
                 ),
-                debugID: "NP_DESC_RIGHT"
+                debugID: "NP_ARL"
             )
         else {
             return nil
         }
-        itemDescRightPlane.backgroundColor = colorConfig.itemDescriptionRight.background
-        itemDescRightPlane.foregroundColor = colorConfig.itemDescriptionRight.foreground
-        self.itemDescRightPlane = itemDescRightPlane
+        artistLeftPlane.backgroundColor = colorConfig.artistLeft.background
+        artistLeftPlane.foregroundColor = colorConfig.artistLeft.foreground
+        artistLeftPlane.putString("Artist:", at: (0, 0))
+        self.artistLeftPlane = artistLeftPlane
 
         guard
-            let itemDescLeftPlane = Plane(
+            let artistRightPlane = Plane(
                 in: plane,
                 state: .init(
-                    absX: 2,
+                    absX: -1,
                     absY: 2,
-                    width: 8,
-                    height: 3
+                    width: 1,
+                    height: 1
                 ),
-                debugID: "NP_DESC_LEFT"
+                debugID: "NP_ARR"
             )
         else {
             return nil
         }
-        itemDescLeftPlane.backgroundColor = colorConfig.itemDescriptionLeft.background
-        itemDescLeftPlane.foregroundColor = colorConfig.itemDescriptionLeft.foreground
-        itemDescLeftPlane.putString("Artist: ", at: (0, 0))
-        itemDescLeftPlane.putString("Song:   ", at: (0, 1))
-        itemDescLeftPlane.putString("Album:  ", at: (0, 2))
-        self.itemDescLeftPlane = itemDescLeftPlane
+        artistRightPlane.backgroundColor = colorConfig.artistRight.background
+        artistRightPlane.foregroundColor = colorConfig.artistRight.foreground
+        self.artistRightPlane = artistRightPlane
+
+        guard
+            let songLeftPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: 2,
+                    absY: 3,
+                    width: 5,
+                    height: 1
+                ),
+                debugID: "NP_SL"
+            )
+        else {
+            return nil
+        }
+        songLeftPlane.backgroundColor = colorConfig.songLeft.background
+        songLeftPlane.foregroundColor = colorConfig.songLeft.foreground
+        songLeftPlane.putString("Song: ", at: (0, 0))
+        self.songLeftPlane = songLeftPlane
+
+        guard
+            let songRightPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: -1,
+                    absY: 3,
+                    width: 1,
+                    height: 1
+                ),
+                debugID: "NP_SR"
+            )
+        else {
+            return nil
+        }
+        songRightPlane.backgroundColor = colorConfig.songRight.background
+        songRightPlane.foregroundColor = colorConfig.songRight.foreground
+        self.songRightPlane = songRightPlane
+
+        guard
+            let albumLeftPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: 2,
+                    absY: 4,
+                    width: 6,
+                    height: 1
+                ),
+                debugID: "NP_ALL"
+            )
+        else {
+            return nil
+        }
+        albumLeftPlane.backgroundColor = colorConfig.albumLeft.background
+        albumLeftPlane.foregroundColor = colorConfig.albumLeft.foreground
+        albumLeftPlane.putString("Album:", at: (0, 0))
+        self.albumLeftPlane = albumLeftPlane
+
+        guard
+            let albumRightPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: -1,
+                    absY: 4,
+                    width: 1,
+                    height: 1
+                ),
+                debugID: "NP_ALR"
+            )
+        else {
+            return nil
+        }
+        albumRightPlane.backgroundColor = colorConfig.albumRight.background
+        albumRightPlane.foregroundColor = colorConfig.albumRight.foreground
+        self.albumRightPlane = albumRightPlane
+
+        guard
+            let currentTimePlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: 0,
+                    absY: -1,
+                    width: 5,
+                    height: 1
+                ),
+                debugID: "NP_CT"
+            )
+        else {
+            return nil
+        }
+        currentTimePlane.backgroundColor = colorConfig.currentTime.background
+        currentTimePlane.foregroundColor = colorConfig.currentTime.foreground
+        self.currentTimePlane = currentTimePlane
+
+        guard
+            let durationPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: 1,
+                    absY: -1,
+                    width: 5,
+                    height: 1
+                ),
+                debugID: "NP_TD"
+            )
+        else {
+            return nil
+        }
+        durationPlane.backgroundColor = colorConfig.duration.background
+        durationPlane.foregroundColor = colorConfig.duration.foreground
+        self.durationPlane = durationPlane
 
         self.currentSong = player.nowPlaying
     }
@@ -286,35 +392,25 @@ public class NowPlayingPage: Page {
             self.currentSong = player.nowPlaying
         }
         guard let currentSong else {
-            self.itemDescRightPlane.updateByPageState(
-                .init(
-                    absX: 2,
-                    absY: 2,
-                    width: 1,
-                    height: 1
-                )
-            )
+            self.artistRightPlane.updateByPageState(.init(absX: -1, absY: 2, width: 1, height: 1))
+            self.songRightPlane.updateByPageState(.init(absX: -1, absY: 3, width: 1, height: 1))
+            self.albumRightPlane.updateByPageState(.init(absX: -1, absY: 4, width: 1, height: 1))
+            self.currentTimePlane.updateByPageState(.init(absX: 0, absY: -1, width: 1, height: 1))
+            self.durationPlane.updateByPageState(.init(absX: 1, absY: -1, width: 1, height: 1))
             return
         }
-        var width =
-            max(
-                (currentSong.albumTitle ?? "nil").count,
-                currentSong.title.count,
-                currentSong.artistName.count
-            ) + 8
-        width = min(width, Int(self.state.width) - 4)
-        self.itemDescRightPlane.updateByPageState(
-            .init(
-                absX: 2,
-                absY: 2,
-                width: UInt32(width),
-                height: 3
-            )
-        )
-        self.itemDescRightPlane.blank()
-        self.itemDescRightPlane.putString(currentSong.artistName, at: (8, 0))
-        self.itemDescRightPlane.putString(currentSong.title, at: (8, 1))
-        self.itemDescRightPlane.putString(currentSong.albumTitle ?? "nil", at: (8, 2))
+        var width = currentSong.artistName.count
+        self.artistRightPlane.erase()
+        self.artistRightPlane.updateByPageState(.init(absX: 10, absY: 2, width: UInt32(width), height: 1))
+        self.artistRightPlane.putString(currentSong.artistName, at: (0, 0))
+        width = currentSong.title.count
+        self.songRightPlane.erase()
+        self.songRightPlane.updateByPageState(.init(absX: 10, absY: 3, width: UInt32(width), height: 1))
+        self.songRightPlane.putString(currentSong.title, at: (0, 0))
+        width = currentSong.albumTitle?.count ?? 3
+        self.albumRightPlane.erase()
+        self.albumRightPlane.updateByPageState(.init(absX: 10, absY: 4, width: UInt32(width), height: 1))
+        self.albumRightPlane.putString(currentSong.albumTitle ?? "nil", at: (0, 0))
 
         let currentTime = player.player.playbackTime
         let sliderPositionX = Int32(state.width) / 6
@@ -351,26 +447,17 @@ public class NowPlayingPage: Page {
                 height: 1
             )
         )
-        pagePlane.putString(
-            currentTime.toMMSS(),
-            at: (currentTimePositionX, currentTimePositionY)
+        currentTimePlane.updateByPageState(
+            .init(absX: currentTimePositionX + 1, absY: currentTimePositionY + 1, width: 5, height: 1)
+        )
+        currentTimePlane.putString(currentTime.toMMSS(), at: (0, 0))
+        durationPlane.updateByPageState(
+            .init(absX: durationPositionX + 1, absY: durationPositionY + 1, width: 5, height: 1)
         )
         if let duration = currentSong.duration {
-            pagePlane.putString(
-                duration.toMMSS(),
-                at: (
-                    durationPositionX,
-                    durationPositionY
-                )
-            )
+            durationPlane.putString(duration.toMMSS(), at: (0, 0))
         } else {
-            pagePlane.putString(
-                "--:--",
-                at: (
-                    durationPositionX,
-                    durationPositionY
-                )
-            )
+            durationPlane.putString("--:--", at: (0, 0))
         }
     }
 
