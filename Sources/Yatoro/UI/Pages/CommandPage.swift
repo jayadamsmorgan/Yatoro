@@ -354,7 +354,7 @@ public class CommandPage: Page {
             let cursorX =
                 Int32(await CommandInput.shared.getCursorPosition()) + 1
             if (cursorState.x != cursorX || !cursorState.enabled) {
-                logger?.debug("Cursor update")
+                logger?.trace("Cursor update")
                 UI.notcurses?.enableCursor(at: (cursorX, cursorY))
                 self.cursorState.x = cursorX
                 self.cursorState.y = cursorY
