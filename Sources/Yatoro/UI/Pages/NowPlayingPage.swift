@@ -25,6 +25,11 @@ public class NowPlayingPage: Page {
     private let currentTimePlane: Plane
     private let durationPlane: Plane
 
+    private var artworkPlane: Plane
+    private var artworkVisual: Visual?
+    private let artworkPixelWidth: UInt32
+    private let artworkPixelHeight: UInt32
+
     private var state: PageState
 
     private var lastPlayerStatus: MusicPlayer.PlaybackStatus?
@@ -82,6 +87,7 @@ public class NowPlayingPage: Page {
                 height: 1
             )
         )
+        processArtwork()
     }
 
     public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 11) }
@@ -92,7 +98,7 @@ public class NowPlayingPage: Page {
 
     public init?(
         stdPlane: Plane,
-        colorConfig: Config.UIConfig.Colors.NowPlaying,
+        uiConfig: Config.UIConfig,
         state: PageState
     ) {
         self.state = state
@@ -106,6 +112,10 @@ public class NowPlayingPage: Page {
             return nil
         }
         self.plane = plane
+
+        let colorConfig = uiConfig.colors.nowPlaying
+        self.artworkPixelWidth = uiConfig.artwork.width
+        self.artworkPixelHeight = uiConfig.artwork.height
 
         guard
             let borderPlane = Plane(
@@ -366,6 +376,17 @@ public class NowPlayingPage: Page {
         durationPlane.foregroundColor = colorConfig.duration.foreground
         self.durationPlane = durationPlane
 
+        guard
+            let artworkPlane = Plane(
+                in: plane,
+                state: .init(absX: -50, absY: 6, width: 50, height: 50),
+                debugID: "NP_ART"
+            )
+        else {
+            return nil
+        }
+        self.artworkPlane = artworkPlane
+
         self.currentSong = player.nowPlaying
     }
 
@@ -387,9 +408,68 @@ public class NowPlayingPage: Page {
         }
     }
 
+    func processArtwork() {
+        if let currentSong,
+            let url = currentSong.artwork?.url(
+                width: Int(self.artworkPixelWidth),
+                height: Int(self.artworkPixelHeight)
+            )
+        {
+            downloadImageAndConvertToRGBA(url: url) { pixelArray in
+                if let pixelArray = pixelArray {
+                    await logger?.debug(
+                        "Now Playing: Successfully obtained artwork RGBA byte array with count: \(pixelArray.count)"
+                    )
+                    Task { @MainActor in
+                        self.handleArtwork(pixelArray: pixelArray)
+                    }
+                } else {
+                    await logger?.error("Now Playing: Failed to get artwork RGBA byte array")
+                }
+            }
+        }
+    }
+
+    func handleArtwork(pixelArray: [UInt8]) {
+        let artworkPlaneWidth = max(self.state.width / 2, self.state.height - 3) - 2
+        let artworkPlaneHeight = artworkPlaneWidth / 2 - 1
+        if artworkPlaneHeight > self.state.height - 12 {
+            self.artworkVisual?.destroy()
+            self.artworkPlane.updateByPageState(
+                .init(
+                    absX: -50,
+                    absY: 0,
+                    width: 1,
+                    height: 1
+                )
+            )
+            return
+        }
+        self.artworkPlane.updateByPageState(
+            .init(
+                absX: Int32(self.state.width / 2 - artworkPlaneWidth / 2),
+                absY: Int32(self.state.height / 2 - artworkPlaneHeight / 2),
+                width: artworkPlaneWidth,
+                height: artworkPlaneHeight
+            )
+        )
+        self.artworkVisual?.destroy()
+        self.artworkVisual = Visual(
+            in: UI.notcurses!,
+            width: Int32(self.artworkPixelWidth),
+            height: Int32(self.artworkPixelHeight),
+            from: pixelArray,
+            for: self.artworkPlane
+        )
+        self.artworkVisual?.render()
+    }
+
     func updateSongDesc() {
         if currentSong == nil || currentSong?.id != player.nowPlaying?.id {
             self.currentSong = player.nowPlaying
+            Task {
+                processArtwork()
+            }
         }
         guard let currentSong else {
             self.artistRightPlane.updateByPageState(.init(absX: -1, absY: 2, width: 1, height: 1))
@@ -397,6 +477,7 @@ public class NowPlayingPage: Page {
             self.albumRightPlane.updateByPageState(.init(absX: -1, absY: 4, width: 1, height: 1))
             self.currentTimePlane.updateByPageState(.init(absX: 0, absY: -1, width: 1, height: 1))
             self.durationPlane.updateByPageState(.init(absX: 1, absY: -1, width: 1, height: 1))
+            self.artworkPlane.updateByPageState(.init(absX: -50, absY: 6, width: 50, height: 50))
             return
         }
         var width = currentSong.artistName.count

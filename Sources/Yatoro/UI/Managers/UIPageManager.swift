@@ -60,7 +60,7 @@ public struct UIPageManager {
                     guard
                         let nowPlayingPage = NowPlayingPage(
                             stdPlane: stdPlane,
-                            colorConfig: uiConfig.colors.nowPlaying,
+                            uiConfig: uiConfig,
                             state: PageState(
                                 absX: 0,
                                 absY: 0,

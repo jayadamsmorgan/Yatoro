@@ -6,12 +6,14 @@ extension Config {
         var frameDelay: UInt64
         var layout: UILayoutConfig
         var colors: Colors
+        var artwork: Artwork
 
         public init() {
             self.margins = .init()
             self.layout = .init()
             self.frameDelay = 5_000_000
             self.colors = .init()
+            self.artwork = .init()
         }
 
         public struct Margins {
@@ -36,6 +38,7 @@ extension Config.UIConfig: Codable {
         case layout
         case frameDelay
         case colors
+        case artwork
     }
 
     public init(from decoder: any Decoder) throws {
@@ -49,6 +52,8 @@ extension Config.UIConfig: Codable {
             try container.decodeIfPresent(UInt64.self, forKey: .frameDelay) ?? 5_000_000
         self.colors =
             try container.decodeIfPresent(Colors.self, forKey: .colors) ?? .init()
+        self.artwork =
+            try container.decodeIfPresent(Artwork.self, forKey: .artwork) ?? .init()
     }
 
 }
