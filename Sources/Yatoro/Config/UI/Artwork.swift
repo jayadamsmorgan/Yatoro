@@ -5,8 +5,8 @@ extension Config.UIConfig {
         public var height: UInt32
 
         public init() {
-            self.width = 200
-            self.height = 200
+            self.width = 500
+            self.height = 500
         }
     }
 }
