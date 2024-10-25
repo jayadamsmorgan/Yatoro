@@ -22,9 +22,9 @@ extension Config.UIConfig.Artwork: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         self.width =
-            try container.decodeIfPresent(UInt32.self, forKey: .width) ?? 200
+            try container.decodeIfPresent(UInt32.self, forKey: .width) ?? 500
         self.height =
-            try container.decodeIfPresent(UInt32.self, forKey: .height) ?? 200
+            try container.decodeIfPresent(UInt32.self, forKey: .height) ?? 500
     }
 
     public func encode(to encoder: any Encoder) throws {
