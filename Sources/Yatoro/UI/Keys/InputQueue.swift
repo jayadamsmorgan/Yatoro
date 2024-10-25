@@ -75,31 +75,28 @@ public class InputQueue {
                 case .pause:
                     await Player.shared.pause()
                 case .stop:
-                    // TODO
-                    break
+                    Player.shared.player.stop()
                 case .clearQueue:
                     await Player.shared.clearQueue()
                 case .playNext:
                     await Player.shared.playNext()
                 case .startSeekingForward:
-                    // TODO
-                    break
+                    Player.shared.player.beginSeekingForward()
                 case .playPrevious:
                     await Player.shared.playPrevious()
                 case .startSeekingBackward:
-                    // TODO
-                    break
+                    Player.shared.player.beginSeekingBackward()
                 case .restartSong:
                     await Player.shared.restartSong()
                 case .startSearching:
                     UI.mode = .command
                     await CommandInput.shared.add("search ")
-                    break
                 case .openCommmandLine:
                     UI.mode = .command
-                    break
                 case .quitApplication:
-                    UI.running = false  // I don't like it but it's ok for now
+                    UI.running = false
+                case .stationFromCurrentEntry:
+                    await Player.shared.playStationFromCurrentSong()
                 }
             }
         }

@@ -25,6 +25,7 @@ public struct Mapping: Codable {
         case restartSong
         case startSearching
         case openCommmandLine
+        case stationFromCurrentEntry
         case quitApplication
     }
 }
@@ -34,8 +35,8 @@ public extension Mapping {
         .init("p", mod: nil, action: .playPauseToggle),
         .init("P", mod: [.shift], action: .play),
         .init("p", mod: [.ctrl], action: .pause),
-        .init("c", mod: [.ctrl], action: .stop),
-        .init("C", mod: [.shift], action: .clearQueue),
+        .init("c", mod: nil, action: .stop),
+        .init("x", mod: nil, action: .clearQueue),
         .init("f", mod: nil, action: .playNext),
         .init("F", mod: [.shift], action: .startSeekingForward),
         .init("b", mod: nil, action: .playPrevious),
@@ -43,6 +44,7 @@ public extension Mapping {
         .init("r", mod: nil, action: .restartSong),
         .init("S", mod: [.shift], action: .startSearching),
         .init(":", mod: [.shift], action: .openCommmandLine),
+        .init("s", mod: [.ctrl], action: .stationFromCurrentEntry),
         .init("q", mod: nil, action: .quitApplication),
     ]
 }

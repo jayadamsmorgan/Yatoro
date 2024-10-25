@@ -12,6 +12,8 @@ public class QueuePage: Page {
     private var currentQueue: ApplicationMusicPlayer.Queue.Entries?
     private var cache: [Page]
 
+    private let colorConfig: Config.UIConfig.Colors
+
     private var maxItemsDisplayed: Int {
         (Int(self.state.height) - 3) / 6
     }
@@ -28,7 +30,7 @@ public class QueuePage: Page {
 
     public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 17) }
 
-    public init?(stdPlane: Plane, state: PageState) {
+    public init?(stdPlane: Plane, state: PageState, colorConfig: Config.UIConfig.Colors) {
         self.state = state
         guard
             let plane = Plane(
@@ -48,6 +50,7 @@ public class QueuePage: Page {
         self.plane = plane
         self.cache = []
         self.currentQueue = nil
+        self.colorConfig = colorConfig
     }
 
     public func render() async {
@@ -77,6 +80,7 @@ public class QueuePage: Page {
                             width: state.width - 2,
                             height: 6
                         ),
+                        colorConfig: colorConfig.item,
                         item: song
                     )
                 else {

@@ -12,6 +12,8 @@ public class SearchPage: Page {
     private var lastSearchTime: Date
     private var searchCache: [Page]
 
+    private let colorConfig: Config.UIConfig.Colors
+
     private var maxItemsDisplayed: Int {
         (Int(self.state.height) - 3) / 6
     }
@@ -31,7 +33,7 @@ public class SearchPage: Page {
 
     public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 17) }
 
-    public init?(stdPlane: Plane, state: PageState) {
+    public init?(stdPlane: Plane, state: PageState, colorConfig: Config.UIConfig.Colors) {
         self.state = state
         guard
             let plane = Plane(
@@ -51,6 +53,7 @@ public class SearchPage: Page {
         self.plane = plane
         self.searchCache = []
         self.lastSearchTime = .now
+        self.colorConfig = colorConfig
     }
 
     public func render() async {
@@ -97,6 +100,7 @@ public class SearchPage: Page {
                         width: state.width - 2,
                         height: 6
                     ),
+                    colorConfig: colorConfig.item,
                     item: songs[songIndex]
                 )
             else { continue }

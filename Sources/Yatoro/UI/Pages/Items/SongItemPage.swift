@@ -1,4 +1,3 @@
-import Logging
 import MusicKit
 import SwiftNotCurses
 
@@ -8,6 +7,9 @@ public class SongItemPage: Page {
     private var state: PageState
     private let plane: Plane
 
+    private let borderPlane: Plane
+    private let pageNamePlane: Plane
+
     private let item: Song
 
     public func getItem() async -> Song { item }
@@ -15,6 +17,7 @@ public class SongItemPage: Page {
     public init?(
         in plane: Plane,
         state: PageState,
+        colorConfig: Config.UIConfig.Colors.Item,
         item: Song
     ) {
         self.state = state
@@ -30,6 +33,42 @@ public class SongItemPage: Page {
         else {
             return nil
         }
+        plane.backgroundColor = colorConfig.page.background
+        plane.foregroundColor = colorConfig.page.foreground
+
+        guard
+            let borderPlane = Plane(
+                in: plane,
+                state: state,
+                debugID: "SONG_UI_\(item.id)_BORDER"
+            )
+        else {
+            return nil
+        }
+        borderPlane.backgroundColor = colorConfig.border.background
+        borderPlane.foregroundColor = colorConfig.border.foreground
+        borderPlane.windowBorder(width: state.width, height: state.height)
+        self.borderPlane = borderPlane
+
+        guard
+            let pageNamePlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: 2,
+                    absY: 0,
+                    width: 4,
+                    height: 1
+                ),
+                debugID: "SONG_UI_\(item.id)_PN"
+            )
+        else {
+            return nil
+        }
+        pageNamePlane.backgroundColor = colorConfig.pageName.background
+        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
+        pageNamePlane.putString("Song", at: (0, 0))
+        self.pageNamePlane = pageNamePlane
+
         self.plane = plane
         self.item = item
     }

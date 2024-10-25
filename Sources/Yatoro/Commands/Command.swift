@@ -36,6 +36,7 @@ public struct Command: Sendable {
         .init(name: "quitApplication", short: "q", action: .quitApplication),
         .init(name: "search", short: "/", action: .search),
         .init(name: "setSongTime", short: "set", action: .setSongTime),
+        .init(name: "stationFromCurrentEntry", short: "sce", action: .stationFromCurrentEntry),
     ]
 
     @MainActor
@@ -228,6 +229,8 @@ public struct Command: Sendable {
                 await CommandInput.shared.setLastCommandOutput(msg)
             }
 
+        case .stationFromCurrentEntry:
+            await Player.shared.playStationFromCurrentSong()
         }
         return
     }
@@ -249,4 +252,5 @@ public enum CommandAction: Sendable {
     case quitApplication
     case search
     case setSongTime
+    case stationFromCurrentEntry
 }

@@ -186,6 +186,7 @@ public extension AudioPlayerManager {
     }
 
     func clearQueue() async {
+        player.stop()
         player.queue.entries = []
     }
 
@@ -343,6 +344,31 @@ public extension AudioPlayerManager {
         }
         player.playbackTime = Double(seconds)
         await logger?.trace("Set time for current song: \(player.playbackTime)")
+    }
+
+    func playStationFromCurrentSong() async {
+        await logger?.trace("Trying to play station from currently playing song...")
+        guard var nowPlaying else {
+            await logger?.debug("Unable to play station from currently playing song: Now playing is nil.")
+            return
+        }
+        do {
+            nowPlaying = try await nowPlaying.with([.station])
+        } catch {
+            await logger?.error("Unable to play station from currently playing song: \(error.localizedDescription)")
+            return
+        }
+        guard let station = nowPlaying.station else {
+            await logger?.debug("Unable to play station from currently playing song: Song has no stations.")
+            return
+        }
+        do {
+            try await player.queue.insert(station, position: .afterCurrentEntry)
+        } catch {
+            await logger?.error("Unable to play station from currently playing song: \(error.localizedDescription)")
+        }
+        await logger?.debug("Playing station \(station)...")
+        await play()
     }
 
 }
