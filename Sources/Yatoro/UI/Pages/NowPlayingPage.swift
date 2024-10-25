@@ -409,13 +409,16 @@ public class NowPlayingPage: Page {
     }
 
     func processArtwork() {
-        if let currentSong,
-            let url = currentSong.artwork?.url(
+        guard let currentSong else { return }
+        if let url = currentSong.artwork?.url(
+            width: Int(self.artworkPixelWidth),
+            height: Int(self.artworkPixelHeight)
+        ) {
+            downloadImageAndConvertToRGBA(
+                url: url,
                 width: Int(self.artworkPixelWidth),
-                height: Int(self.artworkPixelHeight)
-            )
-        {
-            downloadImageAndConvertToRGBA(url: url) { pixelArray in
+                heigth: Int(self.artworkPixelHeight)
+            ) { pixelArray in
                 if let pixelArray = pixelArray {
                     await logger?.debug(
                         "Now Playing: Successfully obtained artwork RGBA byte array with count: \(pixelArray.count)"
@@ -424,7 +427,7 @@ public class NowPlayingPage: Page {
                         self.handleArtwork(pixelArray: pixelArray)
                     }
                 } else {
-                    await logger?.error("Now Playing: Failed to get artwork RGBA byte array")
+                    await logger?.error("Now Playing: Failed to get artwork RGBA byte array.")
                 }
             }
         }

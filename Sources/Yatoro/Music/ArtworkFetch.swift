@@ -22,13 +22,10 @@ func imageFromData(_ data: Data) -> NSImage? {
 }
 
 // Function to extract RGBA byte array from NSImage
-func rgbaByteArray(from image: NSImage) -> [UInt8]? {
+func rgbaByteArray(from image: NSImage, width: Int, height: Int) -> [UInt8]? {
     guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
         return nil
     }
-
-    let width = cgImage.width
-    let height = cgImage.height
 
     let colorSpace = CGColorSpaceCreateDeviceRGB()
     let bytesPerPixel = 4
@@ -62,7 +59,12 @@ func rgbaByteArray(from image: NSImage) -> [UInt8]? {
 }
 
 // Main function to download the image and convert it to RGBA byte array
-func downloadImageAndConvertToRGBA(url: URL, completion: @escaping @Sendable ([UInt8]?) async -> Void) {
+func downloadImageAndConvertToRGBA(
+    url: URL,
+    width: Int,
+    heigth: Int,
+    completion: @escaping @Sendable ([UInt8]?) async -> Void
+) {
     downloadImageData(from: url) { data in
         guard let data = data else {
             await completion(nil)
@@ -72,7 +74,13 @@ func downloadImageAndConvertToRGBA(url: URL, completion: @escaping @Sendable ([U
             await completion(nil)
             return
         }
-        guard let pixelArray = rgbaByteArray(from: image) else {
+        guard
+            let pixelArray = rgbaByteArray(
+                from: image,
+                width: width,
+                height: heigth
+            )
+        else {
             await completion(nil)
             return
         }
