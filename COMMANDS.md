@@ -7,7 +7,7 @@ Here are the available commands for the command mode and their description:
 
 | Command                   | Short | Description                                                   |
 | ------------------------- | ----- | ------------------------------------------------------------- |
-| `addToQueue`              |  `a`  | [See addToQueue](#addToQueue)                                           |
+| `addToQueue`              |  `a`  | [See addToQueue](#addToQueue)                                 |
 | `clearQueue`              |  `c`  | Clear playing queue                                           |
 | `pause`                   | `pa`  | Pause                                                         |
 | `play`                    | `pl`  | Continue playing                                              |
@@ -16,8 +16,8 @@ Here are the available commands for the command mode and their description:
 | `playPrevious`            |  `b`  | Play previous song                                            |
 | `quitApplication`         |  `q`  | Quit Yatoro application                                       |
 | `restartSong`             |  `r`  | Restart song                                                  |
-| `search`                  |  `/`  | [See search](#search)                                        |
-| `setSongTime`             | `set` | [See setSongTime](#setSongTime)                                              |
+| `search`                  |  `/`  | [See search](#search)                                         |
+| `setSongTime`             | `set` | [See setSongTime](#setSongTime)                               |
 | `startSeekingBackward`    | `sb`  | Start seeking backward                                        |
 | `startSeekingForward`     |  `sf` | Start seeking forward                                         |
 | `stationFromCurrentEntry` | `sce` | Creates station from current queue entry and adds it to queue |
