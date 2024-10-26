@@ -8,7 +8,7 @@
 
 ## Overview
 
-Yatoro is a standalone Apple Music player written in Swift intended to be used in a Terminal emulator.
+Yatoro is a standalone VIM-like Apple Music player written in Swift intended to be used in a Terminal emulator.
 
 Yatoro strives for bringing all the features of the Apple Music app into your Terminal.
 
@@ -49,132 +49,63 @@ Yatoro strives for bringing all the features of the Apple Music app into your Te
 
 ## Feature status
 
-The player is still very early in the development, so the features are quite limited for now.
+The player is still early in the development, so the features are quite limited for now.
 
-| Feature | Status | Comments |
-| --------------- | --------------- | --------------- |
-| Playing music | Working |  |
-| Player controls | Working | |
-| Searching music | In Progress |  |
-| Player queue | Working | |
+| Feature             | Status  | Comments                                        |
+| ------------------- | ------- | ----------------------------------------------- |
+| Playing music       | Working |                                                 |
+| Player controls     | Working |                                                 |
+| Now playing artwork | Working |                                                 |
+| Status line         | Working |                                                 |
+| Command line        | Working |                                                 |
+| Searching music     | Working | Only with `:search` command                     |
+| Player queue        | Working | Only adding to queue with `:addToQueue` command |
+| Coloring the UI     |   WIP   | Only Now Playing page and Command line          |
+| Mouse controls      |   TBD   |                                                 |
+| Arrow navigation    |   TBD   |                                                 |
+
+Feel free to suggest new features through issues!
 
 
 ## Usage
-
-### Default Controls
-
-| Action                  | Button | Modifier |
-|-------------------------|--------|----------|
-| Play/Pause              |  `p`   |         |
-| Play                    |  `P`   | `SHIFT` |
-| Pause                   |  `p`   | `CTRL`  |
-| Stop                    |  `c`   | `CTRL`  |
-| Clear queue             |  `C`   | `SHIFT` |
-| Play next               |  `f`   |         |
-| Start seeking forward   |  `F`   | `SHIFT` |
-| Play previous           |  `b`   |         |
-| Start seeking backward  |  `B`   | `SHIFT` |
-| Restart song            |  `r`   |         |
-| Start searching         |  `S`   | `SHIFT` |
-| Open command line       |  `:`   | `SHIFT` |
-| Quit application        |  `q`   |         |
 
 ### Configuring
 
 Some of the options might be configured with command line arguments. Check `Yatoro -h`.
 
-Another way to configure everything is to edit `~/.config/Yatoro/config.yaml`. Example configuration:
-
-```yaml
-mappings:
-  - key: " " # SPACE
-    action: playPauseToggle
-
-  - key: "D"
-    modifiers:
-      - shift
-    action: clearQueue
-
-ui:
-  margins:
-    all: 10
-    left: 20
-```
-
-#### Default config
-
-```yaml
-mappings:
-  - key: "p"
-    action: playPauseToggle
-
-  - key: "P"
-    modifiers:
-      - shift
-    action: play
-
-  - key: "p"
-    modifiers:
-      - ctrl
-    action: pause
-
-  - key: "c"
-    modifiers:
-      - ctrl
-    action: stop
-
-  - key: "C"
-    modifiers:
-      - shift
-    action: clearQueue
-
-  - key: "f"
-    action: playNext
-
-  - key: "F"
-    modifiers:
-      - shift
-    action: startSeekingForward
-
-  - key: "b"
-    action: playPrevious
-
-  - key: "B"
-    modifiers:
-      - shift
-    action: startSeekingBackward
-
-  - key: "r"
-    action: restartSong
-
-  - key: "S"
-    modifiers:
-      - shift
-    action: startSearching
-
-  - key: ":"
-    modifiers:
-      - shift
-    action: openCommmandLine
-
-  - key: "q"
-    action: quitApplication
-
-ui:
-  margins:
-    all: 0
-    left: null
-    right: null
-    top: null
-    bottom: null
-
-logging:
-  ncLogLevel: -1
-  logLevel: null
-```
-
+Another way to configure everything is to edit `~/.config/Yatoro/config.yaml`. Check [CONFIGURATION](CONFIGURATION.md).
 
 Command line arguments will overwrite the options set in `config.yaml`
+
+### Default Controls
+
+| Action                     | Modifier | Button |
+|----------------------------| -------- | ------ |
+| Play/Pause Toggle          |          |  `p`   |
+| Play                       |   `ALT`  |  `p`   |
+| Pause                      |  `CTRL`  |  `p`   |
+| Stop                       |          |  `c`   |
+| Clear queue                |          |  `x`   |
+| Play next                  |          |  `f`   |
+| Play previous              |          |  `b`   |
+| Start seeking forward      |  `CTRL`  |  `f`   |
+| Start seeking backward     |  `CTRL`  |  `b`   |
+| Stop seeking               |          |  `g`   |
+| Restart song               |          |  `r`   |
+| Start searching            |          |  `s`   |
+| Station from current entry |  `CTRL`  |  `s`   |
+| Open command line          |  `SHIFT` |  `:`   |
+| Quit application           |          |  `q`   |
+| Quit application (2)       |  `CTRL`  |  `c`   |
+
+### Commands
+
+Yatoro has a VIM-like command line. Check full command description in [COMMANDS](COMMANDS.md).
+
+
+### Contributing
+
+Check [CONTRIBUTING](CONTRIBUTING.md) and [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md).
 
 
 [release_page]: https://github.com/jayadamsmorgan/Yatoro/releases 
