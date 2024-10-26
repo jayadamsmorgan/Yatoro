@@ -20,6 +20,7 @@ public struct Mapping: Codable {
         case clearQueue
         case playNext
         case startSeekingForward
+        case stopSeeking
         case playPrevious
         case startSeekingBackward
         case restartSong
@@ -33,16 +34,17 @@ public struct Mapping: Codable {
 public extension Mapping {
     @MainActor static let defaultMappings: [Mapping] = [
         .init("p", mod: nil, action: .playPauseToggle),
-        .init("P", mod: [.shift], action: .play),
+        .init("p", mod: [.alt], action: .play),
         .init("p", mod: [.ctrl], action: .pause),
         .init("c", mod: nil, action: .stop),
         .init("x", mod: nil, action: .clearQueue),
         .init("f", mod: nil, action: .playNext),
-        .init("F", mod: [.shift], action: .startSeekingForward),
+        .init("f", mod: [.ctrl], action: .startSeekingForward),
+        .init("g", mod: nil, action: .stopSeeking),
         .init("b", mod: nil, action: .playPrevious),
-        .init("B", mod: [.shift], action: .startSeekingBackward),
+        .init("b", mod: [.ctrl], action: .startSeekingBackward),
         .init("r", mod: nil, action: .restartSong),
-        .init("S", mod: [.shift], action: .startSearching),
+        .init("s", mod: nil, action: .startSearching),
         .init(":", mod: [.shift], action: .openCommmandLine),
         .init("s", mod: [.ctrl], action: .stationFromCurrentEntry),
         .init("q", mod: nil, action: .quitApplication),

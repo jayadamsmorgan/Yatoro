@@ -97,6 +97,8 @@ public class InputQueue {
                     UI.running = false
                 case .stationFromCurrentEntry:
                     await Player.shared.playStationFromCurrentSong()
+                case .stopSeeking:
+                    Player.shared.player.endSeeking()
                 }
             }
         }
