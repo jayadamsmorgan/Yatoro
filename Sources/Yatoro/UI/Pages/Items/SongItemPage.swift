@@ -9,6 +9,12 @@ public class SongItemPage: Page {
 
     private let borderPlane: Plane
     private let pageNamePlane: Plane
+    private let songLeftPlane: Plane
+    private let songRightPlane: Plane
+    private let albumLeftPlane: Plane
+    private let albumRightPlane: Plane
+    private let artistLeftPlane: Plane
+    private let artistRightPlane: Plane
 
     private let item: Song
 
@@ -22,7 +28,7 @@ public class SongItemPage: Page {
     ) {
         self.state = state
         guard
-            let plane = Plane(
+            let pagePlane = Plane(
                 in: plane,
                 opts: .init(
                     pageState: state,
@@ -33,13 +39,19 @@ public class SongItemPage: Page {
         else {
             return nil
         }
-        plane.backgroundColor = colorConfig.page.background
-        plane.foregroundColor = colorConfig.page.foreground
+        pagePlane.backgroundColor = colorConfig.page.background
+        pagePlane.foregroundColor = colorConfig.page.foreground
+        self.plane = pagePlane
 
         guard
             let borderPlane = Plane(
-                in: plane,
-                state: state,
+                in: pagePlane,
+                state: .init(
+                    absX: 0,
+                    absY: 0,
+                    width: state.width,
+                    height: state.height
+                ),
                 debugID: "SONG_UI_\(item.id)_BORDER"
             )
         else {
@@ -52,9 +64,9 @@ public class SongItemPage: Page {
 
         guard
             let pageNamePlane = Plane(
-                in: plane,
+                in: pagePlane,
                 state: .init(
-                    absX: 2,
+                    absX: 3,
                     absY: 0,
                     width: 4,
                     height: 1
@@ -69,35 +81,164 @@ public class SongItemPage: Page {
         pageNamePlane.putString("Song", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
-        self.plane = plane
+        guard
+            let artistLeftPlane = Plane(
+                in: pagePlane,
+                state: .init(
+                    absX: 2,
+                    absY: 1,
+                    width: 7,
+                    height: 1
+                ),
+                debugID: "SONG_UI_\(item.id)_ARL"
+            )
+        else {
+            return nil
+        }
+        artistLeftPlane.backgroundColor = colorConfig.artistLeft.background
+        artistLeftPlane.foregroundColor = colorConfig.artistLeft.foreground
+        artistLeftPlane.putString("Artist:", at: (0, 0))
+        self.artistLeftPlane = artistLeftPlane
+
+        let artistRightWidth = min(UInt32(item.artistName.count), state.width - 11)
+        guard
+            let artistRightPlane = Plane(
+                in: pagePlane,
+                state: .init(
+                    absX: 10,
+                    absY: 1,
+                    width: artistRightWidth,
+                    height: 1
+                ),
+                debugID: "SONG_UI_\(item.id)_ARR"
+            )
+        else {
+            return nil
+        }
+        artistRightPlane.backgroundColor = colorConfig.artistRight.background
+        artistRightPlane.foregroundColor = colorConfig.artistRight.foreground
+        artistRightPlane.putString(item.artistName, at: (0, 0))
+        self.artistRightPlane = artistRightPlane
+
+        guard
+            let songLeftPlane = Plane(
+                in: pagePlane,
+                state: .init(
+                    absX: 2,
+                    absY: 2,
+                    width: 5,
+                    height: 1
+                ),
+                debugID: "SONG_UI_\(item.id)_SL"
+            )
+        else {
+            return nil
+        }
+        songLeftPlane.backgroundColor = colorConfig.songLeft.background
+        songLeftPlane.foregroundColor = colorConfig.songLeft.foreground
+        songLeftPlane.putString("Song:", at: (0, 0))
+        self.songLeftPlane = songLeftPlane
+
+        let songRightWidth = min(UInt32(item.title.count), state.width - 9)
+        guard
+            let songRightPlane = Plane(
+                in: pagePlane,
+                state: .init(
+                    absX: 8,
+                    absY: 2,
+                    width: songRightWidth,
+                    height: 1
+                ),
+                debugID: "SONG_UI_\(item.id)_SR"
+            )
+        else {
+            return nil
+        }
+        songRightPlane.backgroundColor = colorConfig.songRight.background
+        songRightPlane.foregroundColor = colorConfig.songRight.foreground
+        songRightPlane.putString(item.title, at: (0, 0))
+        self.songRightPlane = songRightPlane
+
+        guard
+            let albumLeftPlane = Plane(
+                in: pagePlane,
+                state: .init(
+                    absX: 2,
+                    absY: 3,
+                    width: 6,
+                    height: 1
+                ),
+                debugID: "SONG_UI_\(item.id)_AL"
+            )
+        else {
+            return nil
+        }
+        albumLeftPlane.backgroundColor = colorConfig.albumLeft.background
+        albumLeftPlane.foregroundColor = colorConfig.albumLeft.foreground
+        albumLeftPlane.putString("Album:", at: (0, 0))
+        self.albumLeftPlane = albumLeftPlane
+
+        let albumRightWidth = min(UInt32(item.albumTitle?.count ?? 1), state.width - 9)
+        guard
+            let albumRightPlane = Plane(
+                in: pagePlane,
+                state: .init(
+                    absX: 9,
+                    absY: 3,
+                    width: albumRightWidth,
+                    height: 1
+                ),
+                debugID: "SONG_UI_\(item.id)_AR"
+            )
+        else {
+            return nil
+        }
+        albumRightPlane.backgroundColor = colorConfig.albumRight.background
+        albumRightPlane.foregroundColor = colorConfig.albumRight.foreground
+        albumRightPlane.putString(item.albumTitle ?? " ", at: (0, 0))
+        self.albumRightPlane = albumRightPlane
+
         self.item = item
     }
 
     public func destroy() async {
         plane.erase()
         plane.destroy()
+
+        borderPlane.erase()
+        borderPlane.destroy()
+
+        pageNamePlane.erase()
+        pageNamePlane.destroy()
+
+        albumLeftPlane.erase()
+        albumLeftPlane.destroy()
+        albumRightPlane.erase()
+        albumRightPlane.destroy()
+
+        songLeftPlane.erase()
+        songLeftPlane.destroy()
+        songRightPlane.erase()
+        songRightPlane.destroy()
+
+        artistLeftPlane.erase()
+        artistLeftPlane.destroy()
+        artistRightPlane.erase()
+        artistRightPlane.destroy()
     }
 
     public func render() async {
-        plane.erase()
 
-        plane.putString("type: song", at: (Int32(state.width) - 12, 0))
-        plane.putString("title: \(item.title)", at: (2, 1))
-        plane.putString("artist: \(item.artistName)", at: (2, 2))
-        plane.putString(
-            "duration: \(item.duration?.toMMSS() ?? "nil")",
-            at: (2, 3)
-        )
-        plane.putString("album: \(item.albumTitle ?? "nil")", at: (2, 4))
-        plane.putString(
-            String(repeating: "─", count: Int(state.width - 4)),
-            at: (2, 5)
-        )
     }
 
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
         plane.updateByPageState(state)
+        plane.blank()
+
+        borderPlane.updateByPageState(state)
+        borderPlane.erase()
+        borderPlane.windowBorder(width: state.width, height: state.height)
     }
 
     public func getPageState() async -> PageState { state }

@@ -9,13 +9,15 @@ extension Config.UIConfig {
             self.nowPlaying = .init()
             self.commandLine = .init()
             self.item = .init()
-            self.listPage = .init()
+            self.search = .init()
+            self.queue = .init()
         }
 
         public var nowPlaying: NowPlaying
         public var commandLine: CommandLine
         public var item: Item
-        public var listPage: ListPage
+        public var search: Search
+        public var queue: Queue
 
         public struct ColorPair {
             var foreground: Plane.Color?
@@ -36,7 +38,8 @@ extension Config.UIConfig.Colors: Codable {
         case nowPlaying
         case commandLine
         case item
-        case listPage
+        case search
+        case queue
     }
 
     public init(from decoder: any Decoder) throws {
@@ -44,7 +47,8 @@ extension Config.UIConfig.Colors: Codable {
         self.nowPlaying = try container.decodeIfPresent(NowPlaying.self, forKey: .nowPlaying) ?? .init()
         self.commandLine = try container.decodeIfPresent(CommandLine.self, forKey: .commandLine) ?? .init()
         self.item = try container.decodeIfPresent(Item.self, forKey: .item) ?? .init()
-        self.listPage = try container.decodeIfPresent(ListPage.self, forKey: .listPage) ?? .init()
+        self.search = try container.decodeIfPresent(Search.self, forKey: .search) ?? .init()
+        self.queue = try container.decodeIfPresent(Queue.self, forKey: .queue) ?? .init()
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -52,7 +56,8 @@ extension Config.UIConfig.Colors: Codable {
         try container.encode(nowPlaying, forKey: .nowPlaying)
         try container.encode(commandLine, forKey: .commandLine)
         try container.encode(item, forKey: .item)
-        try container.encode(listPage, forKey: .listPage)
+        try container.encode(search, forKey: .search)
+        try container.encode(queue, forKey: .queue)
     }
 
 }

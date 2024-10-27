@@ -1,6 +1,6 @@
 extension Config.UIConfig.Colors {
 
-    public struct ListPage {
+    public struct Queue {
         public var page: ColorPair
         public var border: ColorPair
         public var pageName: ColorPair
@@ -13,7 +13,7 @@ extension Config.UIConfig.Colors {
     }
 }
 
-extension Config.UIConfig.Colors.ListPage: Codable {
+extension Config.UIConfig.Colors.Queue: Codable {
 
     enum CodingKeys: String, CodingKey {
         case page
