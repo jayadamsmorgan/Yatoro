@@ -34,9 +34,9 @@ public enum SearchType: Hashable, CaseIterable, Sendable {
     case librarySearchSongs
 }
 
-public class SearchManager {
+public class SearchManager: @unchecked Sendable {
 
-    @MainActor public static let shared: SearchManager = .init()
+    public static let shared: SearchManager = .init()
 
     public var lastSearchResults: [SearchType: SearchResult] = [:]
 
