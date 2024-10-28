@@ -5,10 +5,13 @@ extension Config.UIConfig.Colors {
         public var border: ColorPair
         public var pageName: ColorPair
 
+        public var songItem: SongItem
+
         public init() {
             self.page = .init()
             self.border = .init()
             self.pageName = .init()
+            self.songItem = .init()
         }
     }
 }
@@ -19,6 +22,8 @@ extension Config.UIConfig.Colors.Queue: Codable {
         case page
         case border
         case pageName
+
+        case songItem
     }
 
     public init(from decoder: any Decoder) throws {
@@ -32,6 +37,9 @@ extension Config.UIConfig.Colors.Queue: Codable {
         self.border =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .border)
             ?? .init()
+        self.songItem =
+            try container.decodeIfPresent(Config.UIConfig.Colors.SongItem.self, forKey: .songItem)
+            ?? .init()
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -39,6 +47,7 @@ extension Config.UIConfig.Colors.Queue: Codable {
         try container.encode(self.page, forKey: .page)
         try container.encode(self.pageName, forKey: .pageName)
         try container.encode(self.border, forKey: .border)
+        try container.encode(self.songItem, forKey: .songItem)
     }
 
 }

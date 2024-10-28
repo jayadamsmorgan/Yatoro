@@ -6,11 +6,14 @@ extension Config.UIConfig.Colors {
         public var pageName: ColorPair
         public var searchPhrase: ColorPair
 
+        public var songItem: SongItem
+
         public init() {
             self.page = .init()
             self.border = .init()
             self.pageName = .init()
             self.searchPhrase = .init()
+            self.songItem = .init()
         }
     }
 }
@@ -22,6 +25,7 @@ extension Config.UIConfig.Colors.Search: Codable {
         case border
         case pageName
         case searchPhrase
+        case songItem
     }
 
     public init(from decoder: any Decoder) throws {
@@ -38,6 +42,9 @@ extension Config.UIConfig.Colors.Search: Codable {
         self.searchPhrase =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .searchPhrase)
             ?? .init()
+        self.songItem =
+            try container.decodeIfPresent(Config.UIConfig.Colors.SongItem.self, forKey: .songItem)
+            ?? .init()
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -46,6 +53,7 @@ extension Config.UIConfig.Colors.Search: Codable {
         try container.encode(self.pageName, forKey: .pageName)
         try container.encode(self.border, forKey: .border)
         try container.encode(self.searchPhrase, forKey: .searchPhrase)
+        try container.encode(self.songItem, forKey: .songItem)
     }
 
 }

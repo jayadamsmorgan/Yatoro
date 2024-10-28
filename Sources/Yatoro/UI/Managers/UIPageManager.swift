@@ -85,7 +85,7 @@ public struct UIPageManager {
                                 width: 28,
                                 height: 13
                             ),
-                            colorConfig: uiConfig.colors
+                            colorConfig: uiConfig.colors.queue
                         )
                     else {
                         logger?.critical("Failed to initiate Queue Page.")
@@ -104,7 +104,7 @@ public struct UIPageManager {
                                 width: 28,
                                 height: 13
                             ),
-                            colorConfig: uiConfig.colors
+                            colorConfig: uiConfig.colors.search
                         )
                     else {
                         logger?.critical("Failed to initiate Search Page.")

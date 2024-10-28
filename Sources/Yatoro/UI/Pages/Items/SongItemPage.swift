@@ -23,7 +23,7 @@ public class SongItemPage: Page {
     public init?(
         in plane: Plane,
         state: PageState,
-        colorConfig: Config.UIConfig.Colors.Item,
+        colorConfig: Config.UIConfig.Colors.SongItem,
         item: Song
     ) {
         self.state = state

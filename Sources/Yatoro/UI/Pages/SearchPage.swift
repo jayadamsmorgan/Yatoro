@@ -15,7 +15,7 @@ public class SearchPage: Page {
     private var lastSearchTime: Date
     private var searchCache: [Page]
 
-    private let colorConfig: Config.UIConfig.Colors
+    private let colorConfig: Config.UIConfig.Colors.Search
 
     private var maxItemsDisplayed: Int {
         (Int(self.state.height) - 7) / 5
@@ -50,7 +50,7 @@ public class SearchPage: Page {
 
     public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 17) }
 
-    public init?(stdPlane: Plane, state: PageState, colorConfig: Config.UIConfig.Colors) {
+    public init?(stdPlane: Plane, state: PageState, colorConfig: Config.UIConfig.Colors.Search) {
         self.state = state
         guard
             let plane = Plane(
@@ -66,8 +66,8 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        plane.backgroundColor = colorConfig.search.page.background
-        plane.foregroundColor = colorConfig.search.page.foreground
+        plane.backgroundColor = colorConfig.page.background
+        plane.foregroundColor = colorConfig.page.foreground
         plane.blank()
         self.plane = plane
 
@@ -85,8 +85,8 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.search.border.background
-        borderPlane.foregroundColor = colorConfig.search.border.foreground
+        borderPlane.backgroundColor = colorConfig.border.background
+        borderPlane.foregroundColor = colorConfig.border.foreground
         borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
@@ -99,8 +99,8 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        searchPhrasePlane.backgroundColor = colorConfig.search.searchPhrase.background
-        searchPhrasePlane.foregroundColor = colorConfig.search.searchPhrase.foreground
+        searchPhrasePlane.backgroundColor = colorConfig.searchPhrase.background
+        searchPhrasePlane.foregroundColor = colorConfig.searchPhrase.foreground
         self.searchPhrasePlane = searchPhrasePlane
 
         guard
@@ -117,8 +117,8 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.search.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.search.pageName.foreground
+        pageNamePlane.backgroundColor = colorConfig.pageName.background
+        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
         self.pageNamePlane = pageNamePlane
 
         self.searchCache = []
@@ -199,7 +199,7 @@ public class SearchPage: Page {
                         width: state.width - 2,
                         height: 5
                     ),
-                    colorConfig: colorConfig.item,
+                    colorConfig: colorConfig.songItem,
                     item: songs[songIndex]
                 )
             else { continue }

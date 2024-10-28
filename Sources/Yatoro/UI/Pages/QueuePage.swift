@@ -14,7 +14,7 @@ public class QueuePage: Page {
     private var currentQueue: ApplicationMusicPlayer.Queue.Entries?
     private var cache: [Page]
 
-    private let colorConfig: Config.UIConfig.Colors
+    private let colorConfig: Config.UIConfig.Colors.Queue
 
     private var maxItemsDisplayed: Int {
         (Int(self.state.height) - 7) / 5
@@ -39,7 +39,7 @@ public class QueuePage: Page {
 
     public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 17) }
 
-    public init?(stdPlane: Plane, state: PageState, colorConfig: Config.UIConfig.Colors) {
+    public init?(stdPlane: Plane, state: PageState, colorConfig: Config.UIConfig.Colors.Queue) {
         self.state = state
         guard
             let plane = Plane(
@@ -56,8 +56,8 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        plane.backgroundColor = colorConfig.queue.page.background
-        plane.foregroundColor = colorConfig.queue.page.foreground
+        plane.backgroundColor = colorConfig.page.background
+        plane.foregroundColor = colorConfig.page.foreground
         plane.blank()
         self.plane = plane
 
@@ -75,8 +75,8 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.queue.border.background
-        borderPlane.foregroundColor = colorConfig.queue.border.foreground
+        borderPlane.backgroundColor = colorConfig.border.background
+        borderPlane.foregroundColor = colorConfig.border.foreground
         borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
@@ -94,8 +94,8 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.queue.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.queue.pageName.foreground
+        pageNamePlane.backgroundColor = colorConfig.pageName.background
+        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
         pageNamePlane.putString("Player Queue", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
@@ -128,7 +128,7 @@ public class QueuePage: Page {
                             width: state.width - 2,
                             height: 5
                         ),
-                        colorConfig: colorConfig.item,
+                        colorConfig: colorConfig.songItem,
                         item: song
                     )
                 else {

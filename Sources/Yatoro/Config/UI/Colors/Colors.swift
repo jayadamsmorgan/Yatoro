@@ -8,14 +8,12 @@ extension Config.UIConfig {
         public init() {
             self.nowPlaying = .init()
             self.commandLine = .init()
-            self.item = .init()
             self.search = .init()
             self.queue = .init()
         }
 
         public var nowPlaying: NowPlaying
         public var commandLine: CommandLine
-        public var item: Item
         public var search: Search
         public var queue: Queue
 
@@ -46,7 +44,6 @@ extension Config.UIConfig.Colors: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.nowPlaying = try container.decodeIfPresent(NowPlaying.self, forKey: .nowPlaying) ?? .init()
         self.commandLine = try container.decodeIfPresent(CommandLine.self, forKey: .commandLine) ?? .init()
-        self.item = try container.decodeIfPresent(Item.self, forKey: .item) ?? .init()
         self.search = try container.decodeIfPresent(Search.self, forKey: .search) ?? .init()
         self.queue = try container.decodeIfPresent(Queue.self, forKey: .queue) ?? .init()
     }
@@ -55,7 +52,6 @@ extension Config.UIConfig.Colors: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(nowPlaying, forKey: .nowPlaying)
         try container.encode(commandLine, forKey: .commandLine)
-        try container.encode(item, forKey: .item)
         try container.encode(search, forKey: .search)
         try container.encode(queue, forKey: .queue)
     }
