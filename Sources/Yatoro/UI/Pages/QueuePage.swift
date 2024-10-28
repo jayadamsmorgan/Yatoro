@@ -6,6 +6,8 @@ import SwiftNotCurses
 public class QueuePage: Page {
 
     private let plane: Plane
+    private let borderPlane: Plane
+    private let pageNamePlane: Plane
 
     private var state: PageState
 
@@ -15,12 +17,19 @@ public class QueuePage: Page {
     private let colorConfig: Config.UIConfig.Colors
 
     private var maxItemsDisplayed: Int {
-        (Int(self.state.height) - 3) / 6
+        (Int(self.state.height) - 7) / 5
     }
 
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
+
         plane.updateByPageState(state)
+        plane.blank()
+
+        borderPlane.updateByPageState(.init(absX: 0, absY: 0, width: state.width, height: state.height))
+        borderPlane.erase()
+        borderPlane.windowBorder(width: state.width, height: state.height)
+
         self.currentQueue = nil
     }
 
@@ -47,7 +56,49 @@ public class QueuePage: Page {
         else {
             return nil
         }
+        plane.backgroundColor = colorConfig.queue.page.background
+        plane.foregroundColor = colorConfig.queue.page.foreground
+        plane.blank()
         self.plane = plane
+
+        guard
+            let borderPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: 0,
+                    absY: 0,
+                    width: state.width,
+                    height: state.height
+                ),
+                debugID: "QUEUE_BORDER"
+            )
+        else {
+            return nil
+        }
+        borderPlane.backgroundColor = colorConfig.queue.border.background
+        borderPlane.foregroundColor = colorConfig.queue.border.foreground
+        borderPlane.windowBorder(width: state.width, height: state.height)
+        self.borderPlane = borderPlane
+
+        guard
+            let pageNamePlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: 2,
+                    absY: 0,
+                    width: 12,
+                    height: 1
+                ),
+                debugID: "QUEUE_PAGE_NAME"
+            )
+        else {
+            return nil
+        }
+        pageNamePlane.backgroundColor = colorConfig.queue.pageName.background
+        pageNamePlane.foregroundColor = colorConfig.queue.pageName.foreground
+        pageNamePlane.putString("Player Queue", at: (0, 0))
+        self.pageNamePlane = pageNamePlane
+
         self.cache = []
         self.currentQueue = nil
         self.colorConfig = colorConfig
@@ -55,30 +106,27 @@ public class QueuePage: Page {
 
     public func render() async {
 
-        plane.erase()
-
-        plane.windowBorder(name: "Player Queue:", width: state.width, height: state.height)
-
         guard currentQueue != Player.shared.queue else {
             return
         }
+        logger?.debug("Queue UI update")
         for case let item as SongItemPage in cache {
             await item.destroy()
         }
         cache = []
         currentQueue = Player.shared.queue
         var i = 0
-        for item in currentQueue! {
-            switch item.item {
+        for itemIndex in currentQueue!.indices {
+            switch currentQueue![itemIndex].item {
             case .song(let song):
                 guard
                     let page = SongItemPage(
                         in: self.plane,
                         state: .init(
                             absX: 1,
-                            absY: 3 + Int32(i) * 6,
+                            absY: 1 + Int32(i) * 5,
                             width: state.width - 2,
-                            height: 6
+                            height: 5
                         ),
                         colorConfig: colorConfig.item,
                         item: song
@@ -90,13 +138,9 @@ public class QueuePage: Page {
                 self.cache.append(page)
             default: break
             }
-        }
-        for itemIndex in cache.indices {
             if itemIndex >= maxItemsDisplayed {
                 break
             }
-            await cache[itemIndex].render()
-
         }
 
     }

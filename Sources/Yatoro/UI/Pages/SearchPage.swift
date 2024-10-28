@@ -91,6 +91,19 @@ public class SearchPage: Page {
         self.borderPlane = borderPlane
 
         guard
+            let searchPhrasePlane = Plane(
+                in: plane,
+                state: .init(absX: 2, absY: 0, width: 1, height: 1),
+                debugID: "SEARCH_SP"
+            )
+        else {
+            return nil
+        }
+        searchPhrasePlane.backgroundColor = colorConfig.search.searchPhrase.background
+        searchPhrasePlane.foregroundColor = colorConfig.search.searchPhrase.foreground
+        self.searchPhrasePlane = searchPhrasePlane
+
+        guard
             let pageNamePlane = Plane(
                 in: plane,
                 state: .init(
@@ -108,19 +121,6 @@ public class SearchPage: Page {
         pageNamePlane.foregroundColor = colorConfig.search.pageName.foreground
         self.pageNamePlane = pageNamePlane
 
-        guard
-            let searchPhrasePlane = Plane(
-                in: plane,
-                state: .init(absX: -1, absY: 0, width: 1, height: 1),
-                debugID: "SEARCH_SP"
-            )
-        else {
-            return nil
-        }
-        searchPhrasePlane.backgroundColor = colorConfig.search.searchPhrase.background
-        searchPhrasePlane.foregroundColor = colorConfig.search.searchPhrase.foreground
-        self.searchPhrasePlane = searchPhrasePlane
-
         self.searchCache = []
         self.lastSearchTime = .now
         self.colorConfig = colorConfig
@@ -131,25 +131,56 @@ public class SearchPage: Page {
         if let result = SearchManager.shared.lastSearchResults[.catalogSearchSongs],
             let searchPhrase = result.searchPhrase
         {
-            pageNamePlane.width = 13
-            pageNamePlane.putString("Search songs:", at: (0, 0))
+            pageNamePlane.width = 14
+            pageNamePlane.putString("Catalog songs:", at: (0, 0))
             searchPhrasePlane.updateByPageState(
-                .init(absX: 16, absY: 0, width: UInt32(searchPhrase.count - 1), height: 1)
+                .init(absX: 17, absY: 0, width: UInt32(searchPhrase.count - 1), height: 1)
             )
             searchPhrasePlane.putString(searchPhrase, at: (0, 0))
+
+            await update(result: result)
+
+        } else if let result = SearchManager.shared.lastSearchResults[.librarySearchSongs],
+            let searchPhrase = result.searchPhrase
+        {
+            pageNamePlane.width = 14
+            pageNamePlane.putString("Library songs:", at: (0, 0))
+            searchPhrasePlane.updateByPageState(
+                .init(absX: 17, absY: 0, width: UInt32(searchPhrase.count - 1), height: 1)
+            )
+            searchPhrasePlane.putString(searchPhrase, at: (0, 0))
+
+            await update(result: result)
+
+        } else if let result = SearchManager.shared.lastSearchResults[.recommended] {
+            pageNamePlane.width = 11
+            pageNamePlane.putString("Recommended", at: (0, 0))
+            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
+            searchPhrasePlane.erase()
+
+            await update(result: result)
+
+        } else if let result = SearchManager.shared.lastSearchResults[.recentlyPlayedSongs] {
+            pageNamePlane.width = 15
+            pageNamePlane.putString("Recently Played", at: (0, 0))
+            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
+            searchPhrasePlane.erase()
+
+            await update(result: result)
+
         } else {
-            pageNamePlane.width = 12
-            pageNamePlane.putString("Search songs", at: (0, 0))
-            searchPhrasePlane.updateByPageState(.init(absX: -1, absY: 0, width: 1, height: 0))
+            pageNamePlane.width = 6
+            pageNamePlane.putString("Search", at: (0, 0))
+            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
             searchPhrasePlane.erase()
         }
+    }
 
-        guard let result = SearchManager.shared.lastSearchResults[.catalogSearchSongs] else {
-            return
-        }
+    private func update(result: SearchResult) async {
         guard searchCache.isEmpty || lastSearchTime != result.timestamp else {
             return
         }
+        logger?.debug("Search UI update.")
 
         for case let item as SongItemPage in searchCache {
             await item.destroy()
