@@ -196,25 +196,29 @@ public class SearchPage: Page {
 
         searchCache = []
         lastSearchTime = result.timestamp
-        let songs = result.result as! MusicItemCollection<Song>
-        for songIndex in songs.indices {
-            guard
-                let item = SongItemPage(
-                    in: plane,
-                    state: .init(
-                        absX: 1,
-                        absY: 1 + Int32(songIndex) * 5,
-                        width: state.width - 2,
-                        height: 5
-                    ),
-                    colorConfig: colorConfig.songItem,
-                    item: songs[songIndex]
-                )
-            else { continue }
-            self.searchCache.append(item)
-            if songIndex >= maxItemsDisplayed {
-                break
+        let items = result.result
+        switch items {
+        case let songs as MusicItemCollection<Song>:
+            for songIndex in songs.indices {
+                guard
+                    let item = SongItemPage(
+                        in: plane,
+                        state: .init(
+                            absX: 1,
+                            absY: 1 + Int32(songIndex) * 5,
+                            width: state.width - 2,
+                            height: 5
+                        ),
+                        colorConfig: colorConfig.songItem,
+                        item: songs[songIndex]
+                    )
+                else { continue }
+                self.searchCache.append(item)
+                if songIndex >= maxItemsDisplayed {
+                    break
+                }
             }
+        default: break
         }
     }
 
