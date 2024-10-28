@@ -84,6 +84,34 @@ By default, both properties are `nil` on every UI element, which basically means
 - `currentTime` --- song playback time
 - `duration` --- song duration
 
+#### ui.colors.queue
+
+- `page` --- Queue page background
+- `pageName` --- "Player Queue" string
+- `border` --- page border
+- `songItem` --- see [songItem](#songItem)
+
+#### ui.colors.search
+
+- `page` --- Search page background
+- `pageName` --- "Search" string
+- `border` --- page border
+- `songItem` --- see [songItem](#songItem)
+
+#### songItem
+
+List pages such as Queue and Search pages can display song items which could be colored.
+
+- `page` --- song item background
+- `border` --- song item border
+- `artistLeft` --- "artist:" string
+- `artistRight` --- artist name string
+- `songLeft` --- "song:" string
+- `songRight` --- song title string
+- `albumLeft` --- "album:" string
+- `albumRight` --- album title string
+
+
 ### ui.layout
 
 - `rows` - **UInt32** --- amount of UI "rows". **Default: 2**
@@ -169,6 +197,35 @@ ui:
       nowPlayingArtist: {}
       nowPlayingDash: {}
       nowPlayingTitle: {}
+    search:
+      page: {}
+      pageName: {}
+      border: {}
+      searchPhrase: {}
+      songItem:
+        page: {}
+        pageName: {}
+        border: {}
+        artistLeft: {}
+        artistRight: {}
+        songLeft: {}
+        songRight: {}
+        albumLeft: {}
+        albumRight: {}
+    queue:
+      page: {}
+      pageName: {}
+      border: {}
+      songItem:
+        page: {}
+        pageName: {}
+        border: {}
+        artistLeft: {}
+        artistRight: {}
+        songLeft: {}
+        songRight: {}
+        albumLeft: {}
+        albumRight: {}
   artwork:
     width: 500
     height: 500
