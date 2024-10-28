@@ -40,6 +40,8 @@ public class SearchManager: @unchecked Sendable {
 
     public var lastSearchResults: [SearchType: SearchResult] = [:]
 
+    public var lastSearchResult: (SearchType, SearchResult)?
+
     private init() {}
 
     public func newSearch(for phrase: String? = nil, in type: SearchType) async {
@@ -67,13 +69,14 @@ public class SearchManager: @unchecked Sendable {
         }
         guard let result else { return }
 
-        self.lastSearchResults[type] = .init(
+        let searchResult: SearchResult = .init(
             timestamp: Date.now,
             type: type,
             searchPhrase: phrase,
             result: result
         )
-
+        self.lastSearchResults[type] = searchResult
+        lastSearchResult = (type, searchResult)
     }
 
 }

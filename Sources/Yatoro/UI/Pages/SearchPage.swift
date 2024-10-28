@@ -128,9 +128,36 @@ public class SearchPage: Page {
 
     public func render() async {
 
-        if let result = SearchManager.shared.lastSearchResults[.catalogSearchSongs],
-            let searchPhrase = result.searchPhrase
-        {
+        guard let (type, result) = SearchManager.shared.lastSearchResult else {
+            pageNamePlane.width = 6
+            pageNamePlane.putString("Search", at: (0, 0))
+            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
+            searchPhrasePlane.erase()
+            return
+        }
+
+        switch type {
+
+        case .recentlyPlayedSongs:
+
+            pageNamePlane.width = 15
+            pageNamePlane.putString("Recently Played", at: (0, 0))
+            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
+            searchPhrasePlane.erase()
+
+            await update(result: result)
+        case .recommended:
+            pageNamePlane.width = 11
+            pageNamePlane.putString("Recommended", at: (0, 0))
+            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
+            searchPhrasePlane.erase()
+
+            await update(result: result)
+
+        case .catalogSearchSongs:
+            guard let searchPhrase = result.searchPhrase else {
+                return
+            }
             pageNamePlane.width = 14
             pageNamePlane.putString("Catalog songs:", at: (0, 0))
             searchPhrasePlane.updateByPageState(
@@ -140,9 +167,10 @@ public class SearchPage: Page {
 
             await update(result: result)
 
-        } else if let result = SearchManager.shared.lastSearchResults[.librarySearchSongs],
-            let searchPhrase = result.searchPhrase
-        {
+        case .librarySearchSongs:
+            guard let searchPhrase = result.searchPhrase else {
+                return
+            }
             pageNamePlane.width = 14
             pageNamePlane.putString("Library songs:", at: (0, 0))
             searchPhrasePlane.updateByPageState(
@@ -152,28 +180,8 @@ public class SearchPage: Page {
 
             await update(result: result)
 
-        } else if let result = SearchManager.shared.lastSearchResults[.recommended] {
-            pageNamePlane.width = 11
-            pageNamePlane.putString("Recommended", at: (0, 0))
-            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
-            searchPhrasePlane.erase()
-
-            await update(result: result)
-
-        } else if let result = SearchManager.shared.lastSearchResults[.recentlyPlayedSongs] {
-            pageNamePlane.width = 15
-            pageNamePlane.putString("Recently Played", at: (0, 0))
-            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
-            searchPhrasePlane.erase()
-
-            await update(result: result)
-
-        } else {
-            pageNamePlane.width = 6
-            pageNamePlane.putString("Search", at: (0, 0))
-            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
-            searchPhrasePlane.erase()
         }
+
     }
 
     private func update(result: SearchResult) async {
