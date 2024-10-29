@@ -301,7 +301,7 @@ public extension AudioPlayerManager {
                 try await player.prepareToPlay()
             }
         } catch {
-            await logger?.critical("Unable to prepare player: \(error)")
+            await logger?.critical("Unable to prepare player: \(error.localizedDescription)")
         }
     }
 
@@ -366,6 +366,7 @@ public extension AudioPlayerManager {
             try await player.queue.insert(station, position: .afterCurrentEntry)
         } catch {
             await logger?.error("Unable to play station from currently playing song: \(error.localizedDescription)")
+            return
         }
         await logger?.debug("Playing station \(station)...")
         await play()
