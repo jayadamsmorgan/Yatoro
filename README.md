@@ -83,7 +83,7 @@ Command line arguments will overwrite the options set in `config.yaml`
 | Action                     | Modifier | Button |
 |----------------------------| -------- | ------ |
 | Play/Pause Toggle          |          |  `p`   |
-| Play                       |   `ALT`  |  `p`   |
+| Play                       |  `SHIFT` |  `p`   |
 | Pause                      |  `CTRL`  |  `p`   |
 | Stop                       |          |  `c`   |
 | Clear queue                |          |  `x`   |
