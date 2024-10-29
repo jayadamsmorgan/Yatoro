@@ -13,6 +13,14 @@ public struct Mapping: Codable {
         self.modifiers = mod
         self.action = action
     }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.key = try container.decodeIfPresent(String.self, forKey: .key) ?? ""
+        self.modifiers = try container.decodeIfPresent(Array<Input.Modifier>.self, forKey: .modifiers)
+        self.action = try container.decodeIfPresent(CommandAction.self, forKey: .action)
+        self.remap = try container.decodeIfPresent(Bool.self, forKey: .remap) ?? false
+    }
 }
 
 public extension Mapping {

@@ -241,7 +241,7 @@ public struct Command: Sendable {
     }
 }
 
-public enum CommandAction: Sendable, Codable {
+public enum CommandAction: String, Sendable, Codable {
     case addToQueue
     case playPauseToggle
     case play
