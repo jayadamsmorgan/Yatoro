@@ -36,11 +36,12 @@ Yatoro strives for bringing all the features of the Apple Music app into your Te
     ```
     - Build it:
     ```
-    swift build -c release
+    swift build
     ```
+    **Note:** `release` build does not work at the moment, see [this issue][release_issue] for an update
     - *Optionally*, install it, or add it to `PATH`:
     ```
-    sudo cp .build/release/Yatoro /usr/local/bin/.
+    sudo cp .build/debug/Yatoro /usr/local/bin/.
     ```
 
 - **Important:** Add both your Terminal and the Yatoro application in `System Settings -> Privacy & Security -> Media & Apple Music`
@@ -109,3 +110,4 @@ Check [CONTRIBUTING](CONTRIBUTING.md) and [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md).
 
 
 [release_page]: https://github.com/jayadamsmorgan/Yatoro/releases 
+[release_issue]: https://github.com/jayadamsmorgan/Yatoro/issues/3
