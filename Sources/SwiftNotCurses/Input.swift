@@ -21,7 +21,7 @@ public struct Input: Sendable {
         self.id = ncinput.id
         self.x = ncinput.x
         self.y = ncinput.y
-        self.utf8 = String.init(
+        var utf8 = String.init(
             utf8String: [
                 ncinput.utf8.0,
                 ncinput.utf8.1,
@@ -36,11 +36,12 @@ public struct Input: Sendable {
         self.eventType = EventType.init(rawValue: ncinput.evtype.rawValue) ?? .unknown
 
         var modifiers: [Modifier] = []
+        if ncinput_ctrl_p(&ncinput) {
+            utf8 = utf8.lowercased()
+            modifiers.append(.ctrl)
+        }
         if ncinput_shift_p(&ncinput) {
             modifiers.append(.shift)
-        }
-        if ncinput_ctrl_p(&ncinput) {
-            modifiers.append(.ctrl)
         }
         if ncinput_alt_p(&ncinput) {
             modifiers.append(.alt)
@@ -54,12 +55,7 @@ public struct Input: Sendable {
         if ncinput_hyper_p(&ncinput) {
             modifiers.append(.hyper)
         }
-        if ncinput_capslock_p(&ncinput) {
-            modifiers.append(.capslock)
-        }
-        if ncinput_numlock_p(&ncinput) {
-            modifiers.append(.numlock)
-        }
+        self.utf8 = utf8
         self.modifiers = modifiers
     }
 

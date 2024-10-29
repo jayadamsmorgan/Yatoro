@@ -52,21 +52,37 @@ public class InputQueue {
                     continue
                 }
 
-                guard
-                    let mapping = mappings.first(where: {
-                        if var modifiers = $0.modifiers,
-                            modifiers.contains(.shift)
-                        {
-                            modifiers.removeAll(where: { $0 == .shift })
-                            return $0.key.uppercased() == input.utf8 && modifiers == input.modifiers
+                let mapping = mappings.first(where: { mapping in
+                    let id: UInt32
+                    switch mapping.key.uppercased() {
+                    case "ESC": id = 27
+                    case "ENTER", "RETURN": id = 1115121
+                    case "TAB": id = 9
+                    case "SPACE": id = 32
+                    case "ARROW_LEFT": id = 1115005
+                    case "ARROW_RIGHT": id = 1115003
+                    case "ARROW_UP": id = 1115002
+                    case "ARROW_DOWN": id = 1115004
+                    case "DELETE": id = 1115008
+                    case "BACKSPACE": id = 1115008  // TODO: fix
+                    default:
+                        if let mods = mapping.modifiers {
+                            return input.modifiers.elementsEqual(mods) && input.utf8 == mapping.key
+                        } else {
+                            return input.utf8 == mapping.key && input.modifiers.isEmpty
                         }
-                        return $0.key.uppercased() == input.utf8.uppercased()
-                            && ($0.modifiers == input.modifiers
-                                || $0.modifiers == nil && input.modifiers.isEmpty)
-                    })
-                else {
+                    }
+                    if let mods = mapping.modifiers {
+                        return input.modifiers.elementsEqual(mods) && input.id == id
+                    } else {
+                        return input.id == id && input.modifiers.isEmpty
+                    }
+                })
+
+                guard let mapping else {
                     continue
                 }
+
                 switch mapping.action {
                 case .playPauseToggle:
                     await Player.shared.playPauseToggle()
@@ -91,7 +107,7 @@ public class InputQueue {
                 case .startSearching:
                     UI.mode = .command
                     await CommandInput.shared.add("search ")
-                case .openCommmandLine:
+                case .openCommandLine:
                     UI.mode = .command
                 case .quitApplication:
                     UI.running = false
@@ -99,6 +115,17 @@ public class InputQueue {
                     await Player.shared.playStationFromCurrentSong()
                 case .stopSeeking:
                     Player.shared.player.endSeeking()
+                case .addToQueue:
+                    UI.mode = .command
+                    await CommandInput.shared.add("addToQueue ")
+                case .search:
+                    UI.mode = .command
+                    await CommandInput.shared.add("search ")
+                case .setSongTime:
+                    UI.mode = .command
+                    await CommandInput.shared.add("setSongTime ")
+                case .none: break
+
                 }
             }
         }

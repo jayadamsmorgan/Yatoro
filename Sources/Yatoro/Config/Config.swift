@@ -109,10 +109,30 @@ public extension Config {
         // Mappings processing
         var newMappings = Mapping.defaultMappings
         for mapping in config.mappings {
-            let index = newMappings.firstIndex(where: {
-                $0.action == mapping.action
-            })!
-            newMappings[index] = mapping
+            if mapping.remap {
+                guard
+                    let index = newMappings.firstIndex(where: {
+                        $0.action == mapping.action
+                    })
+                else {
+                    logger?.error("Unable to remap config mapping \(mapping): action is not used.")
+                    continue
+                }
+                newMappings[index] = mapping
+            } else {
+                newMappings.append(mapping)
+            }
+        }
+
+        for mappingIndex in newMappings.indices {
+            if let mods = newMappings[mappingIndex].modifiers {
+                if mods.contains(.shift) {
+                    newMappings[mappingIndex].key = newMappings[mappingIndex].key.uppercased()
+                    newMappings[mappingIndex].modifiers!.removeAll { mod in
+                        mod == .shift
+                    }
+                }
+            }
         }
         // TODO: check for duplicates and other funny stuff
         config.mappings = newMappings

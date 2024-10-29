@@ -147,9 +147,22 @@ Each `Mapping` has 3 properties:
 
 - `key` - **String** --- UTF-8 representation of the pressed key
 - `modifiers` - **Array\<String\>** --- Modifiers for the key
-- `action` --- Action to be performed when the key is pressed
+- `action` - **String** --- Action to be performed when the key is pressed
+- `remap` - **Bool** --- When set to `true` removes the default mapping with the same action. **Default: false**
 
 You can check the default mappings down below in the default configuration.
+
+Available modifiers:
+- `shift`
+- `ctrl`
+- `alt`
+- `meta`
+- `super`
+- `hyper`
+- `capslock`
+- `numlock`
+
+**Note**: On some terminals only `shift` and `ctrl` modifiers are working. This is due to the bug in notcurses library.
 
 ## Default configuration
 

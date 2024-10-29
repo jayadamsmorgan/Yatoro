@@ -231,12 +231,17 @@ public struct Command: Sendable {
 
         case .stationFromCurrentEntry:
             await Player.shared.playStationFromCurrentSong()
+
+        case .openCommandLine: break
+
+        case .startSearching: break
+
         }
         return
     }
 }
 
-public enum CommandAction: Sendable {
+public enum CommandAction: Sendable, Codable {
     case addToQueue
     case playPauseToggle
     case play
@@ -247,6 +252,8 @@ public enum CommandAction: Sendable {
     case startSeekingForward
     case playPrevious
     case startSeekingBackward
+    case openCommandLine
+    case startSearching
     case stopSeeking
     case restartSong
     case quitApplication
