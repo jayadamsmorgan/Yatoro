@@ -2,7 +2,7 @@ import Foundation
 
 public let yatoroVersionCore: String = "0.0.1"
 
-fileprivate let readyForRelease: Bool = true
+fileprivate let readyForRelease: Bool = false
 
 public let yatoroBuildUUID = UUID().uuidString
 
