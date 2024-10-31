@@ -22,27 +22,21 @@ Yatoro strives for bringing all the features of the Apple Music app into your Te
     - MusicKit library is only available on macOS for now. The workaround for Linux is being actively looked into, if you have any ideas please let me know
 - Terminal of your preference
 
-### Steps
+### Install using [Homebrew](https://brew.sh)
 
-- Download pre-built [release][release_page] or build it from source:
-    - Clone the repository:
-    ```
-    git clone https://github.com/jayadamsmorgan/Yatoro.git
-    cd Yatoro
-    ```
-    - Install notcurses library with homebrew:
-    ```
-    brew install notcurses
-    ```
-    - Build it:
-    ```
-    swift build
-    ```
-    **Note:** `release` build does not work at the moment, see [this issue][release_issue] for an update
-    - *Optionally*, install it, or add it to `PATH`:
-    ```
-    sudo cp .build/debug/Yatoro /usr/local/bin/.
-    ```
+```
+brew install yatoro
+```
+
+### Pre-build binary
+
+[Download pre-built release][release_page]
+
+### Build from source
+
+[Build from source](BUILD.md)
+
+### Note
 
 - **Important:** Add both your Terminal and the Yatoro application in `System Settings -> Privacy & Security -> Media & Apple Music`
 
