@@ -91,7 +91,7 @@ struct Yatoro: AsyncParsableCommand {
     static let configuration: CommandConfiguration = .init(
         commandName: "yatoro",
         abstract: "Apple Music CLI Player",
-        version: yatoroVersion
+        version: "Yatoro version: \(yatoroVersion)"
     )
 
     @OptionGroup(title: "Logging", visibility: .default)
