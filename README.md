@@ -63,7 +63,7 @@ The player is still early in the development, so the features are quite limited 
 | Command line        | Working |                                                 |
 | Searching music     | Working | Only with `:search` command                     |
 | Player queue        | Working | Only adding to queue with `:addToQueue` command |
-| Coloring the UI     |   WIP   | Only Now Playing page and Command line          |
+| Coloring the UI     | Working | Check [CONFIGURATION](CONFIGURATION.md)         |
 | Mouse controls      |   TBD   |                                                 |
 | Arrow navigation    |   TBD   |                                                 |
 
