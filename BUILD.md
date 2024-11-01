@@ -28,7 +28,9 @@ swift build -c release
 
 Built executable is located in `.build/release/yatoro`
 
-The release version has to be codesigned in order to be functional. To codesign the app:
+**Note**: The release version has to be [codesigned](#Codesign) in order to be functional.
+
+## Codesign
 
 - Retreive your Developer ID certificate:
 
@@ -88,4 +90,6 @@ mv libnotcurses-core.dylib /opt/homebrew/Cellar/notcurses/3.0.11/lib/libnotcurse
 - Select `Any Mac` target
 
 - Build or archive
+
+3. [Sign it](#Codesign)
 
