@@ -26,10 +26,16 @@ Yatoro strives for bringing all the features of the Apple Music app into your Te
 
 - [Download pre-built release][release_page]
 
+- Update permissions:
+
+```
+chmod +x yatoro
+```
+
 - Add Yatoro to `PATH` or install it:
 
 ```
-sudo mv yatoro /usr/local/bin/.
+sudo mv yatoro /usr/local/bin
 ```
 
 ### Build from source
