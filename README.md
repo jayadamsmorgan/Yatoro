@@ -12,6 +12,8 @@ Yatoro is a standalone VIM-like Apple Music player written in Swift intended to 
 
 Yatoro strives for bringing all the features of the Apple Music app into your Terminal.
 
+![](yatoro.gif)
+
 
 ## Installation
 
