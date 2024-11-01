@@ -37,13 +37,6 @@ extension Config.UIConfig.Colors.SongItem: Codable {
         case songRight
         case albumLeft
         case albumRight
-        case playlistLeft
-        case playlistRight
-        case radioLeft
-        case radioRight
-        case suggestionLeft
-        case suggestionRight
-        case duration
     }
 
     public init(from decoder: any Decoder) throws {
