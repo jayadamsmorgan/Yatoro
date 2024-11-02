@@ -218,6 +218,26 @@ public class SearchPage: Page {
                     break
                 }
             }
+        case let albums as MusicItemCollection<Album>:
+            for albumIndex in albums.indices {
+                guard
+                    let item = AlbumItemPage(
+                        in: plane,
+                        state: .init(
+                            absX: 1,
+                            absY: 1 + Int32(albumIndex) * 5,
+                            width: state.width - 2,
+                            height: 5
+                        ),
+                        colorConfig: colorConfig.albumItem,
+                        item: albums[albumIndex]
+                    )
+                else { continue }
+                self.searchCache.append(item)
+                if albumIndex >= maxItemsDisplayed {
+                    break
+                }
+            }
         default: break
         }
     }
