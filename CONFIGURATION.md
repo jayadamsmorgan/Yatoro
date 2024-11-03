@@ -113,7 +113,7 @@ List pages such as Queue and Search pages can display song items which could be 
 
 #### albumItem
 
-Similar to [songItem](#songItem), but used only in Search page.
+Similar to [songItem](#songItem), but used only in Search page when displaying Albums.
 
 - `page` --- album item background
 - `border` --- album item border
@@ -124,6 +124,18 @@ Similar to [songItem](#songItem), but used only in Search page.
 - `genreLeft` --- "genre:" string
 - `genreRight` --- genre names string
 
+#### artistItem
+
+Similar to [songItem](#songItem), but used only in Search page when displaying Artists.
+
+- `page` --- album item background
+- `border` --- album item border
+- `artistLeft` --- "artist:" string
+- `artistRight` --- artist name string
+- `genreLeft` --- "genre:" string
+- `genreRight` --- genre names string
+- `albumsLeft` --- "albums:" string
+- `albumsRight` --- album titles string
 
 ### ui.layout
 
@@ -228,6 +240,16 @@ ui:
       pageName: {}
       border: {}
       searchPhrase: {}
+      albumItem:
+        page: {}
+        pageName: {}
+        border: {}
+        artistLeft: {}
+        artistRight: {}
+        genreLeft: {}
+        genreRight: {}
+        albumsLeft: {}
+        albumsRight: {}
       albumItem:
         page: {}
         pageName: {}
