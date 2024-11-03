@@ -178,7 +178,7 @@ public class SongItemPage: DestroyablePage {
         albumLeftPlane.putString("Album:", at: (0, 0))
         self.albumLeftPlane = albumLeftPlane
 
-        let albumRightWidth = min(UInt32(item.albumTitle?.count ?? 1), state.width - 9)
+        let albumRightWidth = min(UInt32(item.albumTitle?.count ?? 1), state.width - 10)
         guard
             let albumRightPlane = Plane(
                 in: pagePlane,
