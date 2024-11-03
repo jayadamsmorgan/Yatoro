@@ -111,6 +111,19 @@ List pages such as Queue and Search pages can display song items which could be 
 - `albumLeft` --- "album:" string
 - `albumRight` --- album title string
 
+#### albumItem
+
+Similar to [songItem](#songItem), but used only in Search page.
+
+- `page` --- album item background
+- `border` --- album item border
+- `artistLeft` --- "artist:" string
+- `artistRight` --- artist name string
+- `albumLeft` --- "album:" string
+- `albumRight` --- album title string
+- `genreLeft` --- "genre:" string
+- `genreRight` --- genre names string
+
 
 ### ui.layout
 
