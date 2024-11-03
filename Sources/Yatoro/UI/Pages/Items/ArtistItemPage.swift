@@ -151,7 +151,9 @@ public class ArtistItemPage: DestroyablePage {
             for genre in genres {
                 genreStr.append("\(genre.name), ")
             }
-            genreStr.removeLast(2)
+            if genreStr.count >= 2 {
+                genreStr.removeLast(2)
+            }
             let genreRightWidth = min(UInt32(genreStr.count), state.width - 10)
             guard
                 let genreRightPlane = Plane(
@@ -204,7 +206,9 @@ public class ArtistItemPage: DestroyablePage {
                 albumsStr.append("\(album.title), ")
                 albumIndex += 1
             }
-            albumsStr.removeLast(2)
+            if albumsStr.count >= 2 {
+                albumsStr.removeLast(2)
+            }
             let albumsRightWidth = min(UInt32(albumsStr.count), state.width - 11)
             guard
                 let albumsRightPlane = Plane(

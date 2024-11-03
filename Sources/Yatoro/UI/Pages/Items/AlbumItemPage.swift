@@ -146,7 +146,9 @@ public class AlbumItemPage: DestroyablePage {
             }
             genreStr.append("\(genre), ")
         }
-        genreStr.removeLast(2)
+        if genreStr.count >= 2 {
+            genreStr.removeLast(2)
+        }
         let genreRightWidth = min(UInt32(genreStr.count), state.width - 10)
         guard
             let genreRightPlane = Plane(
