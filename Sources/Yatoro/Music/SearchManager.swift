@@ -6,7 +6,8 @@ public struct SearchResult {
 
     public let timestamp: Date
 
-    public let type: SearchType
+    public let searchType: SearchType
+    public let itemType: MusicItemType
 
     public let searchPhrase: String?
 
@@ -15,11 +16,11 @@ public struct SearchResult {
 }
 
 public protocol AnyMusicItemCollection: Collection {
-    func item(at index: Int) -> (any MusicItem)?
+    func item(at index: Int) -> Element?
 }
 
 extension MusicItemCollection: AnyMusicItemCollection where Element: MusicItem {
-    public func item(at index: Int) -> (any MusicItem)? {
+    public func item(at index: Int) -> Element? {
         if (0..<self.count).contains(index) {
             return self[index]
         }
@@ -28,55 +29,63 @@ extension MusicItemCollection: AnyMusicItemCollection where Element: MusicItem {
 }
 
 public enum SearchType: Hashable, CaseIterable, Sendable {
-    case recentlyPlayedSongs
+    case recentlyPlayed
     case recommended
-    case catalogSearchSongs
-    case librarySearchSongs
+    case catalogSearch
+    case librarySearch
 }
 
 public class SearchManager: @unchecked Sendable {
 
     public static let shared: SearchManager = .init()
 
-    public var lastSearchResults: [SearchType: SearchResult] = [:]
-
-    public var lastSearchResult: (SearchType, SearchResult)?
+    public var lastSearchResult: SearchResult?
 
     private init() {}
 
-    public func newSearch(for phrase: String? = nil, in type: SearchType) async {
+    public func newSearch(for phrase: String? = nil, itemType: MusicItemType, in searchType: SearchType) async {
         var result: (any AnyMusicItemCollection)?
 
-        switch type {
+        switch searchType {
 
-        case .recentlyPlayedSongs:
-            let res: MusicItemCollection<Song>? = await getRecentlyPlayed()
-            result = res
+        case .recentlyPlayed:
+            result = await getRecentlyPlayed() as MusicItemCollection<RecentlyPlayedMusicItem>?
 
         case .recommended:
             result = await getUserRecommendedBatch()
 
-        case .catalogSearchSongs:
+        case .catalogSearch:
             guard let phrase else { return }
-            let res: MusicItemCollection<Song>? = await searchCatalogBatch(for: phrase)
-            result = res
+            switch itemType {
+            case .song:
+                result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Song>?
+            case .album:
+                result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Album>?
+            }
 
-        case .librarySearchSongs:
+        case .librarySearch:
             guard let phrase else { return }
-            let res: MusicItemCollection<Song>? = await searchUserLibraryBatch(for: phrase)
-            result = res
+            switch itemType {
+            case .song:
+                result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Song>?
+            case .album:
+                result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Album>?
+            }
 
         }
-        guard let result else { return }
+        guard let result else {
+            await logger?.debug("Search Manager: Search result is nil")
+            return
+        }
 
         let searchResult: SearchResult = .init(
             timestamp: Date.now,
-            type: type,
+            searchType: searchType,
+            itemType: itemType,
             searchPhrase: phrase,
             result: result
         )
-        self.lastSearchResults[type] = searchResult
-        lastSearchResult = (type, searchResult)
+        lastSearchResult = searchResult
     }
 
 }

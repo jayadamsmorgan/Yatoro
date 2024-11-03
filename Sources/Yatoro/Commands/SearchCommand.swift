@@ -5,25 +5,23 @@ struct SearchCommand: AsyncParsableCommand {
     @Flag(exclusivity: .exclusive)
     var from: SearchType?
 
-    @Argument
+    @Option(name: .shortAndLong)
+    var type: MusicItemType = .song
+
+    @Argument(parsing: .captureForPassthrough)
     var searchPhrase: [String] = []
 
     public func validate() throws {
-        let searchType = from ?? .catalogSearchSongs
+        let searchType = from ?? .catalogSearch
 
         switch searchType {
-        case .catalogSearchSongs, .librarySearchSongs:
+        case .catalogSearch, .librarySearch:
             if searchPhrase.isEmpty {
                 throw ValidationError(
                     "Search phrase is required for catalog and library searches."
                 )
             }
-        case .recentlyPlayedSongs, .recommended:
-            if !searchPhrase.isEmpty {
-                throw ValidationError(
-                    "Search phrase is not needed for recent and suggested searches."
-                )
-            }
+        default: break
         }
     }
 
