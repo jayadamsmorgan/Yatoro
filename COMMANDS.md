@@ -55,8 +55,9 @@ Search command expects 1 optional argument, 1 optional option and 1 optional fla
 
 - `type` --- **(Option)**
     - `-t`, `--type` - type of searchable item:
-        - `a`, `album` - perform search for albums
         - `s`, `song` - perform search for songs **(Default)**
+        - `al`, `album` - perform search for albums
+        - `ar`, `artist` - perform search for artists
 
 - `searchPhrase` --- **(Argument)** --- what to search for
 

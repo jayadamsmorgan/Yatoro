@@ -165,6 +165,9 @@ public class SearchPage: Page {
             case .album:
                 pageNamePlane.width = 15
                 pageNamePlane.putString("Catalog albums:", at: (0, 0))
+            case .artist:
+                pageNamePlane.width = 16
+                pageNamePlane.putString("Catalog artists:", at: (0, 0))
             }
             let searchPhrasePlaneWidth = min(
                 UInt32(searchPhrase.count - 1),
@@ -193,7 +196,9 @@ public class SearchPage: Page {
             case .album:
                 pageNamePlane.width = 15
                 pageNamePlane.putString("Library albums:", at: (0, 0))
-
+            case .artist:
+                pageNamePlane.width = 16
+                pageNamePlane.putString("Library artists:", at: (0, 0))
             }
             searchPhrasePlane.updateByPageState(
                 .init(
@@ -229,6 +234,8 @@ public class SearchPage: Page {
             songItems(songs: songs)
         case let albums as MusicItemCollection<Album>:
             albumItems(albums: albums)
+        case let artists as MusicItemCollection<Artist>:
+            await artistItems(artists: artists)
         case let recentlyPlayedItems as MusicItemCollection<RecentlyPlayedMusicItem>:
             for itemIndex in recentlyPlayedItems.indices {
                 switch recentlyPlayedItems[itemIndex] {
@@ -286,6 +293,32 @@ public class SearchPage: Page {
                 ),
                 colorConfig: colorConfig.albumItem,
                 item: album
+            )
+        else { return }
+        self.searchCache.append(item)
+    }
+
+    private func artistItems(artists: MusicItemCollection<Artist>) async {
+        for artistIndex in artists.indices {
+            await artistItem(artist: artists[artistIndex], artistIndex: artistIndex)
+            if artistIndex >= maxItemsDisplayed {
+                break
+            }
+        }
+    }
+
+    private func artistItem(artist: Artist, artistIndex: Int) async {
+        guard
+            let item = await ArtistItemPage(
+                in: plane,
+                state: .init(
+                    absX: 1,
+                    absY: 1 + Int32(artistIndex) * 5,
+                    width: state.width - 2,
+                    height: 5
+                ),
+                colorConfig: colorConfig.artistItem,
+                item: artist
             )
         else { return }
         self.searchCache.append(item)

@@ -73,13 +73,22 @@ public struct Command: Sendable {
                 let command = try AddToQueueCommand.parse(arguments)
                 logger?.debug("New add to queue command request: \(command)")
                 guard
-                    let result = SearchManager.shared.lastSearchResult?.result
+                    let lastResult = SearchManager.shared.lastSearchResult
                 else {
                     let msg = "No last search result"
                     logger?.debug(msg)
                     await CommandInput.shared.setLastCommandOutput(msg)
                     return
                 }
+
+                guard lastResult.itemType != .artist else {
+                    let msg = "Can't add artist to queue"
+                    logger?.debug(msg)
+                    await CommandInput.shared.setLastCommandOutput(msg)
+                    return
+                }
+
+                let result = lastResult.result
 
                 switch command.item {
 
