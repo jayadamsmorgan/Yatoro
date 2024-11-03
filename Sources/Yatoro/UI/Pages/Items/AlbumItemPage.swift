@@ -68,7 +68,7 @@ public class AlbumItemPage: Page {
                 state: .init(
                     absX: 3,
                     absY: 0,
-                    width: 4,
+                    width: 5,
                     height: 1
                 ),
                 debugID: "ALBUM_UI_\(item.id)_PN"
@@ -78,7 +78,7 @@ public class AlbumItemPage: Page {
         }
         pageNamePlane.backgroundColor = colorConfig.pageName.background
         pageNamePlane.foregroundColor = colorConfig.pageName.foreground
-        pageNamePlane.putString("Song", at: (0, 0))
+        pageNamePlane.putString("Album", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
         guard
