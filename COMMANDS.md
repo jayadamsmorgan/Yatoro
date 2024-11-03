@@ -84,3 +84,6 @@ Set song time command expects 1 argument and 1 optional flag:
 
 **Note**: Time argument can be negative only when `-r` flag is passed.
 
+Examples:
+    - `:set 00:23` - Set playback to 00:23
+    - `:set -r -10` - Set playback 10 seconds earlier
