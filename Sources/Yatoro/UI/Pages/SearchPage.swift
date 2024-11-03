@@ -158,10 +158,21 @@ public class SearchPage: Page {
             guard let searchPhrase = result.searchPhrase else {
                 return
             }
-            pageNamePlane.width = 14
-            pageNamePlane.putString("Catalog songs:", at: (0, 0))
+            switch result.itemType {
+            case .song:
+                pageNamePlane.width = 14
+                pageNamePlane.putString("Catalog songs:", at: (0, 0))
+            case .album:
+                pageNamePlane.width = 15
+                pageNamePlane.putString("Catalog albums:", at: (0, 0))
+            }
             searchPhrasePlane.updateByPageState(
-                .init(absX: 17, absY: 0, width: UInt32(searchPhrase.count - 1), height: 1)
+                .init(
+                    absX: Int32(pageNamePlane.width) + 3,
+                    absY: 0,
+                    width: UInt32(searchPhrase.count - 1),
+                    height: 1
+                )
             )
             searchPhrasePlane.putString(searchPhrase, at: (0, 0))
 
@@ -171,10 +182,22 @@ public class SearchPage: Page {
             guard let searchPhrase = result.searchPhrase else {
                 return
             }
-            pageNamePlane.width = 14
-            pageNamePlane.putString("Library songs:", at: (0, 0))
+            switch result.itemType {
+            case .song:
+                pageNamePlane.width = 14
+                pageNamePlane.putString("Library songs:", at: (0, 0))
+            case .album:
+                pageNamePlane.width = 15
+                pageNamePlane.putString("Library albums:", at: (0, 0))
+
+            }
             searchPhrasePlane.updateByPageState(
-                .init(absX: 17, absY: 0, width: UInt32(searchPhrase.count - 1), height: 1)
+                .init(
+                    absX: Int32(pageNamePlane.width) + 3,
+                    absY: 0,
+                    width: UInt32(searchPhrase.count - 1),
+                    height: 1
+                )
             )
             searchPhrasePlane.putString(searchPhrase, at: (0, 0))
 
