@@ -11,6 +11,10 @@ public class ArtistItemPage: DestroyablePage {
     private let pageNamePlane: Plane
     private let artistLeftPlane: Plane
     private let artistRightPlane: Plane
+    private let genreLeftPlane: Plane
+    private let genreRightPlane: Plane?
+    private let albumsLeftPlane: Plane
+    private let albumsRightPlane: Plane?
 
     private let item: Artist
 
@@ -21,7 +25,7 @@ public class ArtistItemPage: DestroyablePage {
         state: PageState,
         colorConfig: Config.UIConfig.Colors.ArtistItem,
         item: Artist
-    ) {
+    ) async {
         self.state = state
         guard
             let pagePlane = Plane(
@@ -77,6 +81,13 @@ public class ArtistItemPage: DestroyablePage {
         pageNamePlane.putString("Artist", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
+        var item = item
+        do {
+            item = try await item.with([.genres, .albums])
+        } catch {
+            logger?.error("ArtistItemPage: Unable to fetch genres and albums for \(item.id)")
+        }
+
         guard
             let artistLeftPlane = Plane(
                 in: pagePlane,
@@ -116,7 +127,109 @@ public class ArtistItemPage: DestroyablePage {
         artistRightPlane.putString(item.name, at: (0, 0))
         self.artistRightPlane = artistRightPlane
 
+        guard
+            let genreLeftPlane = Plane(
+                in: pagePlane,
+                state: .init(
+                    absX: 2,
+                    absY: 2,
+                    width: 6,
+                    height: 1
+                ),
+                debugID: "ARTIST_UI_\(item.id)_GL"
+            )
+        else {
+            return nil
+        }
+        genreLeftPlane.backgroundColor = colorConfig.genreLeft.background
+        genreLeftPlane.foregroundColor = colorConfig.genreLeft.foreground
+        genreLeftPlane.putString("Genre:", at: (0, 0))
+        self.genreLeftPlane = genreLeftPlane
+
+        if let genres = item.genres {
+            var genreStr = ""
+            for genre in genres {
+                genreStr.append("\(genre.name)/")
+            }
+            genreStr.removeLast()
+            let genreRightWidth = min(UInt32(genreStr.count), state.width - 10)
+            guard
+                let genreRightPlane = Plane(
+                    in: pagePlane,
+                    state: .init(
+                        absX: 9,
+                        absY: 2,
+                        width: genreRightWidth,
+                        height: 1
+                    ),
+                    debugID: "ARTIST_UI_\(item.id)_GR"
+                )
+            else {
+                return nil
+            }
+            genreRightPlane.backgroundColor = colorConfig.genreRight.background
+            genreRightPlane.foregroundColor = colorConfig.genreRight.foreground
+            genreRightPlane.putString(genreStr, at: (0, 0))
+            self.genreRightPlane = genreRightPlane
+        } else {
+            self.genreRightPlane = nil
+        }
+
+        guard
+            let albumsLeftPlane = Plane(
+                in: pagePlane,
+                state: .init(
+                    absX: 2,
+                    absY: 3,
+                    width: 7,
+                    height: 1
+                ),
+                debugID: "ARTIST_UI_\(item.id)_ALL"
+            )
+        else {
+            return nil
+        }
+        albumsLeftPlane.backgroundColor = colorConfig.albumsLeft.background
+        albumsLeftPlane.foregroundColor = colorConfig.albumsLeft.foreground
+        albumsLeftPlane.putString("Albums:", at: (0, 0))
+        self.albumsLeftPlane = albumsLeftPlane
+
+        if let albums = item.albums {
+            var albumsStr = ""
+            var albumIndex = 0
+            for album in albums {
+                if albumIndex > 2 {
+                    break
+                }
+                albumsStr.append("\(album.title), ")
+                albumIndex += 1
+            }
+            albumsStr.removeLast(2)
+            let albumsRightWidth = min(UInt32(albumsStr.count), state.width - 11)
+            guard
+                let albumsRightPlane = Plane(
+                    in: pagePlane,
+                    state: .init(
+                        absX: 10,
+                        absY: 3,
+                        width: albumsRightWidth,
+                        height: 1
+                    ),
+                    debugID: "ARTIST_UI_\(item.id)_ALR"
+                )
+            else {
+                return nil
+            }
+            albumsRightPlane.backgroundColor = colorConfig.albumsRight.background
+            albumsRightPlane.foregroundColor = colorConfig.albumsRight.foreground
+            albumsRightPlane.putString(albumsStr, at: (0, 0))
+            self.albumsRightPlane = albumsRightPlane
+        } else {
+            self.albumsRightPlane = nil
+        }
+
         self.item = item
+
     }
 
     public func destroy() async {
@@ -133,6 +246,16 @@ public class ArtistItemPage: DestroyablePage {
         artistLeftPlane.destroy()
         artistRightPlane.erase()
         artistRightPlane.destroy()
+
+        genreLeftPlane.erase()
+        genreLeftPlane.destroy()
+        genreRightPlane?.erase()
+        genreRightPlane?.destroy()
+
+        albumsLeftPlane.erase()
+        albumsLeftPlane.destroy()
+        albumsRightPlane?.erase()
+        albumsRightPlane?.destroy()
     }
 
     public func render() async {

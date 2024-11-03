@@ -235,7 +235,7 @@ public class SearchPage: Page {
         case let albums as MusicItemCollection<Album>:
             albumItems(albums: albums)
         case let artists as MusicItemCollection<Artist>:
-            artistItems(artists: artists)
+            await artistItems(artists: artists)
         case let recentlyPlayedItems as MusicItemCollection<RecentlyPlayedMusicItem>:
             for itemIndex in recentlyPlayedItems.indices {
                 switch recentlyPlayedItems[itemIndex] {
@@ -298,18 +298,18 @@ public class SearchPage: Page {
         self.searchCache.append(item)
     }
 
-    private func artistItems(artists: MusicItemCollection<Artist>) {
+    private func artistItems(artists: MusicItemCollection<Artist>) async {
         for artistIndex in artists.indices {
-            artistItem(artist: artists[artistIndex], artistIndex: artistIndex)
+            await artistItem(artist: artists[artistIndex], artistIndex: artistIndex)
             if artistIndex >= maxItemsDisplayed {
                 break
             }
         }
     }
 
-    private func artistItem(artist: Artist, artistIndex: Int) {
+    private func artistItem(artist: Artist, artistIndex: Int) async {
         guard
-            let item = ArtistItemPage(
+            let item = await ArtistItemPage(
                 in: plane,
                 state: .init(
                     absX: 1,
