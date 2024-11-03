@@ -128,7 +128,7 @@ public class SearchPage: Page {
 
     public func render() async {
 
-        guard let (type, result) = SearchManager.shared.lastSearchResult else {
+        guard let result = SearchManager.shared.lastSearchResult else {
             pageNamePlane.width = 6
             pageNamePlane.putString("Search", at: (0, 0))
             searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
@@ -136,9 +136,9 @@ public class SearchPage: Page {
             return
         }
 
-        switch type {
+        switch result.searchType {
 
-        case .recentlyPlayedSongs:
+        case .recentlyPlayed:
 
             pageNamePlane.width = 15
             pageNamePlane.putString("Recently Played", at: (0, 0))
@@ -154,7 +154,7 @@ public class SearchPage: Page {
 
             await update(result: result)
 
-        case .catalogSearchSongs:
+        case .catalogSearch:
             guard let searchPhrase = result.searchPhrase else {
                 return
             }
@@ -167,7 +167,7 @@ public class SearchPage: Page {
 
             await update(result: result)
 
-        case .librarySearchSongs:
+        case .librarySearch:
             guard let searchPhrase = result.searchPhrase else {
                 return
             }
@@ -199,47 +199,69 @@ public class SearchPage: Page {
         let items = result.result
         switch items {
         case let songs as MusicItemCollection<Song>:
-            for songIndex in songs.indices {
-                guard
-                    let item = SongItemPage(
-                        in: plane,
-                        state: .init(
-                            absX: 1,
-                            absY: 1 + Int32(songIndex) * 5,
-                            width: state.width - 2,
-                            height: 5
-                        ),
-                        colorConfig: colorConfig.songItem,
-                        item: songs[songIndex]
-                    )
-                else { continue }
-                self.searchCache.append(item)
-                if songIndex >= maxItemsDisplayed {
-                    break
-                }
-            }
+            songItems(songs: songs)
         case let albums as MusicItemCollection<Album>:
-            for albumIndex in albums.indices {
-                guard
-                    let item = AlbumItemPage(
-                        in: plane,
-                        state: .init(
-                            absX: 1,
-                            absY: 1 + Int32(albumIndex) * 5,
-                            width: state.width - 2,
-                            height: 5
-                        ),
-                        colorConfig: colorConfig.albumItem,
-                        item: albums[albumIndex]
-                    )
-                else { continue }
-                self.searchCache.append(item)
-                if albumIndex >= maxItemsDisplayed {
-                    break
+            albumItems(albums: albums)
+        case let recentlyPlayedItems as MusicItemCollection<RecentlyPlayedMusicItem>:
+            for itemIndex in recentlyPlayedItems.indices {
+                switch recentlyPlayedItems[itemIndex] {
+                case .album(let album):
+                    albumItem(album: album, albumIndex: itemIndex)
+                case .station(_): break
+                case .playlist(_): break
+                default: break
                 }
             }
         default: break
         }
+    }
+
+    private func songItems(songs: MusicItemCollection<Song>) {
+        for songIndex in songs.indices {
+            guard
+                let item = SongItemPage(
+                    in: plane,
+                    state: .init(
+                        absX: 1,
+                        absY: 1 + Int32(songIndex) * 5,
+                        width: state.width - 2,
+                        height: 5
+                    ),
+                    colorConfig: colorConfig.songItem,
+                    item: songs[songIndex]
+                )
+            else { return }
+            self.searchCache.append(item)
+            if songIndex >= maxItemsDisplayed {
+                break
+            }
+        }
+    }
+
+    private func albumItems(albums: MusicItemCollection<Album>) {
+        for albumIndex in albums.indices {
+            albumItem(album: albums[albumIndex], albumIndex: albumIndex)
+            if albumIndex >= maxItemsDisplayed {
+                break
+            }
+        }
+    }
+
+    private func albumItem(album: Album, albumIndex: Int) {
+        guard
+            let item = AlbumItemPage(
+                in: plane,
+                state: .init(
+                    absX: 1,
+                    absY: 1 + Int32(albumIndex) * 5,
+                    width: state.width - 2,
+                    height: 5
+                ),
+                colorConfig: colorConfig.albumItem,
+                item: album
+            )
+        else { return }
+        self.searchCache.append(item)
     }
 
 }

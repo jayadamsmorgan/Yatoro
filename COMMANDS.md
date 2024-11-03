@@ -51,19 +51,24 @@ Example: `:a -l a n` --- Add all items from library song search after currently 
 ## search
 Used to make search requests.
 
-Search command expects 1 optional argument and 1 optional flag:
+Search command expects 1 optional argument, 1 optional option and 1 optional flag:
 
 - `from` --- **(Flag)**
-    - `-c`, `--catalogSearchSongs` - search from catalog songs **(Default)**
-    - `-l`, `--librarySearchSongs` - search from user library songs
-    - `-r`, `--recentlyPlayedSongs` - request recently played songs
+    - `-c`, `--catalogSearch` - search from catalog **(Default)**
+    - `-l`, `--librarySearchSongs` - search from user library
+    - `-r`, `--recentlyPlayedSongs` - request recently played items
     - `-s`, `--recommended` - user recommendations request
 
-- `searchPhrase` --- **(Argument)**
+- `type` --- **(Option)**
+    - `-t`, `--type` - type of searchable item:
+        - `a`, `album` - perform search for albums
+        - `s`, `song` - perform search for songs **(Default)**
 
-**Note**: Search phrase is not needed when requesting recently played songs or user recommendations but required when searching catalog or user library songs.
+- `searchPhrase` --- **(Argument)** --- what to search for
 
-Example: `:search TOOL lateralus` - Search catalog songs for "TOOL lateralus"
+**Note**: Search phrase is not needed when requesting recently played items or user recommendations but required when searching for catalog or user library items.
+
+Example: `:search -c -t s TOOL lateralus` - Search catalog songs for "TOOL lateralus"
 
 ## setSongTime
 Sets playback time for the current entry.
