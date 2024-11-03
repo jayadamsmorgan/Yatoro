@@ -27,13 +27,7 @@ Here are the available commands for the command mode and their description:
 ## addToQueue
 Used to add items to player queue.
 
-Add to queue command expects 2 arguments and 1 flag:
-
-- `from` --- **(Flag)**
-    - `-c`, `--catalogSearchSongs` - add songs from catalog search
-    - `-l`, `--librarySearchSongs` - add songs from user library search
-    - `-r`, `--recentlyPlayedSongs` - add songs from recently played request
-    - `-s`, `--recommended` - add songs from user recommendation request
+Add to queue command expects 2 arguments:
 
 - `item` --- **(Argument 1)** --- This argument is used to specify what you want to add to queue:
     - either an index of item, e.g. `1`
