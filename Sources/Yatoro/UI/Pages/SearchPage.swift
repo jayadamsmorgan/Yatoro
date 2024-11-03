@@ -166,11 +166,15 @@ public class SearchPage: Page {
                 pageNamePlane.width = 15
                 pageNamePlane.putString("Catalog albums:", at: (0, 0))
             }
+            let searchPhrasePlaneWidth = min(
+                UInt32(searchPhrase.count - 1),
+                self.state.width - pageNamePlane.width - 4
+            )
             searchPhrasePlane.updateByPageState(
                 .init(
                     absX: Int32(pageNamePlane.width) + 3,
                     absY: 0,
-                    width: UInt32(searchPhrase.count - 1),
+                    width: searchPhrasePlaneWidth,
                     height: 1
                 )
             )
