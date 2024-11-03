@@ -228,6 +228,16 @@ ui:
       pageName: {}
       border: {}
       searchPhrase: {}
+      albumItem:
+        page: {}
+        pageName: {}
+        border: {}
+        artistLeft: {}
+        artistRight: {}
+        albumLeft: {}
+        albumRight: {}
+        genreLeft: {}
+        genreRight: {}
       songItem:
         page: {}
         pageName: {}
