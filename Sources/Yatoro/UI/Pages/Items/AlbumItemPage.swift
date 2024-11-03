@@ -141,9 +141,12 @@ public class AlbumItemPage: DestroyablePage {
 
         var genreStr = ""
         for genre in item.genreNames {
-            genreStr.append("\(genre)/")
+            if genre == "Music" {
+                continue
+            }
+            genreStr.append("\(genre), ")
         }
-        genreStr.removeLast()
+        genreStr.removeLast(2)
         let genreRightWidth = min(UInt32(genreStr.count), state.width - 10)
         guard
             let genreRightPlane = Plane(
@@ -161,7 +164,7 @@ public class AlbumItemPage: DestroyablePage {
         }
         genreRightPlane.backgroundColor = colorConfig.genreRight.background
         genreRightPlane.foregroundColor = colorConfig.genreRight.foreground
-        genreRightPlane.putString(item.title, at: (0, 0))
+        genreRightPlane.putString(genreStr, at: (0, 0))
         self.genreRightPlane = genreRightPlane
 
         guard

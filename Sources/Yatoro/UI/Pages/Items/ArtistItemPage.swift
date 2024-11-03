@@ -149,9 +149,9 @@ public class ArtistItemPage: DestroyablePage {
         if let genres = item.genres {
             var genreStr = ""
             for genre in genres {
-                genreStr.append("\(genre.name)/")
+                genreStr.append("\(genre.name), ")
             }
-            genreStr.removeLast()
+            genreStr.removeLast(2)
             let genreRightWidth = min(UInt32(genreStr.count), state.width - 10)
             guard
                 let genreRightPlane = Plane(
