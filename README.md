@@ -106,7 +106,7 @@ Command line arguments will overwrite the options set in `config.yaml`
 Yatoro has a VIM-like command line. Check full command description in [COMMANDS](COMMANDS.md).
 
 
-### Contributing
+## Contributing
 
 Check [CONTRIBUTING](CONTRIBUTING.md) and [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md).
 
