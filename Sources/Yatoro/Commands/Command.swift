@@ -75,7 +75,7 @@ public struct Command: Sendable {
                 guard
                     let result = SearchManager.shared.lastSearchResult?.result
                 else {
-                    let msg = "No last \(command.from) search result"
+                    let msg = "No last search result"
                     logger?.debug(msg)
                     await CommandInput.shared.setLastCommandOutput(msg)
                     return
