@@ -2,6 +2,8 @@
 
 I would love to hear from you! Just open an issue or start a PR.
 
+Please open PRs to development branches.
+
 ## Debugging with Xcode
 
 To debug Yatoro in Xcode:
