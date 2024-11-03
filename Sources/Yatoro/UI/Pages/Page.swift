@@ -13,6 +13,12 @@ public protocol Page {
     func getMaxDimensions() async -> (width: UInt32, height: UInt32)?
 }
 
+public protocol DestroyablePage: Page {
+
+    func destroy() async
+
+}
+
 public enum PageSize {
     case nano
     case mini

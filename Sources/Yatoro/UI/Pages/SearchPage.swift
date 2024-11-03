@@ -38,7 +38,7 @@ public class SearchPage: Page {
 
         pageNamePlane.updateByPageState(.init(absX: 2, absY: 0, width: 13, height: 1))
 
-        for case let item as SongItemPage in searchCache {
+        for case let item as DestroyablePage in searchCache {
             await item.destroy()
         }
         self.searchCache = []
@@ -190,7 +190,7 @@ public class SearchPage: Page {
         }
         logger?.debug("Search UI update.")
 
-        for case let item as SongItemPage in searchCache {
+        for case let item as DestroyablePage in searchCache {
             await item.destroy()
         }
 

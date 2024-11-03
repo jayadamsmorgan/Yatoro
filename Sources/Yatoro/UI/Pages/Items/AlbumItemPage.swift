@@ -2,7 +2,7 @@ import MusicKit
 import SwiftNotCurses
 
 @MainActor
-public class AlbumItemPage: Page {
+public class AlbumItemPage: DestroyablePage {
 
     private var state: PageState
     private let plane: Plane
