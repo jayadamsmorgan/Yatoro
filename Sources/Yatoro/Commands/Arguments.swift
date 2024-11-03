@@ -36,11 +36,13 @@ public enum MusicItemType: Hashable, CaseIterable, Sendable, ExpressibleByArgume
 
     case song
     case album
+    case artist
 
     public init?(argument: String) {
         switch argument {
         case "s", "song": self = .song
-        case "a", "album": self = .album
+        case "al", "album": self = .album
+        case "ar", "artist": self = .artist
         default: return nil
         }
     }
