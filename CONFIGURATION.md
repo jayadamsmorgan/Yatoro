@@ -97,6 +97,9 @@ By default, both properties are `nil` on every UI element, which basically means
 - `pageName` --- "Search" string
 - `border` --- page border
 - `songItem` --- see [songItem](#songItem)
+- `albumItem` --- see [albumItem](#albumItem)
+- `artistItem` --- see [artistItem](#artistItem)
+- `playlistItem` --- see [playlistItem](#playlistItem)
 
 #### songItem
 
@@ -128,14 +131,27 @@ Similar to [songItem](#songItem), but used only in Search page when displaying A
 
 Similar to [songItem](#songItem), but used only in Search page when displaying Artists.
 
-- `page` --- album item background
-- `border` --- album item border
+- `page` --- artist item background
+- `border` --- artist item border
 - `artistLeft` --- "artist:" string
 - `artistRight` --- artist name string
 - `genreLeft` --- "genre:" string
 - `genreRight` --- genre names string
 - `albumsLeft` --- "albums:" string
-- `albumsRight` --- album titles string
+- `albumsRight` --- artist album titles string
+
+#### playlistItem
+
+Similar to [songItem](#songItem), but used only in Search page when displaying Playlists.
+
+- `page` --- playlist item background
+- `border` --- playlist item border
+- `playlistLeft` --- "playlist:" string
+- `playlistRight` --- playlist name string
+- `curatorLeft` --- "curator:" string
+- `curatorRight` --- curator name string
+- `descriptionLeft` --- "description:" string
+- `descriptionRight` --- playlist description string
 
 ### ui.layout
 
@@ -270,6 +286,16 @@ ui:
         songRight: {}
         albumLeft: {}
         albumRight: {}
+      albumItem:
+        page: {}
+        pageName: {}
+        border: {}
+        playlistLeft: {}
+        playlistRight: {}
+        curatorLeft: {}
+        curatorRight: {}
+        descriptionLeft: {}
+        descriptionRight: {}
     queue:
       page: {}
       pageName: {}
