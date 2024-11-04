@@ -250,7 +250,8 @@ public class SearchPage: Page {
                 case .album(let album):
                     albumItem(album: album, albumIndex: itemIndex)
                 case .station(_): break
-                case .playlist(_): break
+                case .playlist(let playlist):
+                    playlistItem(playlist: playlist, playlistIndex: itemIndex)
                 default: break
                 }
             }
