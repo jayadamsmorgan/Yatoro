@@ -257,10 +257,14 @@ public class SearchPage: Page {
                 switch recentlyPlayedItems[itemIndex] {
                 case .album(let album):
                     albumItem(album: album, albumIndex: itemIndex)
-                case .station(_): break
+                case .station(let station):
+                    stationItem(station: station, stationIndex: itemIndex)
                 case .playlist(let playlist):
                     playlistItem(playlist: playlist, playlistIndex: itemIndex)
                 default: break
+                }
+                if itemIndex >= maxItemsDisplayed {
+                    break
                 }
             }
         default: break
