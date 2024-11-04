@@ -43,7 +43,7 @@ public enum MusicItemType: Hashable, CaseIterable, Sendable, ExpressibleByArgume
         case "so", "song": self = .song
         case "al", "album": self = .album
         case "ar", "artist": self = .artist
-        case "p", "playlist": self = .playlist
+        case "p", "pl", "playlist": self = .playlist
         case "st", "station": self = .station
         default: return nil
         }
