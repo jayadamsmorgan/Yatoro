@@ -434,7 +434,7 @@ public class NowPlayingPage: Page {
     }
 
     func handleArtwork(pixelArray: [UInt8]) {
-        let artworkPlaneWidth = max(self.state.width / 2, self.state.height - 3) - 2
+        let artworkPlaneWidth = min(self.state.width / 2, self.state.height - 3)
         let artworkPlaneHeight = artworkPlaneWidth / 2 - 1
         if artworkPlaneHeight > self.state.height - 12 {
             self.artworkVisual?.destroy()
