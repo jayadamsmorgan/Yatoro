@@ -32,17 +32,17 @@ extension SearchType: EnumerableFlag {
 
 public enum MusicItemType: Hashable, CaseIterable, Sendable, ExpressibleByArgument {
 
-    public static let allValueStrings: [String] = ["a", "album", "s", "song"]
-
     case song
     case album
     case artist
+    case playlist
 
     public init?(argument: String) {
         switch argument {
         case "s", "song": self = .song
         case "al", "album": self = .album
         case "ar", "artist": self = .artist
+        case "p", "playlist": self = .playlist
         default: return nil
         }
     }
