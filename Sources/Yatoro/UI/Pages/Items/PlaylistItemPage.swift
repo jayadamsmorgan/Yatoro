@@ -68,7 +68,7 @@ public class PlaylistItemPage: DestroyablePage {
                 state: .init(
                     absX: 3,
                     absY: 0,
-                    width: 5,
+                    width: 8,
                     height: 1
                 ),
                 debugID: "PLAYLIST_UI_\(item.id)_PN"
@@ -105,7 +105,7 @@ public class PlaylistItemPage: DestroyablePage {
             let playlistRightPlane = Plane(
                 in: pagePlane,
                 state: .init(
-                    absX: 10,
+                    absX: 12,
                     absY: 1,
                     width: playlistRightWidth,
                     height: 1
@@ -139,7 +139,7 @@ public class PlaylistItemPage: DestroyablePage {
         descriptionLeftPlane.putString("Description:", at: (0, 0))
         self.descriptionLeftPlane = descriptionLeftPlane
 
-        var descriptionRightWidth = min(UInt32(item.description.count), state.width - 16)
+        var descriptionRightWidth = min(UInt32(item.standardDescription?.count ?? 1), state.width - 16)
         if descriptionRightWidth == 0 { descriptionRightWidth = 1 }
         guard
             let descriptionRightPlane = Plane(
@@ -157,7 +157,7 @@ public class PlaylistItemPage: DestroyablePage {
         }
         descriptionRightPlane.backgroundColor = colorConfig.descriptionRight.background
         descriptionRightPlane.foregroundColor = colorConfig.descriptionRight.foreground
-        descriptionRightPlane.putString(item.description, at: (0, 0))
+        descriptionRightPlane.putString(item.standardDescription ?? "", at: (0, 0))
         self.descriptionRightPlane = descriptionRightPlane
 
         guard

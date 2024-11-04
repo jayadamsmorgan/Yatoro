@@ -104,6 +104,9 @@ public struct Command: Sendable {
                     case let result as MusicItemCollection<RecentlyPlayedMusicItem>:
                         await Player.shared.addItemsToQueue(items: result, at: command.to)
 
+                    case let result as MusicItemCollection<Playlist>:
+                        await Player.shared.addItemsToQueue(items: result, at: command.to)
+
                     case _ as MusicItemCollection<MusicPersonalRecommendation>:
                         // TODO
                         break
@@ -113,6 +116,7 @@ public struct Command: Sendable {
 
                 case .some(let indices):
                     switch result {
+
                     case let result as MusicItemCollection<Song>:
                         var songs: [Song] = []
                         for index in indices {
@@ -121,6 +125,7 @@ public struct Command: Sendable {
                             }
                         }
                         await Player.shared.addItemsToQueue(items: .init(songs), at: command.to)
+
                     case let result as MusicItemCollection<Album>:
                         var albums: [Album] = []
                         for index in indices {
@@ -129,6 +134,7 @@ public struct Command: Sendable {
                             }
                         }
                         await Player.shared.addItemsToQueue(items: .init(albums), at: command.to)
+
                     case let result as MusicItemCollection<RecentlyPlayedMusicItem>:
                         var items: [RecentlyPlayedMusicItem] = []
                         for index in indices {
@@ -137,10 +143,22 @@ public struct Command: Sendable {
                             }
                         }
                         await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
+
+                    case let result as MusicItemCollection<Playlist>:
+                        var items: [Playlist] = []
+                        for index in indices {
+                            if let item = result.item(at: index) {
+                                items.append(item)
+                            }
+                        }
+                        await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
+
                     case _ as MusicItemCollection<MusicPersonalRecommendation>:
                         // TODO
                         break
+
                     default: break
+
                     }
 
                 case .one(let int):
@@ -153,6 +171,8 @@ public struct Command: Sendable {
                     case let item as Album:
                         await Player.shared.addItemsToQueue(items: [item], at: command.to)
                     case let item as RecentlyPlayedMusicItem:
+                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                    case let item as Playlist:
                         await Player.shared.addItemsToQueue(items: [item], at: command.to)
                     case _ as MusicPersonalRecommendation:
                         // TODO

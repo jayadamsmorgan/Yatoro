@@ -63,6 +63,8 @@ public class SearchManager: @unchecked Sendable {
                 result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Album>?
             case .artist:
                 result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Artist>?
+            case .playlist:
+                result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Playlist>?
             }
 
         case .librarySearch:
@@ -74,6 +76,8 @@ public class SearchManager: @unchecked Sendable {
                 result = await searchUserLibraryBatch(for: phrase) as MusicItemCollection<Album>?
             case .artist:
                 result = await searchUserLibraryBatch(for: phrase) as MusicItemCollection<Artist>?
+            case .playlist:
+                result = await searchUserLibraryBatch(for: phrase) as MusicItemCollection<Playlist>?
             }
 
         }

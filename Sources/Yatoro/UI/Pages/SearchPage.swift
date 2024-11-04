@@ -168,6 +168,9 @@ public class SearchPage: Page {
             case .artist:
                 pageNamePlane.width = 16
                 pageNamePlane.putString("Catalog artists:", at: (0, 0))
+            case .playlist:
+                pageNamePlane.width = 18
+                pageNamePlane.putString("Catalog playlists:", at: (0, 0))
             }
             let searchPhrasePlaneWidth = min(
                 UInt32(searchPhrase.count - 1),
@@ -199,6 +202,9 @@ public class SearchPage: Page {
             case .artist:
                 pageNamePlane.width = 16
                 pageNamePlane.putString("Library artists:", at: (0, 0))
+            case .playlist:
+                pageNamePlane.width = 18
+                pageNamePlane.putString("Library playlists:", at: (0, 0))
             }
             searchPhrasePlane.updateByPageState(
                 .init(
@@ -236,6 +242,8 @@ public class SearchPage: Page {
             albumItems(albums: albums)
         case let artists as MusicItemCollection<Artist>:
             await artistItems(artists: artists)
+        case let playlists as MusicItemCollection<Playlist>:
+            playlistItems(playlists: playlists)
         case let recentlyPlayedItems as MusicItemCollection<RecentlyPlayedMusicItem>:
             for itemIndex in recentlyPlayedItems.indices {
                 switch recentlyPlayedItems[itemIndex] {
@@ -319,6 +327,27 @@ public class SearchPage: Page {
                 ),
                 colorConfig: colorConfig.artistItem,
                 item: artist
+            )
+        else { return }
+        self.searchCache.append(item)
+    }
+
+    private func playlistItems(playlists: MusicItemCollection<Playlist>) {
+        for playlistIndex in playlists.indices {
+            playlistItem(playlist: playlists[playlistIndex], playlistIndex: playlistIndex)
+            if playlistIndex >= maxItemsDisplayed {
+                break
+            }
+        }
+    }
+
+    private func playlistItem(playlist: Playlist, playlistIndex: Int) {
+        guard
+            let item = PlaylistItemPage(
+                in: plane,
+                state: .init(absX: 1, absY: 1 + Int32(playlistIndex) * 5, width: state.width - 2, height: 5),
+                colorConfig: colorConfig.playlistItem,
+                item: playlist
             )
         else { return }
         self.searchCache.append(item)
