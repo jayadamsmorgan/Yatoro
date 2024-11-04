@@ -40,7 +40,10 @@ Add to queue command expects 2 arguments:
     - `tail`, `end`, `later`, `t`, `e`, `l` - add the selected items to the end of the queue **(Default)**
     - `next`, `afterCurrentEntry`, `n`, `a` - add the selected items right after currently playing item 
 
-Example: `:a a n` --- Add all items from current song search after currently playing entry
+Examples:
+    - `:a a n` --- Add all items from current search after currently playing entry
+    - `:addToQueue 1,4 t` --- Add second and fifth items from current search to the end of the queue
+    - `:a 0` --- Add first item from the current search after currently playing entry
 
 ## search
 Used to make search requests.
@@ -65,7 +68,9 @@ Search command expects 1 optional argument, 1 optional option and 1 optional fla
 
 **Note**: Search phrase is not needed when requesting recently played items or user recommendations but required when searching for catalog or user library items.
 
-Example: `:search -c -t s TOOL lateralus` - Search catalog songs for "TOOL lateralus"
+Examples:
+    - `:search -c -t so TOOL lateralus` or `:/ TOOL lateralus`--- Search catalog songs for "TOOL lateralus"
+    - `:/ -t ar -l TOOL` --- Search for artists "TOOL" in your music library
 
 ## setSongTime
 Sets playback time for the current entry.
