@@ -48,9 +48,9 @@ Used to make search requests.
 Search command expects 1 optional argument, 1 optional option and 1 optional flag:
 
 - `from` --- **(Flag)**
-    - `-c`, `--catalogSearch` - search from catalog **(Default)**
-    - `-l`, `--librarySearchSongs` - search from user library
-    - `-r`, `--recentlyPlayedSongs` - request recently played items
+    - `-c`, `--catalog` - search from catalog **(Default)**
+    - `-l`, `--library` - search from user library
+    - `-r`, `--recent` - request recently played items
     - `-s`, `--recommended` - user recommendations request
 
 - `type` --- **(Option)**
