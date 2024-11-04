@@ -25,7 +25,7 @@ Here are the available commands for the command mode and their description:
 | `stopSeeking`             | `ss`  | Stop seeking                                                  |
 
 ## addToQueue
-Used to add items to player queue.
+Used to add items to player queue from search page.
 
 Add to queue command expects 2 arguments:
 
@@ -37,10 +37,10 @@ Add to queue command expects 2 arguments:
 **Note**: Indices are 0 based.
 
 - `to` --- **(Argument 2)** --- This argument is used to specify where to add to the queue:
-    - `tail`, `end`, `later`, `t`, `e`, `l` - add the selected items to the end of the queue
+    - `tail`, `end`, `later`, `t`, `e`, `l` - add the selected items to the end of the queue **(Default)**
     - `next`, `afterCurrentEntry`, `n`, `a` - add the selected items right after currently playing item 
 
-Example: `:a -l a n` --- Add all items from library song search after currently playing entry
+Example: `:a a n` --- Add all items from current song search after currently playing entry
 
 ## search
 Used to make search requests.
@@ -58,6 +58,7 @@ Search command expects 1 optional argument, 1 optional option and 1 optional fla
         - `s`, `song` - perform search for songs **(Default)**
         - `al`, `album` - perform search for albums
         - `ar`, `artist` - perform search for artists
+        - `p`, `playlist` - perform search for playlists
 
 - `searchPhrase` --- **(Argument)** --- what to search for
 
