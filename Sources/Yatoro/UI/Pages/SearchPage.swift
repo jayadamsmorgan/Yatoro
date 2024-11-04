@@ -171,6 +171,9 @@ public class SearchPage: Page {
             case .playlist:
                 pageNamePlane.width = 18
                 pageNamePlane.putString("Catalog playlists:", at: (0, 0))
+            case .station:
+                pageNamePlane.width = 17
+                pageNamePlane.putString("Catalog stations:", at: (0, 0))
             }
             let searchPhrasePlaneWidth = min(
                 UInt32(searchPhrase.count - 1),
@@ -205,6 +208,9 @@ public class SearchPage: Page {
             case .playlist:
                 pageNamePlane.width = 18
                 pageNamePlane.putString("Library playlists:", at: (0, 0))
+            case .station:
+                pageNamePlane.width = 17
+                pageNamePlane.putString("Library stations:", at: (0, 0))
             }
             searchPhrasePlane.updateByPageState(
                 .init(
@@ -244,6 +250,8 @@ public class SearchPage: Page {
             await artistItems(artists: artists)
         case let playlists as MusicItemCollection<Playlist>:
             playlistItems(playlists: playlists)
+        case let stations as MusicItemCollection<Station>:
+            stationItems(stations: stations)
         case let recentlyPlayedItems as MusicItemCollection<RecentlyPlayedMusicItem>:
             for itemIndex in recentlyPlayedItems.indices {
                 switch recentlyPlayedItems[itemIndex] {
@@ -346,9 +354,40 @@ public class SearchPage: Page {
         guard
             let item = PlaylistItemPage(
                 in: plane,
-                state: .init(absX: 1, absY: 1 + Int32(playlistIndex) * 5, width: state.width - 2, height: 5),
+                state: .init(
+                    absX: 1,
+                    absY: 1 + Int32(playlistIndex) * 5,
+                    width: state.width - 2,
+                    height: 5
+                ),
                 colorConfig: colorConfig.playlistItem,
                 item: playlist
+            )
+        else { return }
+        self.searchCache.append(item)
+    }
+
+    private func stationItems(stations: MusicItemCollection<Station>) {
+        for stationIndex in stations.indices {
+            stationItem(station: stations[stationIndex], stationIndex: stationIndex)
+            if stationIndex >= maxItemsDisplayed {
+                break
+            }
+        }
+    }
+
+    private func stationItem(station: Station, stationIndex: Int) {
+        guard
+            let item = StationItemPage(
+                in: plane,
+                state: .init(
+                    absX: 1,
+                    absY: 1 + Int32(stationIndex) * 5,
+                    width: state.width - 2,
+                    height: 5
+                ),
+                colorConfig: colorConfig.stationItem,
+                item: station
             )
         else { return }
         self.searchCache.append(item)

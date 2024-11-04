@@ -10,6 +10,7 @@ extension Config.UIConfig.Colors {
         public var albumItem: AlbumItem
         public var artistItem: ArtistItem
         public var playlistItem: PlaylistItem
+        public var stationItem: StationItem
 
         public init() {
             self.page = .init()
@@ -20,6 +21,7 @@ extension Config.UIConfig.Colors {
             self.albumItem = .init()
             self.artistItem = .init()
             self.playlistItem = .init()
+            self.stationItem = .init()
         }
     }
 }
@@ -35,6 +37,7 @@ extension Config.UIConfig.Colors.Search: Codable {
         case albumItem
         case artistItem
         case playlistItem
+        case stationItem
     }
 
     public init(from decoder: any Decoder) throws {
@@ -63,6 +66,9 @@ extension Config.UIConfig.Colors.Search: Codable {
         self.playlistItem =
             try container.decodeIfPresent(Config.UIConfig.Colors.PlaylistItem.self, forKey: .playlistItem)
             ?? .init()
+        self.stationItem =
+            try container.decodeIfPresent(Config.UIConfig.Colors.StationItem.self, forKey: .stationItem)
+            ?? .init()
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -75,6 +81,7 @@ extension Config.UIConfig.Colors.Search: Codable {
         try container.encode(self.albumItem, forKey: .albumItem)
         try container.encode(self.artistItem, forKey: .artistItem)
         try container.encode(self.playlistItem, forKey: .playlistItem)
+        try container.encode(self.stationItem, forKey: .stationItem)
     }
 
 }
