@@ -494,17 +494,17 @@ public class NowPlayingPage: Page {
             self.artworkPlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
             return
         }
-        var width = currentSong.artistName.count
+        var width = min(UInt32(currentSong.artistName.count), self.state.width - 11)
         self.artistRightPlane.erase()
-        self.artistRightPlane.updateByPageState(.init(absX: 10, absY: 2, width: UInt32(width), height: 1))
+        self.artistRightPlane.updateByPageState(.init(absX: 10, absY: 2, width: width, height: 1))
         self.artistRightPlane.putString(currentSong.artistName, at: (0, 0))
-        width = currentSong.title.count
+        width = min(UInt32(currentSong.title.count), self.state.width - 11)
         self.songRightPlane.erase()
-        self.songRightPlane.updateByPageState(.init(absX: 10, absY: 3, width: UInt32(width), height: 1))
+        self.songRightPlane.updateByPageState(.init(absX: 10, absY: 3, width: width, height: 1))
         self.songRightPlane.putString(currentSong.title, at: (0, 0))
-        width = currentSong.albumTitle?.count ?? 3
+        width = min(UInt32(currentSong.albumTitle?.count ?? 3), self.state.width - 11)
         self.albumRightPlane.erase()
-        self.albumRightPlane.updateByPageState(.init(absX: 10, absY: 4, width: UInt32(width), height: 1))
+        self.albumRightPlane.updateByPageState(.init(absX: 10, absY: 4, width: width, height: 1))
         self.albumRightPlane.putString(currentSong.albumTitle ?? "nil", at: (0, 0))
 
         let currentTime = player.player.playbackTime
