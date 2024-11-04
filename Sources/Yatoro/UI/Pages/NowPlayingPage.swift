@@ -409,7 +409,18 @@ public class NowPlayingPage: Page {
     }
 
     func processArtwork() {
-        guard let currentSong else { return }
+        guard let currentSong else {
+            self.artworkVisual?.destroy()
+            self.artworkPlane.updateByPageState(
+                .init(
+                    absX: 2,
+                    absY: 4,
+                    width: 1,
+                    height: 1
+                )
+            )
+            return
+        }
         if let url = currentSong.artwork?.url(
             width: Int(self.artworkPixelWidth),
             height: Int(self.artworkPixelHeight)
