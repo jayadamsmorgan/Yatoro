@@ -107,6 +107,9 @@ public struct Command: Sendable {
                     case let result as MusicItemCollection<Playlist>:
                         await Player.shared.addItemsToQueue(items: result, at: command.to)
 
+                    case let result as MusicItemCollection<Station>:
+                        await Player.shared.addItemsToQueue(items: result, at: command.to)
+
                     case _ as MusicItemCollection<MusicPersonalRecommendation>:
                         // TODO
                         break
@@ -153,6 +156,15 @@ public struct Command: Sendable {
                         }
                         await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
 
+                    case let result as MusicItemCollection<Station>:
+                        var items: [Station] = []
+                        for index in indices {
+                            if let item = result.item(at: index) {
+                                items.append(item)
+                            }
+                        }
+                        await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
+
                     case _ as MusicItemCollection<MusicPersonalRecommendation>:
                         // TODO
                         break
@@ -173,6 +185,8 @@ public struct Command: Sendable {
                     case let item as RecentlyPlayedMusicItem:
                         await Player.shared.addItemsToQueue(items: [item], at: command.to)
                     case let item as Playlist:
+                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                    case let item as Station:
                         await Player.shared.addItemsToQueue(items: [item], at: command.to)
                     case _ as MusicPersonalRecommendation:
                         // TODO
@@ -218,6 +232,12 @@ public struct Command: Sendable {
                 var searchPhrase = ""
                 for part in command.searchPhrase {
                     searchPhrase.append("\(part) ")
+                }
+                if command.type == .station && command.from == .librarySearch {
+                    let msg = "Can't search user library for stations"
+                    logger?.debug(msg)
+                    await CommandInput.shared.setLastCommandOutput(msg)
+                    return
                 }
                 Task {
                     await SearchManager.shared.newSearch(

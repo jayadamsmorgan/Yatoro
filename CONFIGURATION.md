@@ -100,6 +100,7 @@ By default, both properties are `nil` on every UI element, which basically means
 - `albumItem` --- see [albumItem](#albumItem)
 - `artistItem` --- see [artistItem](#artistItem)
 - `playlistItem` --- see [playlistItem](#playlistItem)
+- `stationItem` --- see [stationItem](#stationItem)
 
 #### songItem
 
@@ -152,6 +153,19 @@ Similar to [songItem](#songItem), but used only in Search page when displaying P
 - `curatorRight` --- curator name string
 - `descriptionLeft` --- "description:" string
 - `descriptionRight` --- playlist description string
+
+#### playlistItem
+
+Similar to [songItem](#songItem), but used only in Search page when displaying Stations.
+
+- `page` --- station item background
+- `border` --- station item border
+- `stationLeft` --- "station:" string
+- `stationRight` --- station name string
+- `isLiveLeft` --- "isLive:" string
+- `isLiveRight` --- is station live boolean string
+- `notesLeft` --- "notes:" string
+- `notesRight` --- station editorial notes string
 
 ### ui.layout
 
@@ -286,7 +300,7 @@ ui:
         songRight: {}
         albumLeft: {}
         albumRight: {}
-      albumItem:
+      playlistItem:
         page: {}
         pageName: {}
         border: {}
@@ -296,6 +310,16 @@ ui:
         curatorRight: {}
         descriptionLeft: {}
         descriptionRight: {}
+      stationItem:
+        page: {}
+        pageName: {}
+        border: {}
+        stationLeft: {}
+        stationRight: {}
+        isLiveLeft: {}
+        isLiveRight: {}
+        notesLeft: {}
+        notesRight: {}
     queue:
       page: {}
       pageName: {}
