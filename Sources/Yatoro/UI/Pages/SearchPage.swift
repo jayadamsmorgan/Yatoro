@@ -9,6 +9,7 @@ public class SearchPage: Page {
     private let pageNamePlane: Plane
     private let borderPlane: Plane
     private let searchPhrasePlane: Plane
+    private let itemIndicesPlane: Plane
 
     private var state: PageState
 
@@ -37,6 +38,9 @@ public class SearchPage: Page {
         borderPlane.windowBorder(width: state.width, height: state.height)
 
         pageNamePlane.updateByPageState(.init(absX: 2, absY: 0, width: 13, height: 1))
+
+        itemIndicesPlane.erase()
+        itemIndicesPlane.updateByPageState(.init(absX: 1, absY: 1, width: 1, height: state.height - 2))
 
         for case let item as DestroyablePage in searchCache {
             await item.destroy()
@@ -121,6 +125,24 @@ public class SearchPage: Page {
         pageNamePlane.foregroundColor = colorConfig.pageName.foreground
         self.pageNamePlane = pageNamePlane
 
+        guard
+            let itemIndicesPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: 1,
+                    absY: 1,
+                    width: 1,
+                    height: state.height - 2
+                ),
+                debugID: "SEARCH_II"
+            )
+        else {
+            return nil
+        }
+        itemIndicesPlane.backgroundColor = colorConfig.itemIndices.background
+        itemIndicesPlane.foregroundColor = colorConfig.itemIndices.foreground
+        self.itemIndicesPlane = itemIndicesPlane
+
         self.searchCache = []
         self.lastSearchTime = .now
         self.colorConfig = colorConfig
@@ -133,6 +155,7 @@ public class SearchPage: Page {
             pageNamePlane.putString("Search", at: (0, 0))
             searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
             searchPhrasePlane.erase()
+            itemIndicesPlane.erase()
             return
         }
 
@@ -234,6 +257,7 @@ public class SearchPage: Page {
         }
         logger?.debug("Search UI update.")
 
+        itemIndicesPlane.erase()
         for case let item as DestroyablePage in searchCache {
             await item.destroy()
         }
@@ -275,13 +299,14 @@ public class SearchPage: Page {
 
     private func songItems(songs: MusicItemCollection<Song>) {
         for songIndex in songs.indices {
+            itemIndicesPlane.putString("\(songIndex)", at: (x: 0, y: 2 + Int32(songIndex) * 5))
             guard
                 let item = SongItemPage(
                     in: plane,
                     state: .init(
-                        absX: 1,
+                        absX: 2,
                         absY: 1 + Int32(songIndex) * 5,
-                        width: state.width - 2,
+                        width: state.width - 3,
                         height: 5
                     ),
                     colorConfig: colorConfig.songItem,
@@ -305,13 +330,14 @@ public class SearchPage: Page {
     }
 
     private func albumItem(album: Album, albumIndex: Int) {
+        itemIndicesPlane.putString("\(albumIndex)", at: (x: 0, y: 2 + Int32(albumIndex) * 5))
         guard
             let item = AlbumItemPage(
                 in: plane,
                 state: .init(
-                    absX: 1,
+                    absX: 2,
                     absY: 1 + Int32(albumIndex) * 5,
-                    width: state.width - 2,
+                    width: state.width - 3,
                     height: 5
                 ),
                 colorConfig: colorConfig.albumItem,
@@ -331,13 +357,14 @@ public class SearchPage: Page {
     }
 
     private func artistItem(artist: Artist, artistIndex: Int) async {
+        itemIndicesPlane.putString("\(artistIndex)", at: (x: 0, y: 2 + Int32(artistIndex) * 5))
         guard
             let item = await ArtistItemPage(
                 in: plane,
                 state: .init(
-                    absX: 1,
+                    absX: 2,
                     absY: 1 + Int32(artistIndex) * 5,
-                    width: state.width - 2,
+                    width: state.width - 3,
                     height: 5
                 ),
                 colorConfig: colorConfig.artistItem,
@@ -357,13 +384,14 @@ public class SearchPage: Page {
     }
 
     private func playlistItem(playlist: Playlist, playlistIndex: Int) {
+        itemIndicesPlane.putString("\(playlistIndex)", at: (x: 0, y: 2 + Int32(playlistIndex) * 5))
         guard
             let item = PlaylistItemPage(
                 in: plane,
                 state: .init(
-                    absX: 1,
+                    absX: 2,
                     absY: 1 + Int32(playlistIndex) * 5,
-                    width: state.width - 2,
+                    width: state.width - 3,
                     height: 5
                 ),
                 colorConfig: colorConfig.playlistItem,
@@ -383,13 +411,14 @@ public class SearchPage: Page {
     }
 
     private func stationItem(station: Station, stationIndex: Int) {
+        itemIndicesPlane.putString("\(stationIndex)", at: (x: 0, y: 2 + Int32(stationIndex) * 5))
         guard
             let item = StationItemPage(
                 in: plane,
                 state: .init(
-                    absX: 1,
+                    absX: 2,
                     absY: 1 + Int32(stationIndex) * 5,
-                    width: state.width - 2,
+                    width: state.width - 3,
                     height: 5
                 ),
                 colorConfig: colorConfig.stationItem,
@@ -412,13 +441,14 @@ public class SearchPage: Page {
     }
 
     private func recommendationItem(recommendation: MusicPersonalRecommendation, recommendationIndex: Int) {
+        itemIndicesPlane.putString("\(recommendationIndex)", at: (x: 0, y: 2 + Int32(recommendationIndex) * 5))
         guard
             let item = RecommendationItemPage(
                 in: plane,
                 state: .init(
-                    absX: 1,
+                    absX: 2,
                     absY: 1 + Int32(recommendationIndex) * 5,
-                    width: state.width - 2,
+                    width: state.width - 3,
                     height: 5
                 ),
                 colorConfig: colorConfig.recommendationItem,

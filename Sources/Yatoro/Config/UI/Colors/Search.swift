@@ -5,6 +5,7 @@ extension Config.UIConfig.Colors {
         public var border: ColorPair
         public var pageName: ColorPair
         public var searchPhrase: ColorPair
+        public var itemIndices: ColorPair
 
         public var songItem: SongItem
         public var albumItem: AlbumItem
@@ -24,6 +25,7 @@ extension Config.UIConfig.Colors {
             self.playlistItem = .init()
             self.stationItem = .init()
             self.recommendationItem = .init()
+            self.itemIndices = .init()
         }
     }
 }
@@ -35,6 +37,7 @@ extension Config.UIConfig.Colors.Search: Codable {
         case border
         case pageName
         case searchPhrase
+        case itemIndices
         case songItem
         case albumItem
         case artistItem
@@ -56,6 +59,9 @@ extension Config.UIConfig.Colors.Search: Codable {
             ?? .init()
         self.searchPhrase =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .searchPhrase)
+            ?? .init()
+        self.itemIndices =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .itemIndices)
             ?? .init()
         self.songItem =
             try container.decodeIfPresent(Config.UIConfig.Colors.SongItem.self, forKey: .songItem)
@@ -83,6 +89,7 @@ extension Config.UIConfig.Colors.Search: Codable {
         try container.encode(self.pageName, forKey: .pageName)
         try container.encode(self.border, forKey: .border)
         try container.encode(self.searchPhrase, forKey: .searchPhrase)
+        try container.encode(self.itemIndices, forKey: .itemIndices)
         try container.encode(self.songItem, forKey: .songItem)
         try container.encode(self.albumItem, forKey: .albumItem)
         try container.encode(self.artistItem, forKey: .artistItem)
