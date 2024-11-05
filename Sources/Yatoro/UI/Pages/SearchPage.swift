@@ -267,6 +267,8 @@ public class SearchPage: Page {
                     break
                 }
             }
+        case let recommendedItems as MusicItemCollection<MusicPersonalRecommendation>:
+            recommendationItems(recommendations: recommendedItems)
         default: break
         }
     }
@@ -392,6 +394,35 @@ public class SearchPage: Page {
                 ),
                 colorConfig: colorConfig.stationItem,
                 item: station
+            )
+        else { return }
+        self.searchCache.append(item)
+    }
+
+    private func recommendationItems(recommendations: MusicItemCollection<MusicPersonalRecommendation>) {
+        for recommendationIndex in recommendations.indices {
+            recommendationItem(
+                recommendation: recommendations[recommendationIndex],
+                recommendationIndex: recommendationIndex
+            )
+            if recommendationIndex >= maxItemsDisplayed {
+                break
+            }
+        }
+    }
+
+    private func recommendationItem(recommendation: MusicPersonalRecommendation, recommendationIndex: Int) {
+        guard
+            let item = RecommendationItemPage(
+                in: plane,
+                state: .init(
+                    absX: 1,
+                    absY: 1 + Int32(recommendationIndex) * 5,
+                    width: state.width - 2,
+                    height: 5
+                ),
+                colorConfig: colorConfig.recommendationItem,
+                item: recommendation
             )
         else { return }
         self.searchCache.append(item)
