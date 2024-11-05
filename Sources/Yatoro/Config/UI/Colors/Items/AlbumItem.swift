@@ -1,15 +1,15 @@
 extension Config.UIConfig.Colors {
 
-    public struct SongItem {
+    public struct AlbumItem {
         public var page: ColorPair
         public var border: ColorPair
         public var pageName: ColorPair
         public var artistLeft: ColorPair
         public var artistRight: ColorPair
-        public var songLeft: ColorPair
-        public var songRight: ColorPair
         public var albumLeft: ColorPair
         public var albumRight: ColorPair
+        public var genreLeft: ColorPair
+        public var genreRight: ColorPair
 
         public init() {
             self.page = .init()
@@ -17,15 +17,15 @@ extension Config.UIConfig.Colors {
             self.pageName = .init()
             self.artistLeft = .init()
             self.artistRight = .init()
-            self.songLeft = .init()
-            self.songRight = .init()
             self.albumLeft = .init()
             self.albumRight = .init()
+            self.genreLeft = .init()
+            self.genreRight = .init()
         }
     }
 }
 
-extension Config.UIConfig.Colors.SongItem: Codable {
+extension Config.UIConfig.Colors.AlbumItem: Codable {
 
     enum CodingKeys: String, CodingKey {
         case page
@@ -33,17 +33,10 @@ extension Config.UIConfig.Colors.SongItem: Codable {
         case pageName
         case artistLeft
         case artistRight
-        case songLeft
-        case songRight
         case albumLeft
         case albumRight
-        case playlistLeft
-        case playlistRight
-        case radioLeft
-        case radioRight
-        case suggestionLeft
-        case suggestionRight
-        case duration
+        case genreLeft
+        case genreRight
     }
 
     public init(from decoder: any Decoder) throws {
@@ -63,17 +56,17 @@ extension Config.UIConfig.Colors.SongItem: Codable {
         self.artistRight =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .artistRight)
             ?? .init()
-        self.songLeft =
-            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .songLeft)
-            ?? .init()
-        self.songRight =
-            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .songRight)
-            ?? .init()
         self.albumLeft =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .albumLeft)
             ?? .init()
         self.albumRight =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .albumRight)
+            ?? .init()
+        self.genreLeft =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .genreLeft)
+            ?? .init()
+        self.genreRight =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .genreRight)
             ?? .init()
     }
 
@@ -84,10 +77,10 @@ extension Config.UIConfig.Colors.SongItem: Codable {
         try container.encode(self.border, forKey: .border)
         try container.encode(self.artistLeft, forKey: .artistLeft)
         try container.encode(self.artistRight, forKey: .artistRight)
-        try container.encode(self.songLeft, forKey: .songLeft)
-        try container.encode(self.songRight, forKey: .songRight)
         try container.encode(self.albumLeft, forKey: .albumLeft)
         try container.encode(self.albumRight, forKey: .albumRight)
+        try container.encode(self.genreLeft, forKey: .genreLeft)
+        try container.encode(self.genreRight, forKey: .genreRight)
     }
 
 }

@@ -73,49 +73,127 @@ public struct Command: Sendable {
                 let command = try AddToQueueCommand.parse(arguments)
                 logger?.debug("New add to queue command request: \(command)")
                 guard
-                    let searchResult = SearchManager.shared.lastSearchResults[command.from]
+                    let lastResult = SearchManager.shared.lastSearchResult
                 else {
-                    let msg = "No last \(command.from) search result"
+                    let msg = "No last search result"
                     logger?.debug(msg)
                     await CommandInput.shared.setLastCommandOutput(msg)
                     return
                 }
 
-                let result = searchResult.result
+                guard lastResult.itemType != .artist else {
+                    let msg = "Can't add artist to queue"
+                    logger?.debug(msg)
+                    await CommandInput.shared.setLastCommandOutput(msg)
+                    return
+                }
 
-                var items: MusicItemCollection<Song>
+                let result = lastResult.result
 
                 switch command.item {
 
-                case .all: items = result as! MusicItemCollection<Song>
+                case .all:
+                    switch result {
 
-                case .some(let ints):
-                    var itemsArr: [any MusicItem] = []
-                    for index in ints {
-                        if let item = result.item(at: index) {
-                            itemsArr.append(item)
-                        }
+                    case let result as MusicItemCollection<Song>:
+                        await Player.shared.addItemsToQueue(items: result, at: command.to)
+
+                    case let result as MusicItemCollection<Album>:
+                        await Player.shared.addItemsToQueue(items: result, at: command.to)
+
+                    case let result as MusicItemCollection<RecentlyPlayedMusicItem>:
+                        await Player.shared.addItemsToQueue(items: result, at: command.to)
+
+                    case let result as MusicItemCollection<Playlist>:
+                        await Player.shared.addItemsToQueue(items: result, at: command.to)
+
+                    case let result as MusicItemCollection<Station>:
+                        await Player.shared.addItemsToQueue(items: result, at: command.to)
+
+                    case _ as MusicItemCollection<MusicPersonalRecommendation>:
+                        // TODO
+                        break
+
+                    default: break
                     }
-                    items = .init(itemsArr as! [Song])
+
+                case .some(let indices):
+                    switch result {
+
+                    case let result as MusicItemCollection<Song>:
+                        var songs: [Song] = []
+                        for index in indices {
+                            if let item = result.item(at: index) {
+                                songs.append(item)
+                            }
+                        }
+                        await Player.shared.addItemsToQueue(items: .init(songs), at: command.to)
+
+                    case let result as MusicItemCollection<Album>:
+                        var albums: [Album] = []
+                        for index in indices {
+                            if let item = result.item(at: index) {
+                                albums.append(item)
+                            }
+                        }
+                        await Player.shared.addItemsToQueue(items: .init(albums), at: command.to)
+
+                    case let result as MusicItemCollection<RecentlyPlayedMusicItem>:
+                        var items: [RecentlyPlayedMusicItem] = []
+                        for index in indices {
+                            if let item = result.item(at: index) {
+                                items.append(item)
+                            }
+                        }
+                        await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
+
+                    case let result as MusicItemCollection<Playlist>:
+                        var items: [Playlist] = []
+                        for index in indices {
+                            if let item = result.item(at: index) {
+                                items.append(item)
+                            }
+                        }
+                        await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
+
+                    case let result as MusicItemCollection<Station>:
+                        var items: [Station] = []
+                        for index in indices {
+                            if let item = result.item(at: index) {
+                                items.append(item)
+                            }
+                        }
+                        await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
+
+                    case _ as MusicItemCollection<MusicPersonalRecommendation>:
+                        // TODO
+                        break
+
+                    default: break
+
+                    }
 
                 case .one(let int):
                     guard let item = result.item(at: int) else {
                         return
                     }
-                    guard let item = item as? Song else {  // TODO: ???
-                        return
+                    switch item {
+                    case let item as Song:
+                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                    case let item as Album:
+                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                    case let item as RecentlyPlayedMusicItem:
+                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                    case let item as Playlist:
+                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                    case let item as Station:
+                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                    case _ as MusicPersonalRecommendation:
+                        // TODO
+                        break
+                    default: break
                     }
-                    await Player.shared.addItemsToQueue(
-                        items: [item],
-                        at: command.to
-                    )
-                    return
                 }
-
-                await Player.shared.addItemsToQueue(
-                    items: items,
-                    at: command.to
-                )
 
             } catch {
                 let msg = error.localizedDescription
@@ -155,10 +233,17 @@ public struct Command: Sendable {
                 for part in command.searchPhrase {
                     searchPhrase.append("\(part) ")
                 }
+                if command.type == .station && command.from == .librarySearch {
+                    let msg = "Can't search user library for stations"
+                    logger?.debug(msg)
+                    await CommandInput.shared.setLastCommandOutput(msg)
+                    return
+                }
                 Task {
                     await SearchManager.shared.newSearch(
                         for: searchPhrase,
-                        in: command.from ?? .catalogSearchSongs
+                        itemType: command.type,
+                        in: command.from ?? .catalogSearch
                     )
                 }
             } catch {

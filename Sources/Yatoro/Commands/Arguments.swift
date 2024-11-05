@@ -5,14 +5,47 @@ extension SearchType: EnumerableFlag {
 
     public static func name(for value: SearchType) -> NameSpecification {
         switch value {
-        case .recentlyPlayedSongs:
-            return [.customShort("r"), .long]
+        case .recentlyPlayed:
+            return [
+                .customShort("r"),
+                .long,
+                .customLong("recent", withSingleDash: true),
+            ]
         case .recommended:
             return [.customShort("s"), .long]
-        case .catalogSearchSongs:
-            return [.customShort("c"), .long]
-        case .librarySearchSongs:
-            return [.customShort("l"), .long]
+        case .catalogSearch:
+            return [
+                .customShort("c"),
+                .long,
+                .customLong("catalog", withSingleDash: true),
+            ]
+        case .librarySearch:
+            return [
+                .customShort("l"),
+                .long,
+                .customLong("library", withSingleDash: true),
+            ]
+        }
+    }
+
+}
+
+public enum MusicItemType: Hashable, CaseIterable, Sendable, ExpressibleByArgument {
+
+    case song
+    case album
+    case artist
+    case playlist
+    case station
+
+    public init?(argument: String) {
+        switch argument {
+        case "so", "song": self = .song
+        case "al", "album": self = .album
+        case "ar", "artist": self = .artist
+        case "p", "pl", "playlist": self = .playlist
+        case "st", "station": self = .station
+        default: return nil
         }
     }
 

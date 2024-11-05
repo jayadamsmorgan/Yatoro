@@ -2,6 +2,8 @@
 
 Yatoro supports deep configuration through the `config.yaml` which should be located in `~/.config/Yatoro`
 
+See example config in `example_config.yaml`
+
 ## ui
 
 - `frameDelay` - **UInt64** --- delay in nanoseconds between UI renders. **Default: 5000000**
@@ -96,7 +98,13 @@ By default, both properties are `nil` on every UI element, which basically means
 - `page` --- Search page background
 - `pageName` --- "Search" string
 - `border` --- page border
+- `itemIndices` --- indices of items in Search page
 - `songItem` --- see [songItem](#songItem)
+- `albumItem` --- see [albumItem](#albumItem)
+- `artistItem` --- see [artistItem](#artistItem)
+- `playlistItem` --- see [playlistItem](#playlistItem)
+- `stationItem` --- see [stationItem](#stationItem)
+- `recommendationItem` --- see [recommendationItem](#recommendationItem)
 
 #### songItem
 
@@ -111,6 +119,70 @@ List pages such as Queue and Search pages can display song items which could be 
 - `albumLeft` --- "album:" string
 - `albumRight` --- album title string
 
+#### albumItem
+
+Similar to [songItem](#songItem), but used only in Search page when displaying Albums.
+
+- `page` --- album item background
+- `border` --- album item border
+- `artistLeft` --- "artist:" string
+- `artistRight` --- artist name string
+- `albumLeft` --- "album:" string
+- `albumRight` --- album title string
+- `genreLeft` --- "genre:" string
+- `genreRight` --- genre names string
+
+#### artistItem
+
+Similar to [songItem](#songItem), but used only in Search page when displaying Artists.
+
+- `page` --- artist item background
+- `border` --- artist item border
+- `artistLeft` --- "artist:" string
+- `artistRight` --- artist name string
+- `genreLeft` --- "genre:" string
+- `genreRight` --- genre names string
+- `albumsLeft` --- "albums:" string
+- `albumsRight` --- artist album titles string
+
+#### playlistItem
+
+Similar to [songItem](#songItem), but used only in Search page when displaying Playlists.
+
+- `page` --- playlist item background
+- `border` --- playlist item border
+- `playlistLeft` --- "playlist:" string
+- `playlistRight` --- playlist name string
+- `curatorLeft` --- "curator:" string
+- `curatorRight` --- curator name string
+- `descriptionLeft` --- "description:" string
+- `descriptionRight` --- playlist description string
+
+#### playlistItem
+
+Similar to [songItem](#songItem), but used only in Search page when displaying Stations.
+
+- `page` --- station item background
+- `border` --- station item border
+- `stationLeft` --- "station:" string
+- `stationRight` --- station name string
+- `isLiveLeft` --- "isLive:" string
+- `isLiveRight` --- is station live boolean string
+- `notesLeft` --- "notes:" string
+- `notesRight` --- station editorial notes string
+
+#### recommendationItem
+
+Similar to [songItem](#songItem), but used only in Search page when displaying Stations.
+
+- `page` --- recommnedation item background
+- `border` --- recommnedation item border
+- `titleLeft` --- "title:" string
+- `titleRight` --- recommendation name string
+- `refreshDateLeft` --- "refresh:" string
+- `refreshDateRight` --- recommnedation next refresh date string
+- `typesLeft` --- "types:" string
+- `typesRight` --- recommendation types string
 
 ### ui.layout
 
@@ -215,6 +287,27 @@ ui:
       pageName: {}
       border: {}
       searchPhrase: {}
+      itemIndices: {}
+      albumItem:
+        page: {}
+        pageName: {}
+        border: {}
+        artistLeft: {}
+        artistRight: {}
+        genreLeft: {}
+        genreRight: {}
+        albumsLeft: {}
+        albumsRight: {}
+      albumItem:
+        page: {}
+        pageName: {}
+        border: {}
+        artistLeft: {}
+        artistRight: {}
+        albumLeft: {}
+        albumRight: {}
+        genreLeft: {}
+        genreRight: {}
       songItem:
         page: {}
         pageName: {}
@@ -225,6 +318,36 @@ ui:
         songRight: {}
         albumLeft: {}
         albumRight: {}
+      playlistItem:
+        page: {}
+        pageName: {}
+        border: {}
+        playlistLeft: {}
+        playlistRight: {}
+        curatorLeft: {}
+        curatorRight: {}
+        descriptionLeft: {}
+        descriptionRight: {}
+      stationItem:
+        page: {}
+        pageName: {}
+        border: {}
+        stationLeft: {}
+        stationRight: {}
+        isLiveLeft: {}
+        isLiveRight: {}
+        notesLeft: {}
+        notesRight: {}
+      recommendationItem:
+        page: {}
+        pageName: {}
+        border: {}
+        titleLeft: {}
+        titleRight: {}
+        refreshDateLeft: {}
+        refreshDateRight: {}
+        typesLeft: {}
+        typesRight: {}
     queue:
       page: {}
       pageName: {}

@@ -2,29 +2,29 @@ import MusicKit
 import SwiftNotCurses
 
 @MainActor
-public class SongItemPage: DestroyablePage {
+public class AlbumItemPage: DestroyablePage {
 
     private var state: PageState
     private let plane: Plane
 
     private let borderPlane: Plane
     private let pageNamePlane: Plane
-    private let songLeftPlane: Plane
-    private let songRightPlane: Plane
+    private let genreLeftPlane: Plane
+    private let genreRightPlane: Plane
     private let albumLeftPlane: Plane
     private let albumRightPlane: Plane
     private let artistLeftPlane: Plane
     private let artistRightPlane: Plane
 
-    private let item: Song
+    private let item: Album
 
-    public func getItem() async -> Song { item }
+    public func getItem() async -> Album { item }
 
     public init?(
         in plane: Plane,
         state: PageState,
-        colorConfig: Config.UIConfig.Colors.SongItem,
-        item: Song
+        colorConfig: Config.UIConfig.Colors.AlbumItem,
+        item: Album
     ) {
         self.state = state
         guard
@@ -32,7 +32,7 @@ public class SongItemPage: DestroyablePage {
                 in: plane,
                 opts: .init(
                     pageState: state,
-                    debugID: "SONG_UI_\(item.id)",
+                    debugID: "ALBUM_UI_\(item.id)",
                     flags: []
                 )
             )
@@ -52,7 +52,7 @@ public class SongItemPage: DestroyablePage {
                     width: state.width,
                     height: state.height
                 ),
-                debugID: "SONG_UI_\(item.id)_BORDER"
+                debugID: "ALBUM_UI_\(item.id)_BORDER"
             )
         else {
             return nil
@@ -68,17 +68,17 @@ public class SongItemPage: DestroyablePage {
                 state: .init(
                     absX: 3,
                     absY: 0,
-                    width: 4,
+                    width: 5,
                     height: 1
                 ),
-                debugID: "SONG_UI_\(item.id)_PN"
+                debugID: "ALBUM_UI_\(item.id)_PN"
             )
         else {
             return nil
         }
         pageNamePlane.backgroundColor = colorConfig.pageName.background
         pageNamePlane.foregroundColor = colorConfig.pageName.foreground
-        pageNamePlane.putString("Song", at: (0, 0))
+        pageNamePlane.putString("Album", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
         guard
@@ -90,7 +90,7 @@ public class SongItemPage: DestroyablePage {
                     width: 7,
                     height: 1
                 ),
-                debugID: "SONG_UI_\(item.id)_ARL"
+                debugID: "ALBUM_UI_\(item.id)_ARL"
             )
         else {
             return nil
@@ -110,7 +110,7 @@ public class SongItemPage: DestroyablePage {
                     width: artistRightWidth,
                     height: 1
                 ),
-                debugID: "SONG_UI_\(item.id)_ARR"
+                debugID: "ALBUM_UI_\(item.id)_ARR"
             )
         else {
             return nil
@@ -121,46 +121,7 @@ public class SongItemPage: DestroyablePage {
         self.artistRightPlane = artistRightPlane
 
         guard
-            let songLeftPlane = Plane(
-                in: pagePlane,
-                state: .init(
-                    absX: 2,
-                    absY: 2,
-                    width: 5,
-                    height: 1
-                ),
-                debugID: "SONG_UI_\(item.id)_SL"
-            )
-        else {
-            return nil
-        }
-        songLeftPlane.backgroundColor = colorConfig.songLeft.background
-        songLeftPlane.foregroundColor = colorConfig.songLeft.foreground
-        songLeftPlane.putString("Song:", at: (0, 0))
-        self.songLeftPlane = songLeftPlane
-
-        let songRightWidth = min(UInt32(item.title.count), state.width - 9)
-        guard
-            let songRightPlane = Plane(
-                in: pagePlane,
-                state: .init(
-                    absX: 8,
-                    absY: 2,
-                    width: songRightWidth,
-                    height: 1
-                ),
-                debugID: "SONG_UI_\(item.id)_SR"
-            )
-        else {
-            return nil
-        }
-        songRightPlane.backgroundColor = colorConfig.songRight.background
-        songRightPlane.foregroundColor = colorConfig.songRight.foreground
-        songRightPlane.putString(item.title, at: (0, 0))
-        self.songRightPlane = songRightPlane
-
-        guard
-            let albumLeftPlane = Plane(
+            let genreLeftPlane = Plane(
                 in: pagePlane,
                 state: .init(
                     absX: 2,
@@ -168,7 +129,56 @@ public class SongItemPage: DestroyablePage {
                     width: 6,
                     height: 1
                 ),
-                debugID: "SONG_UI_\(item.id)_AL"
+                debugID: "ALBUM_UI_\(item.id)_GL"
+            )
+        else {
+            return nil
+        }
+        genreLeftPlane.backgroundColor = colorConfig.genreLeft.background
+        genreLeftPlane.foregroundColor = colorConfig.genreLeft.foreground
+        genreLeftPlane.putString("Genre:", at: (0, 0))
+        self.genreLeftPlane = genreLeftPlane
+
+        var genreStr = ""
+        for genre in item.genreNames {
+            if genre == "Music" {
+                continue
+            }
+            genreStr.append("\(genre), ")
+        }
+        if genreStr.count >= 2 {
+            genreStr.removeLast(2)
+        }
+        let genreRightWidth = min(UInt32(genreStr.count), state.width - 10)
+        guard
+            let genreRightPlane = Plane(
+                in: pagePlane,
+                state: .init(
+                    absX: 9,
+                    absY: 3,
+                    width: genreRightWidth,
+                    height: 1
+                ),
+                debugID: "ALBUM_UI_\(item.id)_GR"
+            )
+        else {
+            return nil
+        }
+        genreRightPlane.backgroundColor = colorConfig.genreRight.background
+        genreRightPlane.foregroundColor = colorConfig.genreRight.foreground
+        genreRightPlane.putString(genreStr, at: (0, 0))
+        self.genreRightPlane = genreRightPlane
+
+        guard
+            let albumLeftPlane = Plane(
+                in: pagePlane,
+                state: .init(
+                    absX: 2,
+                    absY: 2,
+                    width: 6,
+                    height: 1
+                ),
+                debugID: "ALBUM_UI_\(item.id)_AL"
             )
         else {
             return nil
@@ -178,24 +188,24 @@ public class SongItemPage: DestroyablePage {
         albumLeftPlane.putString("Album:", at: (0, 0))
         self.albumLeftPlane = albumLeftPlane
 
-        let albumRightWidth = min(UInt32(item.albumTitle?.count ?? 1), state.width - 10)
+        let albumRightWidth = min(UInt32(item.title.count), state.width - 10)
         guard
             let albumRightPlane = Plane(
                 in: pagePlane,
                 state: .init(
                     absX: 9,
-                    absY: 3,
+                    absY: 2,
                     width: albumRightWidth,
                     height: 1
                 ),
-                debugID: "SONG_UI_\(item.id)_AR"
+                debugID: "ALBUM_UI_\(item.id)_AR"
             )
         else {
             return nil
         }
         albumRightPlane.backgroundColor = colorConfig.albumRight.background
         albumRightPlane.foregroundColor = colorConfig.albumRight.foreground
-        albumRightPlane.putString(item.albumTitle ?? " ", at: (0, 0))
+        albumRightPlane.putString(item.title, at: (0, 0))
         self.albumRightPlane = albumRightPlane
 
         self.item = item
@@ -216,10 +226,10 @@ public class SongItemPage: DestroyablePage {
         albumRightPlane.erase()
         albumRightPlane.destroy()
 
-        songLeftPlane.erase()
-        songLeftPlane.destroy()
-        songRightPlane.erase()
-        songRightPlane.destroy()
+        genreLeftPlane.erase()
+        genreLeftPlane.destroy()
+        genreRightPlane.erase()
+        genreRightPlane.destroy()
 
         artistLeftPlane.erase()
         artistLeftPlane.destroy()

@@ -25,15 +25,9 @@ Here are the available commands for the command mode and their description:
 | `stopSeeking`             | `ss`  | Stop seeking                                                  |
 
 ## addToQueue
-Used to add items to player queue.
+Used to add items to player queue from search page.
 
-Add to queue command expects 2 arguments and 1 flag:
-
-- `from` --- **(Flag)**
-    - `-c`, `--catalogSearchSongs` - add songs from catalog search
-    - `-l`, `--librarySearchSongs` - add songs from user library search
-    - `-r`, `--recentlyPlayedSongs` - add songs from recently played request
-    - `-s`, `--recommended` - add songs from user recommendation request
+Add to queue command expects 2 arguments:
 
 - `item` --- **(Argument 1)** --- This argument is used to specify what you want to add to queue:
     - either an index of item, e.g. `1`
@@ -43,27 +37,42 @@ Add to queue command expects 2 arguments and 1 flag:
 **Note**: Indices are 0 based.
 
 - `to` --- **(Argument 2)** --- This argument is used to specify where to add to the queue:
-    - `tail`, `end`, `later`, `t`, `e`, `l` - add the selected items to the end of the queue
+    - `tail`, `end`, `later`, `t`, `e`, `l` - add the selected items to the end of the queue **(Default)**
     - `next`, `afterCurrentEntry`, `n`, `a` - add the selected items right after currently playing item 
 
-Example: `:a -l a n` --- Add all items from library song search after currently playing entry
+**Note**: Adding user recommendations is not supported at the moment
+
+Examples:
+    - `:a a n` --- Add all items from current search after currently playing entry
+    - `:addToQueue 1,4 t` --- Add second and fifth items from current search to the end of the queue
+    - `:a 0` --- Add first item from the current search after currently playing entry
 
 ## search
 Used to make search requests.
 
-Search command expects 1 optional argument and 1 optional flag:
+Search command expects 1 optional argument, 1 optional option and 1 optional flag:
 
 - `from` --- **(Flag)**
-    - `-c`, `--catalogSearchSongs` - search from catalog songs **(Default)**
-    - `-l`, `--librarySearchSongs` - search from user library songs
-    - `-r`, `--recentlyPlayedSongs` - request recently played songs
+    - `-c`, `--catalog` - search from catalog **(Default)**
+    - `-l`, `--library` - search from user library
+    - `-r`, `--recent` - request recently played items
     - `-s`, `--recommended` - user recommendations request
 
-- `searchPhrase` --- **(Argument)**
+- `type` --- **(Option)**
+    - `-t`, `--type` - type of searchable item:
+        - `so`, `song` - perform search for songs **(Default)**
+        - `al`, `album` - perform search for albums
+        - `ar`, `artist` - perform search for artists
+        - `p`, `pl`, `playlist` - perform search for playlists
+        - `st`, `station` - perform search for stations
 
-**Note**: Search phrase is not needed when requesting recently played songs or user recommendations but required when searching catalog or user library songs.
+- `searchPhrase` --- **(Argument)** --- what to search for
 
-Example: `:search TOOL lateralus` - Search catalog songs for "TOOL lateralus"
+**Note**: Search phrase is not needed when requesting recently played items or user recommendations but required when searching for catalog or user library items.
+
+Examples:
+    - `:search -c -t so TOOL lateralus` or `:/ TOOL lateralus`--- Search catalog songs for "TOOL lateralus"
+    - `:/ -t ar -l TOOL` --- Search for artists "TOOL" in your music library
 
 ## setSongTime
 Sets playback time for the current entry.
@@ -79,3 +88,6 @@ Set song time command expects 1 argument and 1 optional flag:
 
 **Note**: Time argument can be negative only when `-r` flag is passed.
 
+Examples:
+    - `:set 00:23` - Set playback to 00:23
+    - `:set -r -10` - Set playback 10 seconds earlier

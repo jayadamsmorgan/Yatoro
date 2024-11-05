@@ -3,9 +3,6 @@ import MusicKit
 
 struct AddToQueueCommand: AsyncParsableCommand {
 
-    @Flag(exclusivity: .exclusive)
-    var from: SearchType
-
     @Argument
     var item: SearchItemIndex
 
