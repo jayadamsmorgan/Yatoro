@@ -1,0 +1,151 @@
+ui:
+  frameDelay: 5000000
+
+  artwork:
+    width: 500
+    height: 500
+
+  colors:
+
+    commandLine:
+      modeNormal:
+        fg: red
+      modeCommand:
+        fg: green
+      playStatus:
+        fg: blue
+      nowPlayingArtist:
+        fg: cyan
+      nowPlayingTitle:
+        fg: magenta
+      time:
+        fg: yellow
+
+    nowPlaying:
+      page:
+        fg: yellow
+      pageName:
+        fg: blue
+      border:
+        fg: blue
+      songRight:
+        fg: magenta
+      albumRight:
+        fg: blue
+      artistRight:
+        fg: cyan
+      controls:
+        fg: blue
+      sliderKnob:
+        fg: blue
+      duration:
+        fg: yellow
+      currentTime:
+        fg: yellow
+
+    search:
+      border:
+        fg: red
+      pageName:
+        fg: red
+      albumItem:
+        border:
+          fg: blue
+        pageName:
+          fg: blue
+        albumRight:
+          fg: blue
+        artistRight:
+          fg: cyan
+        genreRight:
+          fg: green
+
+      artistItem:
+        border:
+          fg: cyan
+        pageName:
+          fg: cyan
+        artistRight:
+          fg: cyan
+        genresRight:
+          fg: green
+        albumsRight:
+          fg: blue
+
+      playlistItem:
+        border:
+          fg: yellow
+        pageName:
+          fg: yellow
+        playlistRight:
+          fg: yellow
+        curatorRight:
+          fg: blue
+        descriptionRight:
+          fg: green
+
+      stationItem:
+        border:
+          fg: magenta
+        pageName:
+          fg: magenta
+        stationRight:
+          fg: magenta
+        isLiveRight:
+          fg: blue
+        notesRight:
+          fg: green
+          
+      songItem:
+        border:
+          fg: cyan
+        pageName:
+          fg: cyan
+        songRight:
+          fg: magenta
+        albumRight:
+          fg: blue
+        artistRight:
+          fg: cyan
+
+      recommendationItem:
+        border:
+          fg: red
+        pageName:
+          fg: red
+        titleRight:
+          fg: red
+        refreshDateRight:
+          fg: green
+        typesRight:
+          fg: cyan
+        
+
+    queue:
+      border:
+        fg: magenta
+      pageName:
+        fg: magenta
+      songItem:
+        border:
+          fg: blue
+        pageName:
+          fg: blue
+        songRight:
+          fg: magenta
+        albumRight:
+          fg: blue
+        artistRight:
+          fg: cyan
+
+  layout:
+    pages: [nowPlaying, queue, search]
+    cols: 2
+    rows: 2
+
+logging:
+  logLevel: trace
+
+mappings:
+  - key: SPACE
+    action: playPauseToggle
