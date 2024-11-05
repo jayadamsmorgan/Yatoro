@@ -98,6 +98,7 @@ By default, both properties are `nil` on every UI element, which basically means
 - `page` --- Search page background
 - `pageName` --- "Search" string
 - `border` --- page border
+- `itemIndices` --- indices of items in Search page
 - `songItem` --- see [songItem](#songItem)
 - `albumItem` --- see [albumItem](#albumItem)
 - `artistItem` --- see [artistItem](#artistItem)
@@ -286,6 +287,7 @@ ui:
       pageName: {}
       border: {}
       searchPhrase: {}
+      itemIndices: {}
       albumItem:
         page: {}
         pageName: {}

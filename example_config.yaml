@@ -48,6 +48,8 @@ ui:
         fg: red
       pageName:
         fg: red
+      itemIndices:
+        fg: cyan
       albumItem:
         border:
           fg: blue
