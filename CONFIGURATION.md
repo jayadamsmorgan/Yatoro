@@ -101,6 +101,7 @@ By default, both properties are `nil` on every UI element, which basically means
 - `artistItem` --- see [artistItem](#artistItem)
 - `playlistItem` --- see [playlistItem](#playlistItem)
 - `stationItem` --- see [stationItem](#stationItem)
+- `recommendationItem` --- see [recommendationItem](#recommendationItem)
 
 #### songItem
 
@@ -166,6 +167,19 @@ Similar to [songItem](#songItem), but used only in Search page when displaying S
 - `isLiveRight` --- is station live boolean string
 - `notesLeft` --- "notes:" string
 - `notesRight` --- station editorial notes string
+
+#### recommendationItem
+
+Similar to [songItem](#songItem), but used only in Search page when displaying Stations.
+
+- `page` --- recommnedation item background
+- `border` --- recommnedation item border
+- `titleLeft` --- "title:" string
+- `titleRight` --- recommendation name string
+- `refreshDateLeft` --- "refresh:" string
+- `refreshDateRight` --- recommnedation next refresh date string
+- `typesLeft` --- "types:" string
+- `typesRight` --- recommendation types string
 
 ### ui.layout
 
@@ -320,6 +334,16 @@ ui:
         isLiveRight: {}
         notesLeft: {}
         notesRight: {}
+      recommendationItem:
+        page: {}
+        pageName: {}
+        border: {}
+        titleLeft: {}
+        titleRight: {}
+        refreshDateLeft: {}
+        refreshDateRight: {}
+        typesLeft: {}
+        typesRight: {}
     queue:
       page: {}
       pageName: {}
