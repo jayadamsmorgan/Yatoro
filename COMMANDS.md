@@ -40,6 +40,8 @@ Add to queue command expects 2 arguments:
     - `tail`, `end`, `later`, `t`, `e`, `l` - add the selected items to the end of the queue **(Default)**
     - `next`, `afterCurrentEntry`, `n`, `a` - add the selected items right after currently playing item 
 
+**Note**: Adding user recommendations is not supported at the moment
+
 Examples:
     - `:a a n` --- Add all items from current search after currently playing entry
     - `:addToQueue 1,4 t` --- Add second and fifth items from current search to the end of the queue
