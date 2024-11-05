@@ -2,6 +2,8 @@
 
 Yatoro supports deep configuration through the `config.yaml` which should be located in `~/.config/Yatoro`
 
+See example config in `example_config.yaml`
+
 ## ui
 
 - `frameDelay` - **UInt64** --- delay in nanoseconds between UI renders. **Default: 5000000**
