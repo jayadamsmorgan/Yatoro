@@ -40,5 +40,7 @@ public extension Mapping {
         .init(":", mod: [.shift], action: .openCommandLine),
         .init("s", mod: [.ctrl], action: .stationFromCurrentEntry),
         .init("q", mod: nil, action: .quitApplication),
+        .init("e", mod: nil, action: .repeatMode),
+        .init("h", mod: nil, action: .shuffleMode),
     ]
 }
