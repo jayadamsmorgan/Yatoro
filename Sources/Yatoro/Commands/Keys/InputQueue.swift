@@ -35,20 +35,25 @@ public class InputQueue {
                         await CommandInput.shared.clear()
                         continue
                     }
+                    let commandString = await CommandInput.shared.get()
                     guard input.id != 1115121 else {
                         // Enter pressed
                         UI.mode = .normal
-                        await Command.parseCommand()
+                        await Command.parseCommand(commandString)
                         await CommandInput.shared.clear()
                         continue
                     }
-                    let commandInput = await CommandInput.shared.get()
-                    if input.id == 1115008 && commandInput.isEmpty {
+                    if input.id == 1115008 && commandString.isEmpty {
                         // Backspace pressed when the command input is empty
                         UI.mode = .normal
                         continue
                     }
                     await CommandInput.shared.add(input)
+                    continue
+                }
+
+                if input.utf8 == ":" && input.modifiers.isEmpty {
+                    UI.mode = .command
                     continue
                 }
 
@@ -83,54 +88,12 @@ public class InputQueue {
                     continue
                 }
 
-                switch mapping.action {
-                case .playPauseToggle:
-                    await Player.shared.playPauseToggle()
-                case .play:
-                    await Player.shared.play()
-                case .pause:
-                    await Player.shared.pause()
-                case .stop:
-                    Player.shared.player.stop()
-                case .clearQueue:
-                    await Player.shared.clearQueue()
-                case .playNext:
-                    await Player.shared.playNext()
-                case .startSeekingForward:
-                    Player.shared.player.beginSeekingForward()
-                case .playPrevious:
-                    await Player.shared.playPrevious()
-                case .startSeekingBackward:
-                    Player.shared.player.beginSeekingBackward()
-                case .restartSong:
-                    await Player.shared.restartSong()
-                case .startSearching:
-                    UI.mode = .command
-                    await CommandInput.shared.add("search ")
-                case .openCommandLine:
-                    UI.mode = .command
-                case .quitApplication:
-                    UI.running = false
-                case .stationFromCurrentEntry:
-                    await Player.shared.playStationFromCurrentSong()
-                case .stopSeeking:
-                    Player.shared.player.endSeeking()
-                case .addToQueue:
-                    UI.mode = .command
-                    await CommandInput.shared.add("addToQueue ")
-                case .search:
-                    UI.mode = .command
-                    await CommandInput.shared.add("search ")
-                case .setSongTime:
-                    UI.mode = .command
-                    await CommandInput.shared.add("setSongTime ")
-                case .repeatMode:
-                    await RepeatModeCommand.execute(arguments: [])
-                case .shuffleMode:
-                    await ShuffleModeCommand.execute(arguments: [])
-                case .none: break
+                switch mapping.action.mode {
+                case .nrm, .n: break
 
+                case .cmd, .c: break
                 }
+
             }
         }
     }
