@@ -37,6 +37,8 @@ public struct Command: Sendable {
         .init(name: "search", short: "/", action: .search),
         .init(name: "setSongTime", short: "set", action: .setSongTime),
         .init(name: "stationFromCurrentEntry", short: "sce", action: .stationFromCurrentEntry),
+        .init(name: "shuffleMode", short: "shuffle", action: .shuffleMode),
+        .init(name: "repeatMode", short: "repeat", action: .repeatMode),
     ]
 
     @MainActor
@@ -105,6 +107,10 @@ public struct Command: Sendable {
 
         case .startSearching: break
 
+        case .repeatMode: await RepeatModeCommand.execute(arguments: arguments)
+
+        case .shuffleMode: await ShuffleModeCommand.execute(arguments: arguments)
+
         }
         return
     }
@@ -129,4 +135,6 @@ public enum CommandAction: String, Sendable, Codable {
     case search
     case setSongTime
     case stationFromCurrentEntry
+    case repeatMode
+    case shuffleMode
 }

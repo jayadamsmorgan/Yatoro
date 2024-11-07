@@ -90,3 +90,27 @@ enum SearchItemIndex: ExpressibleByArgument {
         self = .some(ints)
     }
 }
+
+extension MusicPlayer.RepeatMode: @retroactive ExpressibleByArgument {
+
+    public init?(argument: String) {
+        switch argument {
+        case "off", "false", "none": self = .none
+        case "a", "all": self = .all
+        case "o", "one": self = .one
+        default: return nil
+        }
+    }
+
+}
+
+extension MusicPlayer.ShuffleMode: @retroactive ExpressibleByArgument {
+
+    public init?(argument: String) {
+        switch argument {
+        case "false", "off": self = .off
+        case "true", "on": self = .songs
+        default: return nil
+        }
+    }
+}

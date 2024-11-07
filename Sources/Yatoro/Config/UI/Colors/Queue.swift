@@ -5,6 +5,9 @@ extension Config.UIConfig.Colors {
         public var border: ColorPair
         public var pageName: ColorPair
 
+        public var shuffleMode: ColorPair
+        public var repeatMode: ColorPair
+
         public var songItem: SongItem
 
         public init() {
@@ -12,6 +15,8 @@ extension Config.UIConfig.Colors {
             self.border = .init()
             self.pageName = .init()
             self.songItem = .init()
+            self.shuffleMode = .init()
+            self.repeatMode = .init()
         }
     }
 }
@@ -22,6 +27,8 @@ extension Config.UIConfig.Colors.Queue: Codable {
         case page
         case border
         case pageName
+        case shuffleMode
+        case repeatMode
 
         case songItem
     }
@@ -40,6 +47,12 @@ extension Config.UIConfig.Colors.Queue: Codable {
         self.songItem =
             try container.decodeIfPresent(Config.UIConfig.Colors.SongItem.self, forKey: .songItem)
             ?? .init()
+        self.shuffleMode =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .shuffleMode)
+            ?? .init()
+        self.repeatMode =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .repeatMode)
+            ?? .init()
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -48,6 +61,8 @@ extension Config.UIConfig.Colors.Queue: Codable {
         try container.encode(self.pageName, forKey: .pageName)
         try container.encode(self.border, forKey: .border)
         try container.encode(self.songItem, forKey: .songItem)
+        try container.encode(self.shuffleMode, forKey: .shuffleMode)
+        try container.encode(self.repeatMode, forKey: .repeatMode)
     }
 
 }

@@ -124,6 +124,10 @@ public class InputQueue {
                 case .setSongTime:
                     UI.mode = .command
                     await CommandInput.shared.add("setSongTime ")
+                case .repeatMode:
+                    await RepeatModeCommand.execute(arguments: [])
+                case .shuffleMode:
+                    await ShuffleModeCommand.execute(arguments: [])
                 case .none: break
 
                 }
