@@ -91,6 +91,8 @@ By default, both properties are `nil` on every UI element, which basically means
 - `page` --- Queue page background
 - `pageName` --- "Player Queue" string
 - `border` --- page border
+- `shuffleMode` --- status of repeat mode
+- `repeatMode` --- status of repeat mode
 - `songItem` --- see [songItem](#songItem)
 
 #### ui.colors.search
@@ -352,6 +354,8 @@ ui:
       page: {}
       pageName: {}
       border: {}
+      shuffleMode: {}
+      repeatMode: {}
       songItem:
         page: {}
         pageName: {}
