@@ -95,7 +95,7 @@ extension MusicPlayer.RepeatMode: @retroactive ExpressibleByArgument {
 
     public init?(argument: String) {
         switch argument {
-        case "n", "none": self = .none
+        case "off", "false", "none": self = .none
         case "a", "all": self = .all
         case "o", "one": self = .one
         default: return nil
@@ -108,8 +108,8 @@ extension MusicPlayer.ShuffleMode: @retroactive ExpressibleByArgument {
 
     public init?(argument: String) {
         switch argument {
-        case "o", "off": self = .off
-        case "s", "songs": self = .songs
+        case "false", "off": self = .off
+        case "true", "on": self = .songs
         default: return nil
         }
     }
