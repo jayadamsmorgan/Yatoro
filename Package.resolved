@@ -1,6 +1,24 @@
 {
-  "originHash" : "94a21836056333a32862de8dff614c223e393dd1a2283a4642f595d39b00740c",
+  "originHash" : "ddb27e9f072b52583469dee4315e006846a16d0803b6bbf6855c0d32dc1f6311",
   "pins" : [
+    {
+      "identity" : "chaosbytestreams",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/elegantchaos/ChaosByteStreams",
+      "state" : {
+        "revision" : "dc5fc08a831e8e2878197418e3ed35f234bcfe07",
+        "version" : "1.0.6"
+      }
+    },
+    {
+      "identity" : "runner",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/elegantchaos/Runner.git",
+      "state" : {
+        "revision" : "e5b8e0fc4b5119b238935343dc60171c0140ee1f",
+        "version" : "2.1.3"
+      }
+    },
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
@@ -17,6 +35,15 @@
       "state" : {
         "revision" : "9cb486020ebf03bfa5b5df985387a14a98744537",
         "version" : "1.6.1"
+      }
+    },
+    {
+      "identity" : "versionator",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/elegantchaos/Versionator.git",
+      "state" : {
+        "revision" : "f67fae2e7c4da26f768f622ab68cbdff409c90f6",
+        "version" : "2.0.6"
       }
     },
     {
