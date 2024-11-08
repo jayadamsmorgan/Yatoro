@@ -13,6 +13,17 @@ public struct Input: Sendable {
     public let pixelXOffset: Int32
     public let pixelYOffset: Int32
 
+    public init(id: UInt32 = 0, utf8: String = "", modifiers: [Modifier] = []) {
+        self.id = id
+        self.x = 0
+        self.y = 0
+        self.utf8 = utf8
+        self.modifiers = modifiers
+        self.eventType = .unknown
+        self.pixelXOffset = 0
+        self.pixelYOffset = 0
+    }
+
     public init?(notcurses: NotCurses) {
         var ncinput = ncinput()
         guard notcurses_get_nblock(notcurses.pointer, &ncinput) != 0 else {
