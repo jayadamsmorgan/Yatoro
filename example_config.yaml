@@ -128,6 +128,10 @@ ui:
         fg: magenta
       pageName:
         fg: magenta
+      shuffleMode:
+        fg: magenta
+      repeatMode:
+        fg: magenta
       songItem:
         border:
           fg: blue

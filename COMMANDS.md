@@ -5,24 +5,26 @@ Yatoro has a command mode which could be triggered by `:` key.
 
 Here are the available commands for the command mode and their description:
 
-| Command                   | Short | Description                                                   |
-| ------------------------- | ----- | ------------------------------------------------------------- |
-| `addToQueue`              |  `a`  | [See addToQueue](#addToQueue)                                 |
-| `clearQueue`              |  `c`  | Clear playing queue                                           |
-| `pause`                   | `pa`  | Pause                                                         |
-| `play`                    | `pl`  | Continue playing                                              |
-| `playNext`                |  `pn` | Play next item in queue                                       |
-| `playPauseToggle`         | `pp`  | Play/pause toggle                                             |
-| `playPrevious`            |  `b`  | Play previous song                                            |
-| `quitApplication`         |  `q`  | Quit Yatoro application                                       |
-| `restartSong`             |  `r`  | Restart song                                                  |
-| `search`                  |  `/`  | [See search](#search)                                         |
-| `setSongTime`             | `set` | [See setSongTime](#setSongTime)                               |
-| `startSeekingBackward`    | `sb`  | Start seeking backward                                        |
-| `startSeekingForward`     |  `sf` | Start seeking forward                                         |
-| `stationFromCurrentEntry` | `sce` | Creates station from current queue entry and adds it to queue |
-| `stop`                    |  `s`  | Stop playing                                                  |
-| `stopSeeking`             | `ss`  | Stop seeking                                                  |
+| Command                   | Short     | Description                                                   |
+| ------------------------- | --------- | ------------------------------------------------------------- |
+| `addToQueue`              | `a`       | [See addToQueue](#addToQueue)                                 |
+| `clearQueue`              | `c`       | Clear playing queue                                           |
+| `pause`                   | `pa`      | Pause                                                         |
+| `play`                    | `pl`      | Continue playing                                              |
+| `playNext`                | `pn`      | Play next item in queue                                       |
+| `playPauseToggle`         | `pp`      | Play/pause toggle                                             |
+| `playPrevious`            | `b`       | Play previous song                                            |
+| `quitApplication`         | `q`       | Quit Yatoro application                                       |
+| `repeatMode`              | `repeat`  | [See repeatMode](#repeatMode)                                 |
+| `restartSong`             | `r`       | Restart song                                                  |
+| `search`                  | `/`       | [See search](#search)                                         |
+| `setSongTime`             | `set`     | [See setSongTime](#setSongTime)                               |
+| `shuffleMode`             | `shuffle` | [See shuffleMode](#shuffleMode)                               |
+| `startSeekingBackward`    | `sb`      | Start seeking backward                                        |
+| `startSeekingForward`     | `sf`      | Start seeking forward                                         |
+| `stationFromCurrentEntry` | `sce`     | Creates station from current queue entry and adds it to queue |
+| `stop`                    | `s`       | Stop playing                                                  |
+| `stopSeeking`             | `ss`      | Stop seeking                                                  |
 
 ## addToQueue
 Used to add items to player queue from search page.
@@ -46,6 +48,22 @@ Examples:
     - `:a a n` --- Add all items from current search after currently playing entry
     - `:addToQueue 1,4 t` --- Add second and fifth items from current search to the end of the queue
     - `:a 0` --- Add first item from the current search after currently playing entry
+
+## repeatMode
+Sets repeat mode of the player.
+
+Repeat mode command has one optional argument:
+
+- `status` --- **(Argument)** --- set specific status:
+    - `off`, `false`, `none` - turn repeating off
+    - `a`, `all` - set repeat mode to repeat all songs in queue
+    - `o`, `one` - set repeat mode to repeat current song
+
+When `status` argument is not passed repeating mode is changed to the next value.
+
+Examples:
+    - `:repeat` - Change repeat mode to the next value
+    - `:repeatMode all` - Set repeat mode to repeat all songs in queue
 
 ## search
 Used to make search requests.
@@ -91,3 +109,19 @@ Set song time command expects 1 argument and 1 optional flag:
 Examples:
     - `:set 00:23` - Set playback to 00:23
     - `:set -r -10` - Set playback 10 seconds earlier
+
+## shuffleMode
+Sets shuffling mode of the player.
+
+Shuffle mode command has one optional argument:
+
+- `status` --- **(Argument)** --- set specific status:
+    - `false`, `off` - turn shuffling off
+    - `true`, `on` - turn shuffling on
+
+When `status` argument is not passed shuffling mode is toggled.
+
+Examples:
+    - `:shuffle` - Toggle shuffle mode
+    - `:shuffleMode false` - Turn shuffling off
+

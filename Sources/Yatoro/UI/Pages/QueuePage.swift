@@ -9,6 +9,9 @@ public class QueuePage: Page {
     private let borderPlane: Plane
     private let pageNamePlane: Plane
 
+    private let shufflePlane: Plane
+    private let repeatPlane: Plane
+
     private var state: PageState
 
     private var currentQueue: ApplicationMusicPlayer.Queue.Entries?
@@ -29,6 +32,23 @@ public class QueuePage: Page {
         borderPlane.updateByPageState(.init(absX: 0, absY: 0, width: state.width, height: state.height))
         borderPlane.erase()
         borderPlane.windowBorder(width: state.width, height: state.height)
+
+        shufflePlane.updateByPageState(
+            .init(
+                absX: Int32(state.width) - 24,
+                absY: Int32(state.height) - 1,
+                width: 11,
+                height: 1
+            )
+        )
+        repeatPlane.updateByPageState(
+            .init(
+                absX: Int32(state.width) - 12,
+                absY: Int32(state.height) - 1,
+                width: 11,
+                height: 1
+            )
+        )
 
         self.currentQueue = nil
     }
@@ -99,12 +119,73 @@ public class QueuePage: Page {
         pageNamePlane.putString("Player Queue", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
+        guard
+            let shufflePlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: Int32(state.width) - 12,
+                    absY: Int32(state.height) - 2,
+                    width: 11,
+                    height: 1
+                ),
+                debugID: "QUEUE_PAGE_SH"
+            )
+        else {
+            return nil
+        }
+        shufflePlane.backgroundColor = colorConfig.shuffleMode.background
+        shufflePlane.foregroundColor = colorConfig.shuffleMode.foreground
+        self.shufflePlane = shufflePlane
+
+        guard
+            let repeatPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: Int32(state.width) - 12,
+                    absY: Int32(state.height) - 2,
+                    width: 10,
+                    height: 1
+                ),
+                debugID: "QUEUE_PAGE_RE"
+            )
+        else {
+            return nil
+        }
+        repeatPlane.backgroundColor = colorConfig.repeatMode.background
+        repeatPlane.foregroundColor = colorConfig.repeatMode.foreground
+        self.repeatPlane = repeatPlane
+
         self.cache = []
         self.currentQueue = nil
         self.colorConfig = colorConfig
     }
 
     public func render() async {
+
+        switch Player.shared.player.state.repeatMode {
+        case Optional.none, .some(.none):
+            repeatPlane.width = 10
+            repeatPlane.putString("Repeat:Off", at: (0, 0))
+        case .one:
+            repeatPlane.width = 10
+            repeatPlane.putString("Repeat:One", at: (0, 0))
+        case .all:
+            repeatPlane.width = 10
+            repeatPlane.putString("Repeat:All", at: (0, 0))
+        @unknown default:
+            logger?.error("QueuePage: Unhandled repeat mode.")
+        }
+
+        switch Player.shared.player.state.shuffleMode {
+        case Optional.none, .off:
+            shufflePlane.width = 11
+            shufflePlane.putString("Shuffle:Off", at: (0, 0))
+        case .songs:
+            shufflePlane.width = 10
+            shufflePlane.putString("Shuffle:On", at: (0, 0))
+        @unknown default:
+            logger?.error("QueuePage: Unhandled shuffle mode.")
+        }
 
         guard currentQueue != Player.shared.queue else {
             return

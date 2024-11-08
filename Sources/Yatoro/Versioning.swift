@@ -1,19 +1,16 @@
 import Foundation
 
-public let yatoroVersionCore: String = "0.1.0"
+public let yatoroVersionCore: String = "0.1.1"
 
-fileprivate let readyForRelease: Bool = true
-
-public let yatoroBuildUUID = UUID().uuidString
+fileprivate let readyForRelease: Bool = false
 
 #if DEBUG
 
-public let yatoroVersion: String =
-    readyForRelease ? "\(yatoroVersionCore)-dev" : "dev-\(yatoroVersionCore)-\(yatoroBuildUUID)"
+public let yatoroVersion: String = "dev-\(yatoroVersionCore)-\(VersionatorVersion.commit)"
 
 #else
 
 public let yatoroVersion: String =
-    readyForRelease ? yatoroVersionCore : "rel-\(yatoroVersionCore)-\(yatoroBuildUUID)"
+    readyForRelease ? yatoroVersionCore : "rel-\(yatoroVersionCore)-\(VersionatorVersion.commit)"
 
 #endif

@@ -37,6 +37,8 @@ public struct Command: Sendable {
         .init(name: "search", short: "/", action: .search),
         .init(name: "setSongTime", short: "set", action: .setSongTime),
         .init(name: "stationFromCurrentEntry", short: "sce", action: .stationFromCurrentEntry),
+        .init(name: "shuffleMode", short: "shuffle", action: .shuffleMode),
+        .init(name: "repeatMode", short: "repeat", action: .repeatMode),
     ]
 
     @MainActor
@@ -68,138 +70,8 @@ public struct Command: Sendable {
             return
         }
         switch action {
-        case .addToQueue:
-            do {
-                let command = try AddToQueueCommand.parse(arguments)
-                logger?.debug("New add to queue command request: \(command)")
-                guard
-                    let lastResult = SearchManager.shared.lastSearchResult
-                else {
-                    let msg = "No last search result"
-                    logger?.debug(msg)
-                    await CommandInput.shared.setLastCommandOutput(msg)
-                    return
-                }
 
-                guard lastResult.itemType != .artist else {
-                    let msg = "Can't add artist to queue"
-                    logger?.debug(msg)
-                    await CommandInput.shared.setLastCommandOutput(msg)
-                    return
-                }
-
-                let result = lastResult.result
-
-                switch command.item {
-
-                case .all:
-                    switch result {
-
-                    case let result as MusicItemCollection<Song>:
-                        await Player.shared.addItemsToQueue(items: result, at: command.to)
-
-                    case let result as MusicItemCollection<Album>:
-                        await Player.shared.addItemsToQueue(items: result, at: command.to)
-
-                    case let result as MusicItemCollection<RecentlyPlayedMusicItem>:
-                        await Player.shared.addItemsToQueue(items: result, at: command.to)
-
-                    case let result as MusicItemCollection<Playlist>:
-                        await Player.shared.addItemsToQueue(items: result, at: command.to)
-
-                    case let result as MusicItemCollection<Station>:
-                        await Player.shared.addItemsToQueue(items: result, at: command.to)
-
-                    case _ as MusicItemCollection<MusicPersonalRecommendation>:
-                        // TODO
-                        break
-
-                    default: break
-                    }
-
-                case .some(let indices):
-                    switch result {
-
-                    case let result as MusicItemCollection<Song>:
-                        var songs: [Song] = []
-                        for index in indices {
-                            if let item = result.item(at: index) {
-                                songs.append(item)
-                            }
-                        }
-                        await Player.shared.addItemsToQueue(items: .init(songs), at: command.to)
-
-                    case let result as MusicItemCollection<Album>:
-                        var albums: [Album] = []
-                        for index in indices {
-                            if let item = result.item(at: index) {
-                                albums.append(item)
-                            }
-                        }
-                        await Player.shared.addItemsToQueue(items: .init(albums), at: command.to)
-
-                    case let result as MusicItemCollection<RecentlyPlayedMusicItem>:
-                        var items: [RecentlyPlayedMusicItem] = []
-                        for index in indices {
-                            if let item = result.item(at: index) {
-                                items.append(item)
-                            }
-                        }
-                        await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
-
-                    case let result as MusicItemCollection<Playlist>:
-                        var items: [Playlist] = []
-                        for index in indices {
-                            if let item = result.item(at: index) {
-                                items.append(item)
-                            }
-                        }
-                        await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
-
-                    case let result as MusicItemCollection<Station>:
-                        var items: [Station] = []
-                        for index in indices {
-                            if let item = result.item(at: index) {
-                                items.append(item)
-                            }
-                        }
-                        await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
-
-                    case _ as MusicItemCollection<MusicPersonalRecommendation>:
-                        // TODO
-                        break
-
-                    default: break
-
-                    }
-
-                case .one(let int):
-                    guard let item = result.item(at: int) else {
-                        return
-                    }
-                    switch item {
-                    case let item as Song:
-                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
-                    case let item as Album:
-                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
-                    case let item as RecentlyPlayedMusicItem:
-                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
-                    case let item as Playlist:
-                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
-                    case let item as Station:
-                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
-                    case _ as MusicPersonalRecommendation:
-                        // TODO
-                        break
-                    default: break
-                    }
-                }
-
-            } catch {
-                let msg = error.localizedDescription
-                logger?.debug(msg)
-                await CommandInput.shared.setLastCommandOutput(msg)
-            }
+        case .addToQueue: await AddToQueueCommand.execute(arguments: arguments)
 
         case .playPauseToggle: await Player.shared.playPauseToggle()
 
@@ -225,101 +97,19 @@ public struct Command: Sendable {
 
         case .quitApplication: UI.running = false
 
-        case .search:
-            do {
-                let command = try SearchCommand.parse(arguments)
-                logger?.debug("New search command request: \(command)")
-                var searchPhrase = ""
-                for part in command.searchPhrase {
-                    searchPhrase.append("\(part) ")
-                }
-                if command.type == .station && command.from == .librarySearch {
-                    let msg = "Can't search user library for stations"
-                    logger?.debug(msg)
-                    await CommandInput.shared.setLastCommandOutput(msg)
-                    return
-                }
-                Task {
-                    await SearchManager.shared.newSearch(
-                        for: searchPhrase,
-                        itemType: command.type,
-                        in: command.from ?? .catalogSearch
-                    )
-                }
-            } catch {
-                let msg = error.localizedDescription
-                logger?.debug(msg)
-                await CommandInput.shared.setLastCommandOutput(msg)
-            }
+        case .search: await SearchCommand.execute(arguments: arguments)
 
-        case .setSongTime:
-            do {
-                let command = try SetSongTimeCommand.parse(arguments)
-                logger?.debug("New set song time command request: \(command)")
+        case .setSongTime: await SetSongTimeCommand.execute(arguments: arguments)
 
-                let error = ValidationError("Unknown time format")
-
-                guard command.time.contains(":") else {
-                    guard let seconds = Int(command.time) else {
-                        throw error
-                    }
-
-                    await Player.shared.setTime(
-                        seconds: seconds,
-                        relative: command.relative
-                    )
-                    return
-                }
-
-                let split = command.time.split(separator: ":")
-
-                switch split.count {
-                case 2:  // MM:SS
-                    guard let minutesPart = Int(split[0]) else {
-                        throw error
-                    }
-                    guard let secondsPart = Int(split[1]) else {
-                        throw error
-                    }
-                    let seconds = minutesPart * 60 + secondsPart
-                    await Player.shared.setTime(
-                        seconds: seconds,
-                        relative: command.relative
-                    )
-
-                case 3:  // HH:MM:SS
-                    guard let hoursPart = Int(split[0]) else {
-                        throw error
-                    }
-                    guard let minutesPart = Int(split[1]) else {
-                        throw error
-                    }
-                    guard let secondsPart = Int(split[2]) else {
-                        throw error
-                    }
-                    let seconds =
-                        hoursPart * 60 * 60 + minutesPart * 60 + secondsPart
-                    await Player.shared.setTime(
-                        seconds: seconds,
-                        relative: command.relative
-                    )
-
-                default:
-                    throw error
-                }
-
-            } catch {
-                let msg = error.localizedDescription
-                logger?.debug(msg)
-                await CommandInput.shared.setLastCommandOutput(msg)
-            }
-
-        case .stationFromCurrentEntry:
-            await Player.shared.playStationFromCurrentSong()
+        case .stationFromCurrentEntry: await Player.shared.playStationFromCurrentSong()
 
         case .openCommandLine: break
 
         case .startSearching: break
+
+        case .repeatMode: await RepeatModeCommand.execute(arguments: arguments)
+
+        case .shuffleMode: await ShuffleModeCommand.execute(arguments: arguments)
 
         }
         return
@@ -345,4 +135,6 @@ public enum CommandAction: String, Sendable, Codable {
     case search
     case setSongTime
     case stationFromCurrentEntry
+    case repeatMode
+    case shuffleMode
 }
