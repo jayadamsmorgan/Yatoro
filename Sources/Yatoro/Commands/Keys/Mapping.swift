@@ -17,7 +17,17 @@ public struct Mapping: Codable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.key = try container.decodeIfPresent(String.self, forKey: .key) ?? ""
-        self.modifiers = try container.decodeIfPresent(Array<Input.Modifier>.self, forKey: .modifiers)
+        var modifiers: [Input.Modifier] = []
+        if let strModifiers = try container.decodeIfPresent(Array<String>.self, forKey: .modifiers) {
+            for strModifier in strModifiers {
+                if let mod = Input.Modifier(rawValue: strModifier.lowercased()) {
+                    modifiers.append(mod)
+                }
+            }
+        }
+        if !modifiers.isEmpty {
+            self.modifiers = modifiers
+        }
         self.action = try container.decodeIfPresent(String.self, forKey: .action) ?? ""
         self.remap = try container.decodeIfPresent(Bool.self, forKey: .remap) ?? false
     }
