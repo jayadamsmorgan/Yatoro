@@ -13,6 +13,7 @@ let package = Package(
         ),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.6.1"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.1.3"),
+        .package(url: "https://github.com/elegantchaos/Versionator.git", from: "2.0.6"),
     ],
     targets: [
         .systemLibrary(
@@ -49,6 +50,9 @@ let package = Package(
                     "-Xlinker", "__info_plist",
                     "-Xlinker", "Sources/Yatoro/Resources/Info.plist",
                 ])
+            ],
+            plugins: [
+                .plugin(name: "VersionatorPlugin", package: "Versionator")
             ]
         ),
         .testTarget(
