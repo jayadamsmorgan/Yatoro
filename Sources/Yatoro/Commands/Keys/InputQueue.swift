@@ -68,8 +68,7 @@ public class InputQueue {
                     case "ARROW_RIGHT": id = 1115003
                     case "ARROW_UP": id = 1115002
                     case "ARROW_DOWN": id = 1115004
-                    case "DELETE": id = 1115008
-                    case "BACKSPACE": id = 1115008  // TODO: fix
+                    case "DELETE", "BACKSPACE": id = 1115008
                     default:
                         if let mods = mapping.modifiers {
                             return input.modifiers.elementsEqual(mods) && input.utf8 == mapping.key
@@ -208,6 +207,12 @@ public class InputQueue {
             }
         }
 
+        if modifiers.contains(.shift) {
+            modifiers.removeAll(where: { $0 == .shift })
+            if keyChar != nil {
+                keyChar = Character(keyChar!.uppercased())
+            }
+        }
         if let keyCode = keyCode {
             return Input(id: keyCode, modifiers: modifiers)
         } else if let keyChar = keyChar {
