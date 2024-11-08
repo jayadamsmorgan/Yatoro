@@ -105,7 +105,7 @@ struct Yatoro: AsyncParsableCommand {
         help: "Custom path to config.yaml",
         completion: .file(extensions: ["yaml"])
     )
-    var configPath: String = Config.defaultConfigPath
+    var config: String = Config.defaultConfigPath
 
     @MainActor private func initLogging(config: Config.LoggingConfig) {
         guard let logLevel = config.logLevel else {
@@ -121,7 +121,7 @@ struct Yatoro: AsyncParsableCommand {
         let config = Config.parseOptions(
             uiOptions: uiOptions,
             loggingOptions: loggingOptions,
-            configPath: configPath
+            configPath: config
         )
 
         initLogging(config: config.logging)
