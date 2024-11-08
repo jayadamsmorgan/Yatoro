@@ -61,7 +61,7 @@ public class InputQueue {
                     let id: UInt32
                     switch mapping.key.uppercased() {
                     case "ESC": id = 27
-                    case "ENTER", "RETURN": id = 1115121
+                    case "ENTER", "RETURN", "CR": id = 1115121
                     case "TAB": id = 9
                     case "SPACE": id = 32
                     case "ARROW_LEFT": id = 1115005
@@ -88,14 +88,132 @@ public class InputQueue {
                     continue
                 }
 
-                switch mapping.action.mode {
-                case .nrm, .n: break
+                let tokens = tokenizeAction(mapping.action)
 
-                case .cmd, .c: break
+                for token in tokens {
+                    switch token {
+                    case .literal(let string):
+                        for char in string {
+                            let input = Input(utf8: String(char))
+                            add(input)
+                        }
+                    case .special(let char):
+                        if let input = parseToken(char) {
+                            add(input)
+                        } else {
+                            logger?.error("InputQueue: Unable to parse token \(char)")
+                        }
+                    }
                 }
 
             }
         }
     }
 
+    private enum ActionToken {
+        case literal(String)
+        case special(String)
+    }
+
+    private func tokenizeAction(_ action: String) -> [ActionToken] {
+        var tokens: [ActionToken] = []
+        var currentLiteral = ""
+        var index = action.startIndex
+        let end = action.endIndex
+        var isEscaped = false
+        var isInToken = false
+        var currentToken = ""
+
+        while index < end {
+            let char = action[index]
+            if isEscaped {
+                if isInToken {
+                    currentToken.append(char)
+                } else {
+                    currentLiteral.append(char)
+                }
+                isEscaped = false
+            } else {
+                switch char {
+                case "\\":
+                    // Next char is escaped
+                    isEscaped = true
+                case "<":
+                    if isInToken {
+                        // Nested
+                        currentToken.append(char)
+                    } else {
+                        // Start of speacial
+                        if !currentLiteral.isEmpty {
+                            tokens.append(.literal(currentLiteral))
+                            currentLiteral = ""
+                        }
+                        isInToken = true
+                        currentToken = ""
+                    }
+                case ">":
+                    if isInToken {
+                        // End of special
+                        tokens.append(.special(currentToken))
+                        isInToken = false
+                    } else {
+                        // Unmatched, treat as literal
+                        currentLiteral.append(char)
+                    }
+                default:
+                    if isInToken {
+                        currentToken.append(char)
+                    } else {
+                        currentLiteral.append(char)
+                    }
+                }
+            }
+            index = action.index(after: index)
+        }
+        // Remaining
+        if !currentLiteral.isEmpty {
+            tokens.append(.literal(currentLiteral))
+        }
+
+        if isInToken {
+            // Unmatched, treat as literal
+            tokens.append(.literal("<" + currentToken))
+        }
+
+        return tokens
+    }
+
+    private var tokenActions: [String: UInt32] {
+        return [
+            "CR": 1115121,
+            "ESC": 27,
+            "TAB": 9,
+            "SPACE": 32,
+        ]
+    }
+
+    private func parseToken(_ token: String) -> Input? {
+        var modifiers: [Input.Modifier] = []
+        var keyChar: Character?
+        var keyCode: UInt32?
+
+        let components = token.components(separatedBy: "-")
+        for component in components {
+            if let modifier = Input.Modifier.init(rawValue: component.lowercased()) {
+                modifiers.append(modifier)
+            } else if let code = tokenActions[component.uppercased()] {
+                keyCode = code
+            } else if component.count == 1 {
+                keyChar = component.first
+            }
+        }
+
+        if let keyCode = keyCode {
+            return Input(id: keyCode, modifiers: modifiers)
+        } else if let keyChar = keyChar {
+            return Input(utf8: String(keyChar), modifiers: modifiers)
+        }
+
+        return nil
+    }
 }
