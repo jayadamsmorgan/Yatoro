@@ -207,16 +207,15 @@ public class InputQueue {
             }
         }
 
-        if modifiers.contains(.shift) {
-            modifiers.removeAll(where: { $0 == .shift })
-            if keyChar != nil {
-                keyChar = Character(keyChar!.uppercased())
-            }
-        }
         if let keyCode = keyCode {
             return Input(id: keyCode, modifiers: modifiers)
         } else if let keyChar = keyChar {
-            return Input(utf8: String(keyChar), modifiers: modifiers)
+            var keyStr = String(keyChar)
+            if modifiers.contains(.shift) {
+                modifiers.removeAll(where: { $0 == .shift })
+                keyStr = keyStr.uppercased()
+            }
+            return Input(utf8: keyStr, modifiers: modifiers)
         }
 
         return nil
