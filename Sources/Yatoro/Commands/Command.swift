@@ -6,18 +6,15 @@ public struct Command: Sendable {
     public let name: String
     public let shortName: String?
     public var action: CommandAction?
-    public let arguments: [Command]
 
     public init(
         name: String,
         short: String? = nil,
-        action: CommandAction?,
-        arguments: [Command] = []
+        action: CommandAction?
     ) {
         self.name = name
         self.shortName = short
         self.action = action
-        self.arguments = arguments
     }
 
     public static let defaultCommands: [Command] = [
