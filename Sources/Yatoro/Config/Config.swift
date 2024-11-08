@@ -66,7 +66,7 @@ public extension Config {
     )
         -> Config
     {
-        // Loading config from default config path
+        // Loading config from config path
         var config = load(from: configPath, logLevel: loggingOptions.logLevel)
 
         // Then we overwrite it with command line arguments
@@ -108,22 +108,24 @@ public extension Config {
 
         // Mappings processing
         var newMappings = Mapping.defaultMappings
-        for mapping in config.mappings {
+        for var mapping in config.mappings {
+            mapping.key = mapping.key.trimmingCharacters(in: .whitespaces)
             if mapping.remap {
-                guard
-                    let index = newMappings.firstIndex(where: {
-                        $0.action == mapping.action
+                if let modifiers = mapping.modifiers {
+                    newMappings.removeAll(where: {
+                        $0.key == mapping.key && $0.modifiers != nil && $0.modifiers!.elementsEqual(modifiers)
                     })
-                else {
-                    logger?.error("Unable to remap config mapping \(mapping): action is not used.")
-                    continue
+                } else {
+                    newMappings.removeAll(where: {
+                        $0.key == mapping.key && (mapping.modifiers == nil || mapping.modifiers!.isEmpty)
+                    })
                 }
-                newMappings[index] = mapping
-            } else {
-                newMappings.append(mapping)
             }
+            newMappings.append(mapping)
         }
 
+        // Remove SHIFT from all mappings and just uppercase the keys
+        // This is done because notcurses is not registering shift for some reason
         for mappingIndex in newMappings.indices {
             if let mods = newMappings[mappingIndex].modifiers {
                 if mods.contains(.shift) {
@@ -134,7 +136,7 @@ public extension Config {
                 }
             }
         }
-        // TODO: check for duplicates and other funny stuff
+
         config.mappings = newMappings
 
         return config

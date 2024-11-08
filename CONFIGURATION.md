@@ -2,7 +2,7 @@
 
 Yatoro supports deep configuration through the `config.yaml` which should be located in `~/.config/Yatoro`
 
-See example config in `example_config.yaml`
+See [example config](example_config.yaml)
 
 ## ui
 
@@ -221,8 +221,8 @@ Each `Mapping` has 3 properties:
 
 - `key` - **String** --- UTF-8 representation of the pressed key
 - `modifiers` - **Array\<String\>** --- Modifiers for the key
-- `action` - **String** --- Action to be performed when the key is pressed
-- `remap` - **Bool** --- When set to `true` removes the default mapping with the same action. **Default: false**
+- `action` - **String** --- Action to be performed when the key is pressed. See [mappings.action](#mappings.action)
+- `remap` - **Bool** --- When set to `true` removes the default mapping with the same key and modifiers. **Default: false**
 
 You can check the default mappings down below in the default configuration.
 
@@ -238,181 +238,26 @@ Available modifiers:
 
 **Note**: On some terminals only `shift` and `ctrl` modifiers are working. This is due to the bug in notcurses library.
 
-## Default configuration
+### mappings.action
 
-The default config would look like:
+Action is a String which will be executed when mapping is activated.
 
-```yaml
-ui:
-  margins:
-    all: 0
-    left: null
-    right: null
-    top: null
-    bottom: null
-  layout:
-    rows: 2
-    cols: 2
-    pages:
-    - nowPlaying
-    - queue
-    - search
-  frameDelay: 5000000
-  colors:
-    nowPlaying:
-      page: {}
-      pageName: {}
-      border: {}
-      slider: {}
-      sliderKnob: {}
-      controls: {}
-      artistLeft: {}
-      artistRight: {}
-      songLeft: {}
-      songRight: {}
-      albumLeft: {}
-      albumRight: {}
-      currentTime: {}
-      duration: {}
-    commandLine:
-      page: {}
-      modeNormal: {}
-      modeCommand: {}
-      playStatus: {}
-      time: {}
-      input: {}
-      nowPlayingArtist: {}
-      nowPlayingDash: {}
-      nowPlayingTitle: {}
-    search:
-      page: {}
-      pageName: {}
-      border: {}
-      searchPhrase: {}
-      itemIndices: {}
-      albumItem:
-        page: {}
-        pageName: {}
-        border: {}
-        artistLeft: {}
-        artistRight: {}
-        genreLeft: {}
-        genreRight: {}
-        albumsLeft: {}
-        albumsRight: {}
-      albumItem:
-        page: {}
-        pageName: {}
-        border: {}
-        artistLeft: {}
-        artistRight: {}
-        albumLeft: {}
-        albumRight: {}
-        genreLeft: {}
-        genreRight: {}
-      songItem:
-        page: {}
-        pageName: {}
-        border: {}
-        artistLeft: {}
-        artistRight: {}
-        songLeft: {}
-        songRight: {}
-        albumLeft: {}
-        albumRight: {}
-      playlistItem:
-        page: {}
-        pageName: {}
-        border: {}
-        playlistLeft: {}
-        playlistRight: {}
-        curatorLeft: {}
-        curatorRight: {}
-        descriptionLeft: {}
-        descriptionRight: {}
-      stationItem:
-        page: {}
-        pageName: {}
-        border: {}
-        stationLeft: {}
-        stationRight: {}
-        isLiveLeft: {}
-        isLiveRight: {}
-        notesLeft: {}
-        notesRight: {}
-      recommendationItem:
-        page: {}
-        pageName: {}
-        border: {}
-        titleLeft: {}
-        titleRight: {}
-        refreshDateLeft: {}
-        refreshDateRight: {}
-        typesLeft: {}
-        typesRight: {}
-    queue:
-      page: {}
-      pageName: {}
-      border: {}
-      shuffleMode: {}
-      repeatMode: {}
-      songItem:
-        page: {}
-        pageName: {}
-        border: {}
-        artistLeft: {}
-        artistRight: {}
-        songLeft: {}
-        songRight: {}
-        albumLeft: {}
-        albumRight: {}
-  artwork:
-    width: 500
-    height: 500
-logging:
-  logLevel: null
-  ncLogLevel: -1
-mappings:
-- key: p
-  action: playPauseToggle
-- key: p
-  modifiers:
-  - alt
-  action: play
-- key: p
-  modifiers:
-  - ctrl
-  action: pause
-- key: c
-  action: stop
-- key: x
-  action: clearQueue
-- key: f
-  action: playNext
-- key: f
-  modifiers:
-  - ctrl
-  action: startSeekingForward
-- key: g
-  action: stopSeeking
-- key: b
-  action: playPrevious
-- key: b
-  modifiers:
-  - ctrl
-  action: startSeekingBackward
-- key: r
-  action: restartSong
-- key: s
-  action: startSearching
-- key: ':'
-  modifiers:
-  - shift
-  action: openCommmandLine
-- key: s
-  modifiers:
-  - ctrl
-  action: stationFromCurrentEntry
-- key: q
-  action: quitApplication
-```
+It will be executed character by character so you can execute not only [commands](#COMMANDS.md) but also other mappings.
+
+It also has syntax for modifiers and special keys. Examples:
+    - `<CR>` - press `return` (`enter`) key
+    - `<CTRL-g>` - press `g` with modifier `CTRL`. See available modifiers in [mappings](#mappings)
+    - `<CTRL-ALT-h>` - press `h` with modifiers `CTRL` and `ALT`
+    - `<SPACE>`
+    - `<ESC>`
+    - `<TAB>`
+
+Some examples:
+
+- `:playPauseToggle<CR>` - Execute `playPauseToggle` command
+- `<CTRL-f>e` - Execute mapping with key `f` and modifier `CTRL`, then execute mapping with key `e`
+- `:search ` - Open command line and type `search `
+- `:shuffleMode<CR><SHIFT-e>` - Execute `shuffleMode` command, then execute mapping with key `e` and modifier `SHIFT`
+
+See [COMMANDS.md](#COMMANDS.md) for all available commands
+

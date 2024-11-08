@@ -39,11 +39,11 @@ public struct Command: Sendable {
         .init(name: "stationFromCurrentEntry", short: "sce", action: .stationFromCurrentEntry),
         .init(name: "shuffleMode", short: "shuffle", action: .shuffleMode),
         .init(name: "repeatMode", short: "repeat", action: .repeatMode),
+        .init(name: "openCommandLine", action: .openCommandLine),
     ]
 
     @MainActor
-    public static func parseCommand() async {
-        let commandString = await CommandInput.shared.get()
+    public static func parseCommand(_ commandString: String) async {
         let commandParts = Array(commandString.split(separator: " "))
         guard let commandString = commandParts.first else {
             logger?.debug("Empty command entered")
@@ -79,7 +79,7 @@ public struct Command: Sendable {
 
         case .pause: await Player.shared.pause()
 
-        case .stop: break
+        case .stop: Player.shared.player.stop()
 
         case .clearQueue: await Player.shared.clearQueue()
 
@@ -103,9 +103,7 @@ public struct Command: Sendable {
 
         case .stationFromCurrentEntry: await Player.shared.playStationFromCurrentSong()
 
-        case .openCommandLine: break
-
-        case .startSearching: break
+        case .openCommandLine: UI.mode = .command
 
         case .repeatMode: await RepeatModeCommand.execute(arguments: arguments)
 
@@ -128,7 +126,6 @@ public enum CommandAction: String, Sendable, Codable {
     case playPrevious
     case startSeekingBackward
     case openCommandLine
-    case startSearching
     case stopSeeking
     case restartSong
     case quitApplication
