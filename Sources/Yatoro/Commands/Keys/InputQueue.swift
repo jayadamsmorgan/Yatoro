@@ -10,15 +10,22 @@ public class InputQueue {
 
     private var queue: BlockingQueue<Input>
 
+    private var commandHistory: [String]
+    private var commandHistoryIndex: Int?
+
+    public var completionCommands: [String]?
+    public var currentCompletionCommandIndex: Int?
+
     public func add(_ newInput: Input) {
         Task {
             await queue.enqueue(newInput)
         }
     }
 
-    public init(mappings: [Mapping]) {
+    public init(mappings: [Mapping], commandHistory: [String] = []) {
         self.mappings = mappings
         self.queue = .init()
+        self.commandHistory = commandHistory
     }
 
     public func start() async {
@@ -29,26 +36,52 @@ public class InputQueue {
                 guard UI.mode == .normal else {
                     // CMD mode
                     await CommandInput.shared.setLastCommandOutput("")
-                    guard input.id != 27 else {
-                        // ESC pressed
+                    let commandString = await CommandInput.shared.get()
+
+                    switch input.id {
+
+                    case 27:  // Escape
+                        if completionCommands != nil {
+
+                        }
                         UI.mode = .normal
                         await CommandInput.shared.clear()
-                        continue
-                    }
-                    let commandString = await CommandInput.shared.get()
-                    guard input.id != 1115121 else {
-                        // Enter pressed
+
+                    case 1115121:  // Enter
                         UI.mode = .normal
                         await Command.parseCommand(commandString)
                         await CommandInput.shared.clear()
-                        continue
+
+                    case 1115008:  // Backspace
+                        if commandString.isEmpty {
+                            UI.mode = .normal
+                        }
+                        await CommandInput.shared.add(input)
+
+                    case 1115002:  // Arrow up
+                        break
+
+                    case 1115004:  // Arrow down
+                        break
+
+                    case 9:  // Tab
+                        if completionCommands == nil {
+                            // Completions are not active, activate them
+                            populateCompletionCommands()
+                            break
+                        }
+                        if input.modifiers.contains(.shift) {
+                            // Shift + Tab
+                            break
+                        }
+                    // Tab
+
+                    default:
+                        // Any other key
+                        await CommandInput.shared.add(input)
+
                     }
-                    if input.id == 1115008 && commandString.isEmpty {
-                        // Backspace pressed when the command input is empty
-                        UI.mode = .normal
-                        continue
-                    }
-                    await CommandInput.shared.add(input)
+
                     continue
                 }
 
@@ -107,6 +140,13 @@ public class InputQueue {
 
             }
         }
+    }
+
+    private func populateCompletionCommands(_ command: String) {
+        var completionCommands: [String] = Command.defaultCommands.map({ $0.name })
+        completionCommands.removeAll(where: { !$0.hasPrefix(command) })
+        self.completionCommands = commandNames
+        self.currentCompletionCommandIndex = 0
     }
 
     private enum ActionToken {
