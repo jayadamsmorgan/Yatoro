@@ -6,35 +6,29 @@ import notcurses
 @MainActor
 public class InputQueue {
 
-    public var mappings: [Mapping]
+    public static let shared: InputQueue = .init()
 
-    private var queue: BlockingQueue<Input>
+    public var mappings: [Mapping] = []
+
+    private let queue: BlockingQueue<Input> = .init()
 
     private var commandHistoryActive: Bool {
         commandHistoryIndex != nil
     }
-    private var fullCommandHistory: [String]
-    private var currentCommandHistory: [String]
+    private var fullCommandHistory: [String] = []
+    private var currentCommandHistory: [String] = []
     private var commandHistoryIndex: Int?
 
     public var commandCompletionsActive: Bool {
         currentCompletionCommandIndex != nil
     }
-    public var completionCommands: [String]
+    public var completionCommands: [String] = []
     public var currentCompletionCommandIndex: Int?
 
     public func add(_ newInput: Input) {
         Task {
             await queue.enqueue(newInput)
         }
-    }
-
-    public init(mappings: [Mapping], commandHistory: [String] = []) {
-        self.mappings = mappings
-        self.queue = .init()
-        self.fullCommandHistory = commandHistory
-        self.currentCommandHistory = []
-        self.completionCommands = []
     }
 
     public func start() async {
@@ -245,6 +239,7 @@ public class InputQueue {
         completionCommands = Command.defaultCommands.map({ $0.shortName ?? "" })
         completionCommands.append(contentsOf: Command.defaultCommands.map({ $0.name }))
         completionCommands.removeAll(where: { !$0.hasPrefix(command) || $0.isEmpty })
+        completionCommands.sort()
         if !completionCommands.isEmpty {
             self.currentCompletionCommandIndex = 0
         }

@@ -5,6 +5,7 @@ import SwiftNotCurses
 @MainActor
 public class CommandPage: Page {
 
+    private var stdPlane: Plane
     private let plane: Plane
 
     private var modePlane: Plane
@@ -14,6 +15,12 @@ public class CommandPage: Page {
     private var nowPlayingArtistPlane: Plane
     private var nowPlayingDashPlane: Plane
     private var nowPlayingTitlePlane: Plane
+
+    private var completionsPlane: Plane
+    private var completionSelectedPlane: Plane
+    private var completionsCache: ArraySlice<String>
+    private var completionTopIndex: Int
+    private var completionSelected: Int
 
     private var modeNormalColor: Config.UIConfig.Colors.ColorPair
     private var modeCommandColor: Config.UIConfig.Colors.ColorPair
@@ -72,6 +79,8 @@ public class CommandPage: Page {
                 )
             )
         }
+
+        completionsPlane.moveOnTopOfZStack()
     }
 
     public func getPageState() async -> PageState { self.state }
@@ -229,6 +238,43 @@ public class CommandPage: Page {
         playStatusPlane.backgroundColor = colorConfig.playStatus.background
         playStatusPlane.foregroundColor = colorConfig.playStatus.foreground
         self.playStatusPlane = playStatusPlane
+
+        guard
+            let completionsPlane = Plane(
+                in: stdPlane,
+                state: .init(
+                    absX: -1,
+                    absY: state.absY,
+                    width: 1,
+                    height: 1
+                ),
+                debugID: "CMD_CMP"
+            )
+        else {
+            return nil
+        }
+        self.completionsPlane = completionsPlane
+
+        guard
+            let completionSelectedPlane = Plane(
+                in: completionsPlane,
+                state: .init(
+                    absX: 0,
+                    absY: 0,
+                    width: 1,
+                    height: 1
+                ),
+                debugID: "CMD_CMP_SEL"
+            )
+        else {
+            return nil
+        }
+        self.completionSelectedPlane = completionSelectedPlane
+        self.completionTopIndex = 0
+        self.completionSelected = 0
+        self.completionsCache = []
+
+        self.stdPlane = stdPlane
     }
 
     func renderMode() {
@@ -345,6 +391,42 @@ public class CommandPage: Page {
         }
     }
 
+    public func renderCompletions() async {
+        guard InputQueue.shared.commandCompletionsActive else {
+            self.completionsCache = []
+            self.completionTopIndex = 0
+            self.completionSelected = 0
+            return
+        }
+        let completionsDisplayedAmount = min(
+            Int(max(stdPlane.height - 5, 0)),
+            InputQueue.shared.completionCommands.count
+        )
+        guard completionsDisplayedAmount != 0 else {
+            return
+        }
+        guard completionTopIndex < completionsDisplayedAmount else {
+            return
+        }
+        let completionsDisplayed = InputQueue.shared.completionCommands[
+            completionTopIndex..<completionsDisplayedAmount
+        ]
+        if self.completionsCache != completionsDisplayed {
+            self.completionsCache = completionsDisplayed
+        }
+        let completionsLengths = InputQueue.shared.completionCommands.map({ UInt32($0.count) })
+        let maxCompletionLength = completionsLengths.max() ?? 1
+        let yPos = state.absY - Int32(completionsDisplayedAmount)
+        completionsPlane.updateByPageState(
+            .init(
+                absX: 0,
+                absY: yPos,
+                width: maxCompletionLength,
+                height: UInt32(completionsDisplayedAmount)
+            )
+        )
+    }
+
     public func renderCommandInput() async {
         inputPlane.blank()
         if (UI.mode == .command) {
@@ -360,6 +442,7 @@ public class CommandPage: Page {
                 self.cursorState.y = cursorY
                 self.cursorState.enabled = true
             }
+            await renderCompletions()
         } else {
             if (cursorState.enabled) {
                 UI.notcurses?.disableCursor()

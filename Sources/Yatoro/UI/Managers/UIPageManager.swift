@@ -149,22 +149,6 @@ public struct UIPageManager {
         _ newWidth: UInt32,
         _ newHeight: UInt32
     ) async {
-        await windowTooSmallPage.onResize(
-            newPageState: .init(
-                absX: 0,
-                absY: 0,
-                width: newWidth,
-                height: newHeight
-            )
-        )
-        await commandPage.onResize(
-            newPageState: .init(
-                absX: 0,
-                absY: Int32(newHeight) - 2,
-                width: newWidth,
-                height: 2
-            )
-        )
         let commandPageHeight: UInt32 = 2
         let availableHeight = newHeight - commandPageHeight
 
@@ -208,6 +192,22 @@ public struct UIPageManager {
             }
             currentX += columnWidth
         }
+        await commandPage.onResize(
+            newPageState: .init(
+                absX: 0,
+                absY: Int32(newHeight) - 2,
+                width: newWidth,
+                height: 2
+            )
+        )
+        await windowTooSmallPage.onResize(
+            newPageState: .init(
+                absX: 0,
+                absY: 0,
+                width: newWidth,
+                height: newHeight
+            )
+        )
     }
     private func setMinimumRequiredDiminsions() async {
         // key: col, val: width
