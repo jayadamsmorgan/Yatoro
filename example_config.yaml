@@ -20,6 +20,10 @@ ui:
         fg: magenta
       time:
         fg: yellow
+      completions:
+        bg: black
+      completionSelected:
+        bg: brightBlack
 
     nowPlaying:
       page:
@@ -154,4 +158,8 @@ logging:
 
 mappings:
   - key: SPACE
-    action: playPauseToggle
+    action: :playPauseToggle<CR>
+  - key: r
+    modifiers:
+      - CTRL
+    action: :restartSong<CR>

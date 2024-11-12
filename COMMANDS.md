@@ -26,6 +26,11 @@ Here are the available commands for the command mode and their description:
 | `stop`                    | `s`       | Stop playing                                                  |
 | `stopSeeking`             | `ss`      | Stop seeking                                                  |
 
+Command completions can be activated with `TAB` while in command mode.
+Press `TAB` or right arrow to cycle completions forward, `SHIFT+TAB` or left arrow to cycle backwards.
+
+To cycle through command history press arrow up or down while in command mode.
+
 ## addToQueue
 Used to add items to player queue from search page.
 

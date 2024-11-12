@@ -10,6 +10,8 @@ extension Config.UIConfig.Colors {
         public var nowPlayingArtist: ColorPair
         public var nowPlayingDash: ColorPair
         public var nowPlayingTitle: ColorPair
+        public var completions: ColorPair
+        public var completionSelected: ColorPair
 
         public init() {
             self.page = .init()
@@ -21,6 +23,8 @@ extension Config.UIConfig.Colors {
             self.nowPlayingArtist = .init()
             self.nowPlayingDash = .init()
             self.nowPlayingTitle = .init()
+            self.completions = .init()
+            self.completionSelected = .init()
         }
     }
 
@@ -38,6 +42,8 @@ extension Config.UIConfig.Colors.CommandLine: Codable {
         case nowPlayingArtist
         case nowPlayingDash
         case nowPlayingTitle
+        case completions
+        case completionSelected
     }
 
     public init(from decoder: any Decoder) throws {
@@ -69,6 +75,12 @@ extension Config.UIConfig.Colors.CommandLine: Codable {
         self.nowPlayingTitle =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .nowPlayingTitle)
             ?? .init()
+        self.completions =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .completions)
+            ?? .init()
+        self.completionSelected =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .completionSelected)
+            ?? .init()
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -82,6 +94,8 @@ extension Config.UIConfig.Colors.CommandLine: Codable {
         try container.encode(self.nowPlayingArtist, forKey: .nowPlayingArtist)
         try container.encode(self.nowPlayingDash, forKey: .nowPlayingDash)
         try container.encode(self.nowPlayingTitle, forKey: .nowPlayingTitle)
+        try container.encode(self.completions, forKey: .completions)
+        try container.encode(self.completionSelected, forKey: .completionSelected)
     }
 
 }
