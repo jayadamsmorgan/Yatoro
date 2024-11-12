@@ -394,6 +394,8 @@ public class CommandPage: Page {
         guard completionsDisplayedAmount > 1 else {
             return false
         }
+        completionsPlane.moveOnTopOfZStack()
+        completionSelectedPlane.moveOnTopOfZStack()
         let completionsLengths = inputQueue.completionCommands.map({ UInt32($0.count) })
         let maxCompletionLength = completionsLengths.max() ?? 1
         let yPos = state.absY - Int32(completionsDisplayedAmount) + 1
