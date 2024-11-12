@@ -68,6 +68,8 @@ By default, both properties are `nil` on every UI element, which basically means
 - `nowPlayingArtist` --- artist name string
 - `nowPlayingDash` --- "-" between artist name string and song title string
 - `nowPlayingTitle` --- song title string
+- `completions` --- command line completions
+- `completionSelected` --- command line selected completion
 
 #### ui.colors.nowPlaying
 
