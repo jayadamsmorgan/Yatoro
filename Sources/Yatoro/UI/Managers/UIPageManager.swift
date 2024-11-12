@@ -52,7 +52,6 @@ public struct UIPageManager {
                         )
                     else {
                         logger?.critical("Failed to initiate Player Page.")
-                        UI.running = false
                         return nil
                     }
                     layout[i].append(nowPlayingPage)
@@ -71,7 +70,6 @@ public struct UIPageManager {
                         )
                     else {
                         logger?.critical("Failed to initiate Queue Page.")
-                        UI.running = false
                         return nil
                     }
                     layout[i].append(queuePage)
@@ -90,7 +88,6 @@ public struct UIPageManager {
                         )
                     else {
                         logger?.critical("Failed to initiate Search Page.")
-                        UI.running = false
                         return nil
                     }
                     layout[i].append(searchPage)
