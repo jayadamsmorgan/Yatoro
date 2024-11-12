@@ -12,28 +12,10 @@ public struct UIPageManager {
     var commandPage: CommandPage
     var windowTooSmallPage: WindowTooSmallPage
 
-    public init(
+    public init?(
         uiConfig: Config.UIConfig,
         stdPlane: Plane
     ) async {
-        guard
-            let commandPage = CommandPage(
-                stdPlane: stdPlane,
-                colorConfig: uiConfig.colors.commandLine
-            )
-        else {
-            fatalError("Failed to initiate Command Page.")
-        }
-
-        guard
-            let windowTooSmallPage = WindowTooSmallPage(
-                stdPlane: stdPlane
-            )
-        else {
-            fatalError("Failed to initiate Window Too Small Page.")
-        }
-        self.commandPage = commandPage
-        self.windowTooSmallPage = windowTooSmallPage
         self.layout = []
         let layoutConfig = uiConfig.layout
         self.layoutRows = layoutConfig.rows
@@ -47,7 +29,7 @@ public struct UIPageManager {
             for _ in 0..<Int(layoutRows) {
 
                 if index == layoutConfig.pages.count {
-                    return
+                    continue
                 }
 
                 let pageType = layoutConfig.pages[index]
@@ -71,7 +53,7 @@ public struct UIPageManager {
                     else {
                         logger?.critical("Failed to initiate Player Page.")
                         UI.running = false
-                        return
+                        return nil
                     }
                     layout[i].append(nowPlayingPage)
 
@@ -90,7 +72,7 @@ public struct UIPageManager {
                     else {
                         logger?.critical("Failed to initiate Queue Page.")
                         UI.running = false
-                        return
+                        return nil
                     }
                     layout[i].append(queuePage)
 
@@ -109,14 +91,33 @@ public struct UIPageManager {
                     else {
                         logger?.critical("Failed to initiate Search Page.")
                         UI.running = false
-                        return
+                        return nil
                     }
                     layout[i].append(searchPage)
 
                 }
             }
         }
+        guard
+            let commandPage = CommandPage(
+                stdPlane: stdPlane,
+                colorConfig: uiConfig.colors.commandLine
+            )
+        else {
+            fatalError("Failed to initiate Command Page.")
+        }
+
+        guard
+            let windowTooSmallPage = WindowTooSmallPage(
+                stdPlane: stdPlane
+            )
+        else {
+            fatalError("Failed to initiate Window Too Small Page.")
+        }
+        self.commandPage = commandPage
+        self.windowTooSmallPage = windowTooSmallPage
         await setMinimumRequiredDiminsions()
+        return
     }
 
     public func forEachPage(

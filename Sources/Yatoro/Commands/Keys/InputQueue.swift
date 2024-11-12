@@ -74,14 +74,14 @@ public class InputQueue {
 
                     case 1115003:  // Arrow right
                         if commandCompletionsActive {
-                            nextCompletionCommand(commandString)
+                            await nextCompletionCommand(commandString)
                             break
                         }
                         await CommandInput.shared.add(input)
 
                     case 1115005:  // Arrow left
                         if commandCompletionsActive {
-                            previousCompletionCommand(commandString)
+                            await previousCompletionCommand(commandString)
                             break
                         }
                         await CommandInput.shared.add(input)
@@ -103,11 +103,11 @@ public class InputQueue {
                     case 9:  // Tab
                         if input.modifiers.contains(.shift) {
                             // Shift + Tab
-                            previousCompletionCommand(commandString)
+                            await previousCompletionCommand(commandString)
                             break
                         }
                         // Tab
-                        nextCompletionCommand(commandString)
+                        await nextCompletionCommand(commandString)
 
                     default:  // Any other key
                         clearCurrentHistory()
@@ -215,33 +215,42 @@ public class InputQueue {
         commandHistoryIndex = nil
     }
 
-    private func previousCompletionCommand(_ command: String) {
-        if let currentCompletionCommandIndex,
-            currentCompletionCommandIndex > completionCommands.startIndex
-        {
-            self.currentCompletionCommandIndex = currentCompletionCommandIndex - 1
+    private func previousCompletionCommand(_ command: String) async {
+        if let currentCompletionCommandIndex {
+            if currentCompletionCommandIndex > completionCommands.startIndex {
+                self.currentCompletionCommandIndex = currentCompletionCommandIndex - 1
+            } else {
+                self.currentCompletionCommandIndex = completionCommands.endIndex - 1
+            }
+            await CommandInput.shared.clear()
+            await CommandInput.shared.add(completionCommands[self.currentCompletionCommandIndex!])
         } else {
-            populateCompletionCommands(command)
+            await populateCompletionCommands(command)
         }
     }
 
-    private func nextCompletionCommand(_ command: String) {
-        if let currentCompletionCommandIndex,
-            currentCompletionCommandIndex < completionCommands.endIndex
-        {
-            self.currentCompletionCommandIndex = currentCompletionCommandIndex + 1
+    private func nextCompletionCommand(_ command: String) async {
+        if let currentCompletionCommandIndex {
+            if currentCompletionCommandIndex < completionCommands.endIndex - 1 {
+                self.currentCompletionCommandIndex = currentCompletionCommandIndex + 1
+            } else {
+                self.currentCompletionCommandIndex = completionCommands.startIndex
+            }
+            await CommandInput.shared.clear()
+            await CommandInput.shared.add(completionCommands[self.currentCompletionCommandIndex!])
         } else {
-            populateCompletionCommands(command)
+            await populateCompletionCommands(command)
         }
     }
 
-    private func populateCompletionCommands(_ command: String) {
-        completionCommands = Command.defaultCommands.map({ $0.shortName ?? "" })
-        completionCommands.append(contentsOf: Command.defaultCommands.map({ $0.name }))
+    private func populateCompletionCommands(_ command: String) async {
+        completionCommands = Command.defaultCommands.map({ $0.name })
         completionCommands.removeAll(where: { !$0.hasPrefix(command) || $0.isEmpty })
         completionCommands.sort()
         if !completionCommands.isEmpty {
             self.currentCompletionCommandIndex = 0
+            await CommandInput.shared.clear()
+            await CommandInput.shared.add(completionCommands.first!)
         }
     }
 

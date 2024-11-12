@@ -48,10 +48,15 @@ public class UI {
         }
         self.stdPlane = stdPlane
 
-        self.pageManager = await .init(
-            uiConfig: config.ui,
-            stdPlane: stdPlane
-        )
+        guard
+            let pageManager = await UIPageManager(
+                uiConfig: config.ui,
+                stdPlane: stdPlane
+            )
+        else {
+            fatalError("Failed to initiate PageManager.")
+        }
+        self.pageManager = pageManager
         await handleResize()
 
         setupSigwinchHandler(onResize: handleResize)
