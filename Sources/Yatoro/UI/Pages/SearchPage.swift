@@ -199,7 +199,7 @@ public class SearchPage: Page {
                 pageNamePlane.putString("Catalog stations:", at: (0, 0))
             }
             let searchPhrasePlaneWidth = min(
-                UInt32(searchPhrase.count - 1),
+                UInt32(searchPhrase.count),
                 self.state.width - pageNamePlane.width - 4
             )
             searchPhrasePlane.updateByPageState(
@@ -239,7 +239,7 @@ public class SearchPage: Page {
                 .init(
                     absX: Int32(pageNamePlane.width) + 3,
                     absY: 0,
-                    width: UInt32(searchPhrase.count - 1),
+                    width: UInt32(searchPhrase.count),
                     height: 1
                 )
             )
