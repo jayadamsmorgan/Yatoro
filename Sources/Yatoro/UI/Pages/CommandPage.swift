@@ -15,8 +15,10 @@ public class CommandPage: Page {
     private var nowPlayingDashPlane: Plane
     private var nowPlayingTitlePlane: Plane
 
-    private var modeNormalColor: Config.UIConfig.Colors.ColorPair
-    private var modeCommandColor: Config.UIConfig.Colors.ColorPair
+    private var completionsPlane: Plane
+    private var completionSelectedPlane: Plane
+
+    private var colorConfig: Config.UIConfig.Colors.CommandLine
 
     private var state: PageState
 
@@ -72,6 +74,7 @@ public class CommandPage: Page {
                 )
             )
         }
+
     }
 
     public func getPageState() async -> PageState { self.state }
@@ -208,8 +211,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        self.modeNormalColor = colorConfig.modeNormal
-        self.modeCommandColor = colorConfig.modeCommand
         self.modePlane = modePlane
 
         guard
@@ -229,6 +230,45 @@ public class CommandPage: Page {
         playStatusPlane.backgroundColor = colorConfig.playStatus.background
         playStatusPlane.foregroundColor = colorConfig.playStatus.foreground
         self.playStatusPlane = playStatusPlane
+
+        guard
+            let completionsPlane = Plane(
+                in: stdPlane,
+                state: .init(
+                    absX: 0,
+                    absY: 0,
+                    width: 1,
+                    height: 1
+                ),
+                debugID: "CMD_CMP"
+            )
+        else {
+            return nil
+        }
+        completionsPlane.backgroundColor = colorConfig.completions.background
+        completionsPlane.foregroundColor = colorConfig.completions.foreground
+        self.completionsPlane = completionsPlane
+
+        guard
+            let completionSelectedPlane = Plane(
+                in: completionsPlane,
+                state: .init(
+                    absX: 0,
+                    absY: 0,
+                    width: 1,
+                    height: 1
+                ),
+                debugID: "CMD_CMP_SEL"
+            )
+        else {
+            return nil
+        }
+        completionSelectedPlane.backgroundColor = colorConfig.completionSelected.background
+        completionSelectedPlane.foregroundColor = colorConfig.completionSelected.foreground
+        self.completionSelectedPlane = completionSelectedPlane
+
+        self.colorConfig = colorConfig
+
     }
 
     func renderMode() {
@@ -236,11 +276,11 @@ public class CommandPage: Page {
 
         switch UI.mode {
         case .normal:
-            modePlane.backgroundColor = self.modeNormalColor.background
-            modePlane.foregroundColor = self.modeNormalColor.foreground
+            modePlane.backgroundColor = self.colorConfig.modeNormal.background
+            modePlane.foregroundColor = self.colorConfig.modeNormal.foreground
         case .command:
-            modePlane.backgroundColor = self.modeCommandColor.background
-            modePlane.foregroundColor = self.modeCommandColor.foreground
+            modePlane.backgroundColor = self.colorConfig.modeCommand.background
+            modePlane.foregroundColor = self.colorConfig.modeCommand.foreground
         }
 
         switch size {
@@ -343,6 +383,78 @@ public class CommandPage: Page {
                 playStatusPlane.putString("? Unknown", at: (0, 0))
             }
         }
+    }
+
+    public func renderCompletions() async -> Bool {
+        let inputQueue = InputQueue.shared
+        guard inputQueue.commandCompletionsActive else {
+            return false
+        }
+        let completionsDisplayedAmount = inputQueue.completionCommands.count
+        guard completionsDisplayedAmount > 1 else {
+            return false
+        }
+        completionsPlane.moveOnTopOfZStack()
+        completionSelectedPlane.moveOnTopOfZStack()
+        let completionsLengths = inputQueue.completionCommands.map({ UInt32($0.count) })
+        let maxCompletionLength = completionsLengths.max() ?? 1
+        let yPos = state.absY - Int32(completionsDisplayedAmount) + 1
+
+        let completionSelectedIndex = inputQueue.currentCompletionCommandIndex!
+        let currentCompletion = inputQueue.completionCommands[completionSelectedIndex]
+        completionsPlane.erase()
+        completionsPlane.updateByPageState(
+            .init(
+                absX: 0,
+                absY: yPos,
+                width: UInt32(maxCompletionLength),
+                height: UInt32(completionsDisplayedAmount)
+            )
+        )
+        completionsPlane.erase()
+        completionsPlane.blank()
+        for i in 0..<completionsDisplayedAmount {
+            if i == completionSelectedIndex {
+                continue
+            }
+            completionsPlane.putString(inputQueue.completionCommands[i], at: (0, Int32(i)))
+        }
+        UI.notcurses?.render()  // Workaround for colors
+        completionSelectedPlane.erase()
+        completionSelectedPlane.updateByPageState(
+            .init(
+                absX: 0,
+                absY: Int32(completionSelectedIndex),
+                width: UInt32(maxCompletionLength),
+                height: 1
+            )
+        )
+        completionSelectedPlane.erase()
+        UI.notcurses?.render()  // Workaround for colors
+        completionSelectedPlane.blank()
+        completionSelectedPlane.putString(currentCompletion, at: (0, 0))
+        return true
+    }
+
+    public func clearCompletions() {
+        completionsPlane.erase()
+        completionsPlane.updateByPageState(
+            .init(
+                absX: -1,
+                absY: state.absY,
+                width: 1,
+                height: 1
+            )
+        )
+        completionSelectedPlane.erase()
+        completionSelectedPlane.updateByPageState(
+            .init(
+                absX: 0,
+                absY: 0,
+                width: 1,
+                height: 1
+            )
+        )
     }
 
     public func renderCommandInput() async {
@@ -468,6 +580,10 @@ public class CommandPage: Page {
         renderNowPlayingTime()
 
         await renderCommandInput()
+
+        if await !renderCompletions() {
+            clearCompletions()
+        }
 
     }
 }

@@ -33,7 +33,8 @@ public class UI {
 
         self.frameDelay = config.ui.frameDelay
 
-        self.inputQueue = .init(mappings: config.mappings)
+        self.inputQueue = InputQueue.shared
+        inputQueue.mappings = config.mappings
 
         logger?.info("Initializing UI with options: \(opts)")
         guard let notcurses = NotCurses(opts: &opts) else {
@@ -47,10 +48,15 @@ public class UI {
         }
         self.stdPlane = stdPlane
 
-        self.pageManager = await .init(
-            uiConfig: config.ui,
-            stdPlane: stdPlane
-        )
+        guard
+            let pageManager = await UIPageManager(
+                uiConfig: config.ui,
+                stdPlane: stdPlane
+            )
+        else {
+            fatalError("Failed to initiate PageManager.")
+        }
+        self.pageManager = pageManager
         await handleResize()
 
         setupSigwinchHandler(onResize: handleResize)
