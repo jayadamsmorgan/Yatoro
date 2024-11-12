@@ -5,7 +5,6 @@ import SwiftNotCurses
 @MainActor
 public class CommandPage: Page {
 
-    private var stdPlane: Plane
     private let plane: Plane
 
     private var modePlane: Plane
@@ -16,12 +15,10 @@ public class CommandPage: Page {
     private var nowPlayingDashPlane: Plane
     private var nowPlayingTitlePlane: Plane
 
-    private var completionsPlane1: Plane
-    private var completionsPlane2: Plane  // Fix due to bug in notcurses
+    private var completionsPlane: Plane
     private var completionSelectedPlane: Plane
 
-    private var modeNormalColor: Config.UIConfig.Colors.ColorPair
-    private var modeCommandColor: Config.UIConfig.Colors.ColorPair
+    private var colorConfig: Config.UIConfig.Colors.CommandLine
 
     private var state: PageState
 
@@ -214,8 +211,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        self.modeNormalColor = colorConfig.modeNormal
-        self.modeCommandColor = colorConfig.modeCommand
         self.modePlane = modePlane
 
         guard
@@ -237,42 +232,29 @@ public class CommandPage: Page {
         self.playStatusPlane = playStatusPlane
 
         guard
-            let completionsPlane1 = Plane(
+            let completionsPlane = Plane(
                 in: stdPlane,
                 state: .init(
-                    absX: -1,
-                    absY: state.absY,
+                    absX: 0,
+                    absY: 0,
                     width: 1,
                     height: 1
                 ),
-                debugID: "CMD_CMP1"
+                debugID: "CMD_CMP"
             )
         else {
             return nil
         }
-        completionsPlane1.backgroundColor = colorConfig.completions.background
-        completionsPlane1.foregroundColor = colorConfig.completions.foreground
-        self.completionsPlane1 = completionsPlane1
-
-        guard
-            let completionsPlane2 = Plane(
-                in: stdPlane,
-                state: .init(absX: -1, absY: state.absY, width: 1, height: 1),
-                debugID: "CMD_CMP2"
-            )
-        else {
-            return nil
-        }
-        completionsPlane2.backgroundColor = colorConfig.completions.background
-        completionsPlane2.foregroundColor = colorConfig.completions.foreground
-        self.completionsPlane2 = completionsPlane2
+        completionsPlane.backgroundColor = colorConfig.completions.background
+        completionsPlane.foregroundColor = colorConfig.completions.foreground
+        self.completionsPlane = completionsPlane
 
         guard
             let completionSelectedPlane = Plane(
-                in: stdPlane,
+                in: completionsPlane,
                 state: .init(
-                    absX: -1,
-                    absY: state.absY,
+                    absX: 0,
+                    absY: 0,
                     width: 1,
                     height: 1
                 ),
@@ -285,7 +267,8 @@ public class CommandPage: Page {
         completionSelectedPlane.foregroundColor = colorConfig.completionSelected.foreground
         self.completionSelectedPlane = completionSelectedPlane
 
-        self.stdPlane = stdPlane
+        self.colorConfig = colorConfig
+
     }
 
     func renderMode() {
@@ -293,11 +276,11 @@ public class CommandPage: Page {
 
         switch UI.mode {
         case .normal:
-            modePlane.backgroundColor = self.modeNormalColor.background
-            modePlane.foregroundColor = self.modeNormalColor.foreground
+            modePlane.backgroundColor = self.colorConfig.modeNormal.background
+            modePlane.foregroundColor = self.colorConfig.modeNormal.foreground
         case .command:
-            modePlane.backgroundColor = self.modeCommandColor.background
-            modePlane.foregroundColor = self.modeCommandColor.foreground
+            modePlane.backgroundColor = self.colorConfig.modeCommand.background
+            modePlane.foregroundColor = self.colorConfig.modeCommand.foreground
         }
 
         switch size {
@@ -403,9 +386,6 @@ public class CommandPage: Page {
     }
 
     public func renderCompletions() async -> Bool {
-        completionsPlane1.moveOnTopOfZStack()
-        completionsPlane2.moveOnTopOfZStack()
-        completionSelectedPlane.moveOnTopOfZStack()
         let inputQueue = InputQueue.shared
         guard inputQueue.commandCompletionsActive else {
             return false
@@ -420,93 +400,43 @@ public class CommandPage: Page {
 
         let completionSelectedIndex = inputQueue.currentCompletionCommandIndex!
         let currentCompletion = inputQueue.completionCommands[completionSelectedIndex]
-        if completionSelectedIndex == 0 {
-            completionsPlane1.updateByPageState(.init(absX: -1, absY: state.absY, width: 1, height: 1))
-            completionsPlane1.erase()
-            completionSelectedPlane.updateByPageState(.init(absX: 0, absY: yPos, width: maxCompletionLength, height: 1))
-            completionsPlane2.updateByPageState(
-                .init(
-                    absX: 0,
-                    absY: yPos + 1,
-                    width: maxCompletionLength,
-                    height: UInt32(completionsDisplayedAmount - 1)
-                )
+        completionsPlane.erase()
+        completionsPlane.updateByPageState(
+            .init(
+                absX: 0,
+                absY: yPos,
+                width: UInt32(maxCompletionLength),
+                height: UInt32(completionsDisplayedAmount)
             )
-            completionsPlane2.blank()
-            for i in 1..<completionsDisplayedAmount {
-                completionsPlane2.putString(inputQueue.completionCommands[i], at: (0, Int32(i - 1)))
+        )
+        completionsPlane.erase()
+        completionsPlane.blank()
+        for i in 0..<completionsDisplayedAmount {
+            if i == completionSelectedIndex {
+                continue
             }
-        } else if completionSelectedIndex == inputQueue.completionCommands.endIndex - 1 {
-            completionsPlane2.updateByPageState(.init(absX: -1, absY: state.absY, width: 1, height: 1))
-            completionsPlane2.erase()
-            completionsPlane1.updateByPageState(
-                .init(
-                    absX: 0,
-                    absY: yPos,
-                    width: maxCompletionLength,
-                    height: UInt32(completionsDisplayedAmount - 1)
-                )
-            )
-            completionsPlane1.blank()
-            for i in 0..<completionsDisplayedAmount - 1 {
-                completionsPlane1.putString(inputQueue.completionCommands[i], at: (0, Int32(i)))
-            }
-            completionSelectedPlane.updateByPageState(
-                .init(absX: 0, absY: state.absY, width: maxCompletionLength, height: 1)
-            )
-        } else {
-            completionsPlane1.updateByPageState(
-                .init(absX: 0, absY: yPos, width: maxCompletionLength, height: UInt32(completionSelectedIndex))
-            )
-            completionsPlane1.blank()
-            var j = 0
-            for i in 0..<completionSelectedIndex {
-                completionsPlane1.putString(inputQueue.completionCommands[i], at: (0, Int32(j)))
-                j += 1
-            }
-            completionSelectedPlane.updateByPageState(
-                .init(absX: 0, absY: yPos + Int32(completionSelectedIndex), width: maxCompletionLength, height: 1)
-            )
-            completionsPlane2.updateByPageState(
-                .init(
-                    absX: 0,
-                    absY: yPos + Int32(completionSelectedIndex) + 1,
-                    width: maxCompletionLength,
-                    height: UInt32(completionsDisplayedAmount) - UInt32(completionSelectedIndex) - 1
-                )
-            )
-            completionsPlane2.blank()
-            j = 0
-            for i in completionSelectedIndex + 1..<completionsDisplayedAmount {
-                completionsPlane2.putString(inputQueue.completionCommands[i], at: (0, Int32(j)))
-                j += 1
-            }
+            completionsPlane.putString(inputQueue.completionCommands[i], at: (0, Int32(i)))
         }
+        UI.notcurses?.render()  // Workaround for colors
+        completionSelectedPlane.erase()
+        completionSelectedPlane.updateByPageState(
+            .init(
+                absX: 0,
+                absY: Int32(completionSelectedIndex),
+                width: UInt32(maxCompletionLength),
+                height: 1
+            )
+        )
+        completionSelectedPlane.erase()
+        UI.notcurses?.render()  // Workaround for colors
         completionSelectedPlane.blank()
         completionSelectedPlane.putString(currentCompletion, at: (0, 0))
         return true
     }
 
     public func clearCompletions() {
-        completionsPlane1.updateByPageState(
-            .init(
-                absX: -1,
-                absY: state.absY,
-                width: 1,
-                height: 1
-            )
-        )
-        completionsPlane1.erase()
-        completionsPlane2.updateByPageState(
-            .init(
-                absX: -1,
-                absY: state.absY,
-                width: 1,
-                height: 1
-            )
-        )
-        completionsPlane2.erase()
-        completionSelectedPlane.updateByPageState(
+        completionsPlane.erase()
+        completionsPlane.updateByPageState(
             .init(
                 absX: -1,
                 absY: state.absY,
@@ -515,6 +445,14 @@ public class CommandPage: Page {
             )
         )
         completionSelectedPlane.erase()
+        completionSelectedPlane.updateByPageState(
+            .init(
+                absX: 0,
+                absY: 0,
+                width: 1,
+                height: 1
+            )
+        )
     }
 
     public func renderCommandInput() async {
