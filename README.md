@@ -24,21 +24,9 @@ Yatoro strives for bringing all the features of the Apple Music app into your Te
     - MusicKit library is only available on macOS for now. The workaround for Linux is being actively looked into, if you have any ideas please let me know
 - Terminal of your preference
 
-### Pre-built binary
+### Installer
 
-- [Download pre-built release][release_page]
-
-- Update permissions:
-
-```
-chmod +x yatoro
-```
-
-- Add Yatoro to `PATH` or install it:
-
-```
-sudo mv yatoro /usr/local/bin
-```
+- [Download latest release][release_page]
 
 ### Build from source
 
