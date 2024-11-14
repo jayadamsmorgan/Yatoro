@@ -60,7 +60,11 @@ public class UI {
         await handleResize()
 
         setupSigwinchHandler(onResize: handleResize)
-        setupSigintHandler(onStop: stop)
+        if !config.settings.disableSigInt {
+            setupSigintHandler(onStop: stop)
+        } else {
+            setupSigintHandler {}
+        }
 
         logger?.info("UI initialized successfully.")
     }

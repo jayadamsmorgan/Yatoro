@@ -8,11 +8,13 @@ public struct Config {
     public var mappings: [Mapping]
     public var ui: UIConfig
     public var logging: LoggingConfig
+    public var settings: Settings
 
     public init() {
         self.mappings = []
         self.ui = .init()
         self.logging = .init()
+        self.settings = .init()
     }
 
 }
@@ -62,6 +64,7 @@ public extension Config {
     @MainActor static internal func parseOptions(
         uiOptions: UIArgOptions,
         loggingOptions: LoggingArgOptions,
+        settingsOptions: SettingsArgOptions,
         configPath: String
     )
         -> Config
@@ -71,6 +74,10 @@ public extension Config {
 
         // Then we overwrite it with command line arguments
 
+        // Settings
+        if let disableSigInt = settingsOptions.disableSigInt {
+            config.settings.disableSigInt = disableSigInt
+        }
         // Logging
         if let logLevel = loggingOptions.logLevel {
             config.logging.logLevel = logLevel
@@ -149,6 +156,7 @@ extension Config: Codable {
         case mappings
         case ui
         case logging
+        case settings
     }
 
     public init(from decoder: any Decoder) throws {
@@ -160,6 +168,8 @@ extension Config: Codable {
             try container.decodeIfPresent(UIConfig.self, forKey: .ui) ?? .init()
         self.logging =
             try container.decodeIfPresent(LoggingConfig.self, forKey: .logging) ?? .init()
+        self.settings =
+            try container.decodeIfPresent(Settings.self, forKey: .settings) ?? .init()
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -167,6 +177,7 @@ extension Config: Codable {
         try container.encode(self.ui, forKey: .ui)
         try container.encode(self.logging, forKey: .logging)
         try container.encode(self.mappings, forKey: .mappings)
+        try container.encode(self.settings, forKey: .settings)
     }
 
 }

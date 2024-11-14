@@ -19,6 +19,14 @@ struct LoggingArgOptions: ParsableArguments {
     var ncLogLevel: UILogLevel?
 }
 
+struct SettingsArgOptions: ParsableArguments {
+    @Option(
+        name: .shortAndLong,
+        help: "Disable CTRL+C to exit (default: SIGINT enabled)"
+    )
+    var disableSigInt: Bool?
+}
+
 struct UIArgOptions: ParsableArguments {
     @Option(
         name: .shortAndLong,
@@ -100,6 +108,9 @@ struct Yatoro: AsyncParsableCommand {
     @OptionGroup(title: "UI", visibility: .default)
     var uiOptions: UIArgOptions
 
+    @OptionGroup(title: "Settings", visibility: .default)
+    var settingsOptions: SettingsArgOptions
+
     @Option(
         name: .shortAndLong,
         help: "Custom path to config.yaml",
@@ -121,6 +132,7 @@ struct Yatoro: AsyncParsableCommand {
         let config = Config.parseOptions(
             uiOptions: uiOptions,
             loggingOptions: loggingOptions,
+            settingsOptions: settingsOptions,
             configPath: config
         )
 
