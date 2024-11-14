@@ -75,8 +75,11 @@ public extension Config {
         // Then we overwrite it with command line arguments
 
         // Settings
-        if let disableSigInt = settingsOptions.disableSigInt {
-            config.settings.disableSigInt = disableSigInt
+        if settingsOptions.disableSigint {
+            config.settings.disableSigInt = true
+        }
+        if settingsOptions.disableResize {
+            config.settings.disableResize = true
         }
         // Logging
         if let logLevel = loggingOptions.logLevel {

@@ -20,11 +20,17 @@ struct LoggingArgOptions: ParsableArguments {
 }
 
 struct SettingsArgOptions: ParsableArguments {
-    @Option(
-        name: .shortAndLong,
-        help: "Disable CTRL+C to exit (default: SIGINT enabled)"
+    @Flag(
+        name: .long,
+        help: "Disable CTRL+C to exit (default: false (SIGINT enabled))"
     )
-    var disableSigInt: Bool?
+    var disableSigint: Bool = false
+
+    @Flag(
+        name: .long,
+        help: "Disable UI resizing (default: false (Resizing enabled))"
+    )
+    var disableResize: Bool = false
 }
 
 struct UIArgOptions: ParsableArguments {
