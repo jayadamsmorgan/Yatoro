@@ -156,6 +156,10 @@ ui:
 logging:
   logLevel: trace
 
+settings:
+  disableSigInt: true
+  disableResize: false
+
 mappings:
   - key: SPACE
     action: :playPauseToggle<CR>
