@@ -57,18 +57,20 @@ Check out [build instructions](BUILD.md).
 
 The player is still early in the development, so the features are quite limited for now.
 
-| Feature             | Status  | Comments                                        |
-| ------------------- | ------- | ----------------------------------------------- |
-| Playing music       | Working |                                                 |
-| Player controls     | Working |                                                 |
-| Now playing artwork | Working |                                                 |
-| Status line         | Working |                                                 |
-| Command line        | Working |                                                 |
-| Searching music     | Working | Only with `:search` command                     |
-| Player queue        | Working | Only adding to queue with `:addToQueue` command |
-| Coloring the UI     | Working | Check [CONFIGURATION](CONFIGURATION.md)         |
-| Mouse controls      |   TBD   |                                                 |
-| Arrow navigation    |   TBD   |                                                 |
+| Feature                  | Status  | Comments                                        |
+| ------------------------ | ------- | ----------------------------------------------- |
+| Playing music            | Working |                                                 |
+| Player controls          | Working |                                                 |
+| Now playing artwork      | Working |                                                 |
+| Status line              | Working |                                                 |
+| Command line             | Working |                                                 |
+| Command line history     | Working |                                                 |
+| Command line completions | Working |                                                 |
+| Searching music          | Working | Only with `:search` command                     |
+| Player queue             | Working | Only adding to queue with `:addToQueue` command |
+| Coloring the UI          | Working | Check [CONFIGURATION](CONFIGURATION.md)         |
+| Mouse controls           |   TBD   |                                                 |
+| Arrow navigation         |   TBD   |                                                 |
 
 Feel free to suggest new features through issues!
 
