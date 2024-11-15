@@ -52,10 +52,6 @@ struct AddToQueueCommand: AsyncParsableCommand {
                 case let result as MusicItemCollection<Station>:
                     await Player.shared.addItemsToQueue(items: result, at: command.to)
 
-                case _ as MusicItemCollection<MusicPersonalRecommendation>:
-                    // TODO
-                    break
-
                 default: break
                 }
 
@@ -107,10 +103,6 @@ struct AddToQueueCommand: AsyncParsableCommand {
                     }
                     await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
 
-                case _ as MusicItemCollection<MusicPersonalRecommendation>:
-                    // TODO
-                    break
-
                 default: break
 
                 }
@@ -130,9 +122,6 @@ struct AddToQueueCommand: AsyncParsableCommand {
                     await Player.shared.addItemsToQueue(items: [item], at: command.to)
                 case let item as Station:
                     await Player.shared.addItemsToQueue(items: [item], at: command.to)
-                case _ as MusicPersonalRecommendation:
-                    // TODO
-                    break
                 default: break
                 }
             }
