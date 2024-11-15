@@ -59,8 +59,16 @@ public class UI {
         self.pageManager = pageManager
         await handleResize()
 
-        setupSigwinchHandler(onResize: handleResize)
-        setupSigintHandler(onStop: stop)
+        setupSigwinchHandler {
+            if !config.settings.disableResize {
+                await self.handleResize()
+            }
+        }
+        setupSigintHandler {
+            if !config.settings.disableSigInt {
+                self.stop()
+            }
+        }
 
         logger?.info("UI initialized successfully.")
     }
