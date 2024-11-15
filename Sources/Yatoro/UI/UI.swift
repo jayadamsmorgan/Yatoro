@@ -20,15 +20,22 @@ public class UI {
     private let frameDelay: UInt64
 
     public init(config: Config) async {
+
+        var flags: [UIOptionFlag] = [
+            .inhibitSetLocale,
+            .noFontChanges,
+            .noWinchSighandler,
+            .noQuitSighandlers,
+        ]
+
+        #if !DEBUG
+        flags.append(.suppressBanners)
+        #endif
+
         var opts = UIOptions(
             logLevel: config.logging.ncLogLevel,
             config: config.ui,
-            flags: [
-                .inhibitSetLocale,
-                .noFontChanges,
-                .noWinchSighandler,
-                .noQuitSighandlers,
-            ]
+            flags: flags
         )
 
         self.frameDelay = config.ui.frameDelay
