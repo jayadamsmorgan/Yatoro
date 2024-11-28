@@ -31,6 +31,12 @@ struct SettingsArgOptions: ParsableArguments {
         help: "Disable UI resizing (default: false (Resizing enabled))"
     )
     var disableResize: Bool = false
+
+    @Option(
+        name: .long,
+        help: "Limit amount of search items, must be greater than 0 (default: 10)"
+    )
+    var searchItemLimit: UInt32?
 }
 
 struct UIArgOptions: ParsableArguments {
@@ -135,21 +141,21 @@ struct Yatoro: AsyncParsableCommand {
 
     @MainActor
     mutating func run() async throws {
-        let config = Config.parseOptions(
+        Config.parseOptions(
             uiOptions: uiOptions,
             loggingOptions: loggingOptions,
             settingsOptions: settingsOptions,
             configPath: config
         )
 
-        initLogging(config: config.logging)
+        initLogging(config: Config.shared.logging)
         logger?.info("Starting Yatoro...")
         logger?.debug("Config:\n\(config)")
 
         let player = Player.shared
         await player.authorize()
 
-        let ui = await UI(config: config)
+        let ui = await UI()
         await ui.start()
     }
 }

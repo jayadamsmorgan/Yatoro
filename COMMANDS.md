@@ -15,10 +15,11 @@ Here are the available commands for the command mode and their description:
 | `playPauseToggle`         | `pp`      | Play/pause toggle                                             |
 | `playPrevious`            | `b`       | Play previous song                                            |
 | `quitApplication`         | `q`       | Quit Yatoro application                                       |
+| `reloadConfig`            | `rel`     | Reload Yatoro configuration                                   |
 | `repeatMode`              | `repeat`  | [See repeatMode](#repeatMode)                                 |
 | `restartSong`             | `r`       | Restart song                                                  |
 | `search`                  | `/`       | [See search](#search)                                         |
-| `setSongTime`             | `set`     | [See setSongTime](#setSongTime)                               |
+| `setSongTime`             | `time`    | [See setSongTime](#setSongTime)                               |
 | `shuffleMode`             | `shuffle` | [See shuffleMode](#shuffleMode)                               |
 | `startSeekingBackward`    | `sb`      | Start seeking backward                                        |
 | `startSeekingForward`     | `sf`      | Start seeking forward                                         |

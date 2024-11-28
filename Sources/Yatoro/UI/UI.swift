@@ -19,7 +19,7 @@ public class UI {
 
     private let frameDelay: UInt64
 
-    public init(config: Config) async {
+    public init() async {
 
         var flags: [UIOptionFlag] = [
             .inhibitSetLocale,
@@ -31,6 +31,8 @@ public class UI {
         #if !DEBUG
         flags.append(.suppressBanners)
         #endif
+
+        let config = Config.shared
 
         var opts = UIOptions(
             logLevel: config.logging.ncLogLevel,

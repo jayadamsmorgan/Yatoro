@@ -5,6 +5,9 @@ import Yams
 
 public struct Config {
 
+    @MainActor public static var shared: Config = .init()
+    @MainActor public static var path = defaultConfigPath
+
     public var mappings: [Mapping]
     public var ui: UIConfig
     public var logging: LoggingConfig
@@ -28,7 +31,8 @@ public extension Config {
         .appendingPathComponent("config.yaml")
         .path
 
-    static func load(from path: String, logLevel: Logger.Level?) -> Config {
+    @MainActor
+    static func load(logLevel: Logger.Level?) {
         let fm = FileManager.default
         let fileURL = URL(fileURLWithPath: path)
         if !fm.fileExists(atPath: path) && path == defaultConfigPath {
@@ -38,24 +42,24 @@ public extension Config {
                     withIntermediateDirectories: true
                 )
             } catch {
-                return .init()
+                return
             }
             FileManager.default.createFile(atPath: path, contents: nil)
-            return .init()
+            return
         }
 
         do {
             let yamlString = try String(contentsOf: fileURL, encoding: .utf8)
             let decoder = YAMLDecoder()
             let config = try decoder.decode(Config.self, from: yamlString)
-            return config
+            Config.shared = config
         } catch is DecodingError {
             if let logLevel, logLevel <= .info {
                 print(
                     "[INFO]: Failed to parse config: Config is either empty or incorrect."
                 )
             }
-            return .init()
+            return
         } catch {
             fatalError(error.localizedDescription)
         }
@@ -66,11 +70,11 @@ public extension Config {
         loggingOptions: LoggingArgOptions,
         settingsOptions: SettingsArgOptions,
         configPath: String
-    )
-        -> Config
-    {
+    ) {
         // Loading config from config path
-        var config = load(from: configPath, logLevel: loggingOptions.logLevel)
+        path = configPath
+        load(logLevel: loggingOptions.logLevel)
+        var config = Config.shared
 
         // Then we overwrite it with command line arguments
 
@@ -80,6 +84,9 @@ public extension Config {
         }
         if settingsOptions.disableResize {
             config.settings.disableResize = true
+        }
+        if let searchItemLimit = settingsOptions.searchItemLimit {
+            config.settings.searchItemLimit = searchItemLimit
         }
         // Logging
         if let logLevel = loggingOptions.logLevel {
@@ -149,7 +156,7 @@ public extension Config {
 
         config.mappings = newMappings
 
-        return config
+        Config.shared = config
     }
 }
 

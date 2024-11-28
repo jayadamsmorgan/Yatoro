@@ -20,12 +20,20 @@ public class SongItemPage: DestroyablePage {
 
     public func getItem() async -> Song { item }
 
+    public enum SongItemPageType {
+        case searchPage
+        case queuePage
+    }
+
+    private let type: SongItemPageType
+
     public init?(
         in plane: Plane,
         state: PageState,
-        colorConfig: Config.UIConfig.Colors.SongItem,
+        type: SongItemPageType,
         item: Song
     ) {
+        self.type = type
         self.state = state
         guard
             let pagePlane = Plane(
@@ -39,8 +47,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        pagePlane.backgroundColor = colorConfig.page.background
-        pagePlane.foregroundColor = colorConfig.page.foreground
         self.plane = pagePlane
 
         guard
@@ -57,8 +63,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
         borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
@@ -76,8 +80,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
         pageNamePlane.putString("Song", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
@@ -95,8 +97,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        artistLeftPlane.backgroundColor = colorConfig.artistLeft.background
-        artistLeftPlane.foregroundColor = colorConfig.artistLeft.foreground
         artistLeftPlane.putString("Artist:", at: (0, 0))
         self.artistLeftPlane = artistLeftPlane
 
@@ -115,8 +115,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        artistRightPlane.backgroundColor = colorConfig.artistRight.background
-        artistRightPlane.foregroundColor = colorConfig.artistRight.foreground
         artistRightPlane.putString(item.artistName, at: (0, 0))
         self.artistRightPlane = artistRightPlane
 
@@ -134,8 +132,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        songLeftPlane.backgroundColor = colorConfig.songLeft.background
-        songLeftPlane.foregroundColor = colorConfig.songLeft.foreground
         songLeftPlane.putString("Song:", at: (0, 0))
         self.songLeftPlane = songLeftPlane
 
@@ -154,8 +150,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        songRightPlane.backgroundColor = colorConfig.songRight.background
-        songRightPlane.foregroundColor = colorConfig.songRight.foreground
         songRightPlane.putString(item.title, at: (0, 0))
         self.songRightPlane = songRightPlane
 
@@ -173,8 +167,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        albumLeftPlane.backgroundColor = colorConfig.albumLeft.background
-        albumLeftPlane.foregroundColor = colorConfig.albumLeft.foreground
         albumLeftPlane.putString("Album:", at: (0, 0))
         self.albumLeftPlane = albumLeftPlane
 
@@ -193,12 +185,29 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        albumRightPlane.backgroundColor = colorConfig.albumRight.background
-        albumRightPlane.foregroundColor = colorConfig.albumRight.foreground
         albumRightPlane.putString(item.albumTitle ?? " ", at: (0, 0))
         self.albumRightPlane = albumRightPlane
 
         self.item = item
+
+        updateColors()
+    }
+
+    public func updateColors() {
+        let colorConfig: Config.UIConfig.Colors.SongItem
+        switch type {
+        case .queuePage: colorConfig = Config.shared.ui.colors.queue.songItem
+        case .searchPage: colorConfig = Config.shared.ui.colors.search.songItem
+        }
+        plane.setColorPair(colorConfig.page)
+        borderPlane.setColorPair(colorConfig.border)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        artistLeftPlane.setColorPair(colorConfig.artistLeft)
+        artistRightPlane.setColorPair(colorConfig.artistRight)
+        songLeftPlane.setColorPair(colorConfig.songLeft)
+        songRightPlane.setColorPair(colorConfig.songRight)
+        albumLeftPlane.setColorPair(colorConfig.albumLeft)
+        albumRightPlane.setColorPair(colorConfig.albumRight)
     }
 
     public func destroy() async {

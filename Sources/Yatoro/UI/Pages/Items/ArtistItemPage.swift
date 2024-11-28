@@ -23,7 +23,6 @@ public class ArtistItemPage: DestroyablePage {
     public init?(
         in plane: Plane,
         state: PageState,
-        colorConfig: Config.UIConfig.Colors.ArtistItem,
         item: Artist
     ) async {
         self.state = state
@@ -39,8 +38,6 @@ public class ArtistItemPage: DestroyablePage {
         else {
             return nil
         }
-        pagePlane.backgroundColor = colorConfig.page.background
-        pagePlane.foregroundColor = colorConfig.page.foreground
         self.plane = pagePlane
 
         guard
@@ -57,8 +54,6 @@ public class ArtistItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
         borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
@@ -76,8 +71,6 @@ public class ArtistItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
         pageNamePlane.putString("Artist", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
@@ -102,8 +95,6 @@ public class ArtistItemPage: DestroyablePage {
         else {
             return nil
         }
-        artistLeftPlane.backgroundColor = colorConfig.artistLeft.background
-        artistLeftPlane.foregroundColor = colorConfig.artistLeft.foreground
         artistLeftPlane.putString("Artist:", at: (0, 0))
         self.artistLeftPlane = artistLeftPlane
 
@@ -122,8 +113,6 @@ public class ArtistItemPage: DestroyablePage {
         else {
             return nil
         }
-        artistRightPlane.backgroundColor = colorConfig.artistRight.background
-        artistRightPlane.foregroundColor = colorConfig.artistRight.foreground
         artistRightPlane.putString(item.name, at: (0, 0))
         self.artistRightPlane = artistRightPlane
 
@@ -141,8 +130,6 @@ public class ArtistItemPage: DestroyablePage {
         else {
             return nil
         }
-        genreLeftPlane.backgroundColor = colorConfig.genreLeft.background
-        genreLeftPlane.foregroundColor = colorConfig.genreLeft.foreground
         genreLeftPlane.putString("Genre:", at: (0, 0))
         self.genreLeftPlane = genreLeftPlane
 
@@ -169,8 +156,6 @@ public class ArtistItemPage: DestroyablePage {
             else {
                 return nil
             }
-            genreRightPlane.backgroundColor = colorConfig.genreRight.background
-            genreRightPlane.foregroundColor = colorConfig.genreRight.foreground
             genreRightPlane.putString(genreStr, at: (0, 0))
             self.genreRightPlane = genreRightPlane
         } else {
@@ -191,8 +176,6 @@ public class ArtistItemPage: DestroyablePage {
         else {
             return nil
         }
-        albumsLeftPlane.backgroundColor = colorConfig.albumsLeft.background
-        albumsLeftPlane.foregroundColor = colorConfig.albumsLeft.foreground
         albumsLeftPlane.putString("Albums:", at: (0, 0))
         self.albumsLeftPlane = albumsLeftPlane
 
@@ -224,8 +207,6 @@ public class ArtistItemPage: DestroyablePage {
             else {
                 return nil
             }
-            albumsRightPlane.backgroundColor = colorConfig.albumsRight.background
-            albumsRightPlane.foregroundColor = colorConfig.albumsRight.foreground
             albumsRightPlane.putString(albumsStr, at: (0, 0))
             self.albumsRightPlane = albumsRightPlane
         } else {
@@ -234,6 +215,20 @@ public class ArtistItemPage: DestroyablePage {
 
         self.item = item
 
+        updateColors()
+    }
+
+    public func updateColors() {
+        let colorConfig = Config.shared.ui.colors.search.artistItem
+        plane.setColorPair(colorConfig.page)
+        borderPlane.setColorPair(colorConfig.border)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        artistLeftPlane.setColorPair(colorConfig.artistLeft)
+        artistRightPlane.setColorPair(colorConfig.artistRight)
+        genreLeftPlane.setColorPair(colorConfig.genreLeft)
+        genreRightPlane?.setColorPair(colorConfig.genreRight)
+        albumsLeftPlane.setColorPair(colorConfig.albumsLeft)
+        albumsRightPlane?.setColorPair(colorConfig.albumsRight)
     }
 
     public func destroy() async {

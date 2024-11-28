@@ -23,7 +23,6 @@ public class RecommendationItemPage: DestroyablePage {
     public init?(
         in plane: Plane,
         state: PageState,
-        colorConfig: Config.UIConfig.Colors.RecommendationItem,
         item: MusicPersonalRecommendation
     ) {
         self.state = state
@@ -39,8 +38,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        pagePlane.backgroundColor = colorConfig.page.background
-        pagePlane.foregroundColor = colorConfig.page.foreground
         self.plane = pagePlane
 
         guard
@@ -57,8 +54,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
         borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
@@ -76,8 +71,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
         pageNamePlane.putString("Recommendation", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
@@ -95,8 +88,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        titleLeftPlane.backgroundColor = colorConfig.titleLeft.background
-        titleLeftPlane.foregroundColor = colorConfig.titleLeft.foreground
         titleLeftPlane.putString("Title:", at: (0, 0))
         self.titleLeftPlane = titleLeftPlane
 
@@ -116,8 +107,6 @@ public class RecommendationItemPage: DestroyablePage {
             else {
                 return nil
             }
-            titleRightPlane.backgroundColor = colorConfig.titleRight.background
-            titleRightPlane.foregroundColor = colorConfig.titleRight.foreground
             titleRightPlane.putString(title, at: (0, 0))
             self.titleRightPlane = titleRightPlane
         } else {
@@ -138,8 +127,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        typesLeftPlane.backgroundColor = colorConfig.typesLeft.background
-        typesLeftPlane.foregroundColor = colorConfig.typesLeft.foreground
         typesLeftPlane.putString("Types:", at: (0, 0))
         self.typesLeftPlane = typesLeftPlane
 
@@ -165,8 +152,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        typesRightPlane.backgroundColor = colorConfig.typesRight.background
-        typesRightPlane.foregroundColor = colorConfig.typesRight.foreground
         typesRightPlane.putString(typesStr, at: (0, 0))
         self.typesRightPlane = typesRightPlane
 
@@ -184,8 +169,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        refreshDateLeftPlane.backgroundColor = colorConfig.refreshDateLeft.background
-        refreshDateLeftPlane.foregroundColor = colorConfig.refreshDateLeft.foreground
         refreshDateLeftPlane.putString("Refresh:", at: (0, 0))
         self.refreshDateLeftPlane = refreshDateLeftPlane
 
@@ -205,8 +188,6 @@ public class RecommendationItemPage: DestroyablePage {
             else {
                 return nil
             }
-            refreshDateRightPlane.backgroundColor = colorConfig.refreshDateRight.background
-            refreshDateRightPlane.foregroundColor = colorConfig.refreshDateRight.foreground
             refreshDateRightPlane.putString(refreshDate, at: (0, 0))
             self.refreshDateRightPlane = refreshDateRightPlane
         } else {
@@ -215,6 +196,21 @@ public class RecommendationItemPage: DestroyablePage {
 
         self.item = item
 
+        updateColors()
+
+    }
+
+    public func updateColors() {
+        let colorConfig = Config.shared.ui.colors.search.recommendationItem
+        plane.setColorPair(colorConfig.page)
+        borderPlane.setColorPair(colorConfig.border)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        titleLeftPlane.setColorPair(colorConfig.titleLeft)
+        titleRightPlane?.setColorPair(colorConfig.titleRight)
+        typesLeftPlane.setColorPair(colorConfig.typesLeft)
+        typesRightPlane.setColorPair(colorConfig.typesRight)
+        refreshDateLeftPlane.setColorPair(colorConfig.refreshDateLeft)
+        refreshDateRightPlane?.setColorPair(colorConfig.refreshDateRight)
     }
 
     public func destroy() async {

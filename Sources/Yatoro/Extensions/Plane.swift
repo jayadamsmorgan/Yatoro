@@ -11,4 +11,9 @@ public extension Plane {
         self.init(in: plane, opts: .init(pageState: state, debugID: debugID))
     }
 
+    func setColorPair(_ pair: Config.UIConfig.Colors.ColorPair) {
+        self.backgroundColor = pair.background
+        self.foregroundColor = pair.foreground
+    }
+
 }

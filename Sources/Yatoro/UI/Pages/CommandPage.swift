@@ -18,8 +18,6 @@ public class CommandPage: Page {
     private var completionsPlane: Plane
     private var completionSelectedPlane: Plane
 
-    private var colorConfig: Config.UIConfig.Colors.CommandLine
-
     private var state: PageState
 
     private var cursorState = CursorState((0, 0), enabled: false)
@@ -102,8 +100,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        plane.backgroundColor = colorConfig.page.background
-        plane.foregroundColor = colorConfig.page.foreground
         plane.blank()
         self.plane = plane
 
@@ -121,8 +117,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        inputPlane.backgroundColor = colorConfig.input.background
-        inputPlane.foregroundColor = colorConfig.input.foreground
         self.inputPlane = inputPlane
 
         guard
@@ -139,8 +133,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        nowPlayingArtistPlane.backgroundColor = colorConfig.nowPlayingArtist.background
-        nowPlayingArtistPlane.foregroundColor = colorConfig.nowPlayingArtist.foreground
         self.nowPlayingArtistPlane = nowPlayingArtistPlane
 
         guard
@@ -157,8 +149,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        nowPlayingDashPlane.backgroundColor = colorConfig.nowPlayingDash.background
-        nowPlayingDashPlane.foregroundColor = colorConfig.nowPlayingDash.foreground
         self.nowPlayingDashPlane = nowPlayingDashPlane
 
         guard
@@ -175,8 +165,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        nowPlayingTitlePlane.backgroundColor = colorConfig.nowPlayingTitle.background
-        nowPlayingTitlePlane.foregroundColor = colorConfig.nowPlayingTitle.foreground
         self.nowPlayingTitlePlane = nowPlayingTitlePlane
 
         guard
@@ -193,8 +181,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        timePlane.backgroundColor = colorConfig.time.background
-        timePlane.foregroundColor = colorConfig.time.foreground
         self.timePlane = timePlane
 
         guard
@@ -227,8 +213,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        playStatusPlane.backgroundColor = colorConfig.playStatus.background
-        playStatusPlane.foregroundColor = colorConfig.playStatus.foreground
         self.playStatusPlane = playStatusPlane
 
         guard
@@ -245,8 +229,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        completionsPlane.backgroundColor = colorConfig.completions.background
-        completionsPlane.foregroundColor = colorConfig.completions.foreground
         self.completionsPlane = completionsPlane
 
         guard
@@ -263,12 +245,22 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        completionSelectedPlane.backgroundColor = colorConfig.completionSelected.background
-        completionSelectedPlane.foregroundColor = colorConfig.completionSelected.foreground
         self.completionSelectedPlane = completionSelectedPlane
 
-        self.colorConfig = colorConfig
+        updateColors()
+    }
 
+    public func updateColors() {
+        let colorConfig = Config.shared.ui.colors.commandLine
+        plane.setColorPair(colorConfig.page)
+        inputPlane.setColorPair(colorConfig.input)
+        nowPlayingArtistPlane.setColorPair(colorConfig.nowPlayingArtist)
+        nowPlayingDashPlane.setColorPair(colorConfig.nowPlayingDash)
+        nowPlayingTitlePlane.setColorPair(colorConfig.nowPlayingTitle)
+        timePlane.setColorPair(colorConfig.time)
+        playStatusPlane.setColorPair(colorConfig.playStatus)
+        completionsPlane.setColorPair(colorConfig.completions)
+        completionSelectedPlane.setColorPair(colorConfig.completionSelected)
     }
 
     func renderMode() {
@@ -276,11 +268,9 @@ public class CommandPage: Page {
 
         switch UI.mode {
         case .normal:
-            modePlane.backgroundColor = self.colorConfig.modeNormal.background
-            modePlane.foregroundColor = self.colorConfig.modeNormal.foreground
+            modePlane.setColorPair(Config.shared.ui.colors.commandLine.modeNormal)
         case .command:
-            modePlane.backgroundColor = self.colorConfig.modeCommand.background
-            modePlane.foregroundColor = self.colorConfig.modeCommand.foreground
+            modePlane.setColorPair(Config.shared.ui.colors.commandLine.modeCommand)
         }
 
         switch size {

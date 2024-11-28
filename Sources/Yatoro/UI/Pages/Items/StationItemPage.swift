@@ -23,7 +23,6 @@ public class StationItemPage: DestroyablePage {
     public init?(
         in plane: Plane,
         state: PageState,
-        colorConfig: Config.UIConfig.Colors.StationItem,
         item: Station
     ) {
         self.state = state
@@ -39,8 +38,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        pagePlane.backgroundColor = colorConfig.page.background
-        pagePlane.foregroundColor = colorConfig.page.foreground
         self.plane = pagePlane
 
         guard
@@ -57,8 +54,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
         borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
@@ -76,8 +71,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
         pageNamePlane.putString("Station", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
@@ -95,8 +88,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        stationLeftPlane.backgroundColor = colorConfig.stationLeft.background
-        stationLeftPlane.foregroundColor = colorConfig.stationLeft.foreground
         stationLeftPlane.putString("Station:", at: (0, 0))
         self.stationLeftPlane = stationLeftPlane
 
@@ -115,8 +106,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        stationRightPlane.backgroundColor = colorConfig.stationRight.background
-        stationRightPlane.foregroundColor = colorConfig.stationRight.foreground
         stationRightPlane.putString(item.name, at: (0, 0))
         self.stationRightPlane = stationRightPlane
 
@@ -134,8 +123,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        notesLeftPlane.backgroundColor = colorConfig.notesLeft.background
-        notesLeftPlane.foregroundColor = colorConfig.notesLeft.foreground
         notesLeftPlane.putString("Notes:", at: (0, 0))
         self.notesLeftPlane = notesLeftPlane
 
@@ -155,8 +142,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        notesRightPlane.backgroundColor = colorConfig.notesRight.background
-        notesRightPlane.foregroundColor = colorConfig.notesRight.foreground
         notesRightPlane.putString(item.editorialNotes?.standard ?? "", at: (0, 0))
         self.notesRightPlane = notesRightPlane
 
@@ -174,8 +159,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        isLiveLeftPlane.backgroundColor = colorConfig.isLiveLeft.background
-        isLiveLeftPlane.foregroundColor = colorConfig.isLiveLeft.foreground
         isLiveLeftPlane.putString("IsLive:", at: (0, 0))
         self.isLiveLeftPlane = isLiveLeftPlane
 
@@ -194,12 +177,25 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        isLiveRightPlane.backgroundColor = colorConfig.isLiveRight.background
-        isLiveRightPlane.foregroundColor = colorConfig.isLiveRight.foreground
         isLiveRightPlane.putString("\(item.isLive)", at: (0, 0))
         self.isLiveRightPlane = isLiveRightPlane
 
         self.item = item
+
+        updateColors()
+    }
+
+    public func updateColors() {
+        let colorConfig = Config.shared.ui.colors.search.stationItem
+        plane.setColorPair(colorConfig.page)
+        borderPlane.setColorPair(colorConfig.border)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        stationLeftPlane.setColorPair(colorConfig.stationLeft)
+        stationRightPlane.setColorPair(colorConfig.stationRight)
+        notesLeftPlane.setColorPair(colorConfig.notesLeft)
+        notesRightPlane.setColorPair(colorConfig.notesRight)
+        isLiveLeftPlane.setColorPair(colorConfig.isLiveLeft)
+        isLiveRightPlane.setColorPair(colorConfig.isLiveRight)
     }
 
     public func destroy() async {

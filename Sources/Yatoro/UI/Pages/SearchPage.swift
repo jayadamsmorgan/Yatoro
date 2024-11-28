@@ -16,8 +16,6 @@ public class SearchPage: Page {
     private var lastSearchTime: Date
     private var searchCache: [Page]
 
-    private let colorConfig: Config.UIConfig.Colors.Search
-
     private var maxItemsDisplayed: Int {
         (Int(self.state.height) - 7) / 5
     }
@@ -70,8 +68,6 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        plane.backgroundColor = colorConfig.page.background
-        plane.foregroundColor = colorConfig.page.foreground
         plane.blank()
         self.plane = plane
 
@@ -89,8 +85,6 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
         borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
@@ -103,8 +97,6 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        searchPhrasePlane.backgroundColor = colorConfig.searchPhrase.background
-        searchPhrasePlane.foregroundColor = colorConfig.searchPhrase.foreground
         self.searchPhrasePlane = searchPhrasePlane
 
         guard
@@ -121,8 +113,6 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
         self.pageNamePlane = pageNamePlane
 
         guard
@@ -139,13 +129,21 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        itemIndicesPlane.backgroundColor = colorConfig.itemIndices.background
-        itemIndicesPlane.foregroundColor = colorConfig.itemIndices.foreground
         self.itemIndicesPlane = itemIndicesPlane
 
         self.searchCache = []
         self.lastSearchTime = .now
-        self.colorConfig = colorConfig
+
+        updateColors()
+    }
+
+    public func updateColors() {
+        let colorConfig = Config.shared.ui.colors.search
+        plane.setColorPair(colorConfig.page)
+        borderPlane.setColorPair(colorConfig.border)
+        searchPhrasePlane.setColorPair(colorConfig.searchPhrase)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        itemIndicesPlane.setColorPair(colorConfig.itemIndices)
     }
 
     public func render() async {
@@ -309,7 +307,7 @@ public class SearchPage: Page {
                         width: state.width - 3,
                         height: 5
                     ),
-                    colorConfig: colorConfig.songItem,
+                    type: .searchPage,
                     item: songs[songIndex]
                 )
             else { return }
@@ -340,7 +338,6 @@ public class SearchPage: Page {
                     width: state.width - 3,
                     height: 5
                 ),
-                colorConfig: colorConfig.albumItem,
                 item: album
             )
         else { return }
@@ -367,7 +364,6 @@ public class SearchPage: Page {
                     width: state.width - 3,
                     height: 5
                 ),
-                colorConfig: colorConfig.artistItem,
                 item: artist
             )
         else { return }
@@ -394,7 +390,6 @@ public class SearchPage: Page {
                     width: state.width - 3,
                     height: 5
                 ),
-                colorConfig: colorConfig.playlistItem,
                 item: playlist
             )
         else { return }
@@ -421,7 +416,6 @@ public class SearchPage: Page {
                     width: state.width - 3,
                     height: 5
                 ),
-                colorConfig: colorConfig.stationItem,
                 item: station
             )
         else { return }
@@ -451,7 +445,6 @@ public class SearchPage: Page {
                     width: state.width - 3,
                     height: 5
                 ),
-                colorConfig: colorConfig.recommendationItem,
                 item: recommendation
             )
         else { return }

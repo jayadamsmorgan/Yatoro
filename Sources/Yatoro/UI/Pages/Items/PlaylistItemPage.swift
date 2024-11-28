@@ -23,7 +23,6 @@ public class PlaylistItemPage: DestroyablePage {
     public init?(
         in plane: Plane,
         state: PageState,
-        colorConfig: Config.UIConfig.Colors.PlaylistItem,
         item: Playlist
     ) {
         self.state = state
@@ -39,8 +38,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        pagePlane.backgroundColor = colorConfig.page.background
-        pagePlane.foregroundColor = colorConfig.page.foreground
         self.plane = pagePlane
 
         guard
@@ -57,8 +54,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
         borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
@@ -76,8 +71,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
         pageNamePlane.putString("Playlist", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
@@ -95,8 +88,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        playlistLeftPlane.backgroundColor = colorConfig.playlistLeft.background
-        playlistLeftPlane.foregroundColor = colorConfig.playlistLeft.foreground
         playlistLeftPlane.putString("Playlist:", at: (0, 0))
         self.playlistLeftPlane = playlistLeftPlane
 
@@ -115,8 +106,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        playlistRightPlane.backgroundColor = colorConfig.playlistRight.background
-        playlistRightPlane.foregroundColor = colorConfig.playlistRight.foreground
         playlistRightPlane.putString(item.name, at: (0, 0))
         self.playlistRightPlane = playlistRightPlane
 
@@ -134,8 +123,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        descriptionLeftPlane.backgroundColor = colorConfig.descriptionLeft.background
-        descriptionLeftPlane.foregroundColor = colorConfig.descriptionLeft.foreground
         descriptionLeftPlane.putString("Description:", at: (0, 0))
         self.descriptionLeftPlane = descriptionLeftPlane
 
@@ -155,8 +142,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        descriptionRightPlane.backgroundColor = colorConfig.descriptionRight.background
-        descriptionRightPlane.foregroundColor = colorConfig.descriptionRight.foreground
         descriptionRightPlane.putString(item.standardDescription ?? "", at: (0, 0))
         self.descriptionRightPlane = descriptionRightPlane
 
@@ -174,8 +159,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        curatorLeftPlane.backgroundColor = colorConfig.curatorLeft.background
-        curatorLeftPlane.foregroundColor = colorConfig.curatorLeft.foreground
         curatorLeftPlane.putString("Curator:", at: (0, 0))
         self.curatorLeftPlane = curatorLeftPlane
 
@@ -194,12 +177,25 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        curatorRightPlane.backgroundColor = colorConfig.curatorRight.background
-        curatorRightPlane.foregroundColor = colorConfig.curatorRight.foreground
         curatorRightPlane.putString(item.curatorName ?? "", at: (0, 0))
         self.curatorRightPlane = curatorRightPlane
 
         self.item = item
+
+        updateColors()
+    }
+
+    public func updateColors() {
+        let colorConfig = Config.shared.ui.colors.search.playlistItem
+        plane.setColorPair(colorConfig.page)
+        borderPlane.setColorPair(colorConfig.border)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        playlistLeftPlane.setColorPair(colorConfig.playlistLeft)
+        playlistRightPlane.setColorPair(colorConfig.playlistRight)
+        descriptionLeftPlane.setColorPair(colorConfig.descriptionLeft)
+        descriptionRightPlane.setColorPair(colorConfig.descriptionRight)
+        curatorLeftPlane.setColorPair(colorConfig.curatorLeft)
+        curatorRightPlane.setColorPair(colorConfig.curatorRight)
     }
 
     public func destroy() async {

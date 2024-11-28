@@ -32,11 +32,12 @@ public struct Command: Sendable {
         .init(name: "restartSong", short: "r", action: .restartSong),
         .init(name: "quitApplication", short: "q", action: .quitApplication),
         .init(name: "search", short: "/", action: .search),
-        .init(name: "setSongTime", short: "set", action: .setSongTime),
+        .init(name: "setSongTime", short: "time", action: .setSongTime),
         .init(name: "stationFromCurrentEntry", short: "sce", action: .stationFromCurrentEntry),
         .init(name: "shuffleMode", short: "shuffle", action: .shuffleMode),
         .init(name: "repeatMode", short: "repeat", action: .repeatMode),
-        .init(name: "openCommandLine", action: .openCommandLine),
+        .init(name: "setting", short: "set", action: .setting),
+        .init(name: "reloadConfig", short: "upd", action: .reloadConfig),
     ]
 
     @MainActor
@@ -100,11 +101,15 @@ public struct Command: Sendable {
 
         case .stationFromCurrentEntry: await Player.shared.playStationFromCurrentSong()
 
-        case .openCommandLine: UI.mode = .command
-
         case .repeatMode: await RepeatModeCommand.execute(arguments: arguments)
 
         case .shuffleMode: await ShuffleModeCommand.execute(arguments: arguments)
+
+        case .setting: await SettingCommand.execute(arguments: arguments)
+
+        case .reloadConfig:
+            Config.load(logLevel: logger?.logLevel)
+            UIPageManager.configReload = true
 
         }
         return
@@ -122,7 +127,6 @@ public enum CommandAction: String, Sendable, Codable {
     case startSeekingForward
     case playPrevious
     case startSeekingBackward
-    case openCommandLine
     case stopSeeking
     case restartSong
     case quitApplication
@@ -131,4 +135,6 @@ public enum CommandAction: String, Sendable, Codable {
     case stationFromCurrentEntry
     case repeatMode
     case shuffleMode
+    case setting
+    case reloadConfig
 }

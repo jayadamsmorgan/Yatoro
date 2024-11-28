@@ -27,8 +27,6 @@ public class NowPlayingPage: Page {
 
     private var artworkPlane: Plane
     private var artworkVisual: Visual?
-    private let artworkPixelWidth: UInt32
-    private let artworkPixelHeight: UInt32
 
     private var state: PageState
 
@@ -98,7 +96,6 @@ public class NowPlayingPage: Page {
 
     public init?(
         stdPlane: Plane,
-        uiConfig: Config.UIConfig,
         state: PageState
     ) {
         self.state = state
@@ -112,10 +109,6 @@ public class NowPlayingPage: Page {
             return nil
         }
         self.plane = plane
-
-        let colorConfig = uiConfig.colors.nowPlaying
-        self.artworkPixelWidth = uiConfig.artwork.width
-        self.artworkPixelHeight = uiConfig.artwork.height
 
         guard
             let borderPlane = Plane(
@@ -131,8 +124,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
         borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
@@ -150,8 +141,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
         pageNamePlane.putString("Now Playing", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
@@ -169,8 +158,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        pagePlane.backgroundColor = colorConfig.page.background
-        pagePlane.foregroundColor = colorConfig.page.foreground
         pagePlane.blank()
         self.pagePlane = pagePlane
 
@@ -188,8 +175,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        sliderPlane.backgroundColor = colorConfig.slider.background
-        sliderPlane.foregroundColor = colorConfig.slider.foreground
         self.sliderPlane = sliderPlane
 
         guard
@@ -206,8 +191,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        sliderKnobPlane.backgroundColor = colorConfig.sliderKnob.background
-        sliderKnobPlane.foregroundColor = colorConfig.sliderKnob.foreground
         sliderKnobPlane.putString("♦", at: (0, 0))
         self.sliderKnobPlane = sliderKnobPlane
 
@@ -225,8 +208,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        controlsPlane.backgroundColor = colorConfig.controls.background
-        controlsPlane.foregroundColor = colorConfig.controls.foreground
         self.controlsPlane = controlsPlane
 
         guard
@@ -243,8 +224,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        artistLeftPlane.backgroundColor = colorConfig.artistLeft.background
-        artistLeftPlane.foregroundColor = colorConfig.artistLeft.foreground
         artistLeftPlane.putString("Artist:", at: (0, 0))
         self.artistLeftPlane = artistLeftPlane
 
@@ -262,8 +241,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        artistRightPlane.backgroundColor = colorConfig.artistRight.background
-        artistRightPlane.foregroundColor = colorConfig.artistRight.foreground
         self.artistRightPlane = artistRightPlane
 
         guard
@@ -280,8 +257,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        songLeftPlane.backgroundColor = colorConfig.songLeft.background
-        songLeftPlane.foregroundColor = colorConfig.songLeft.foreground
         songLeftPlane.putString("Song: ", at: (0, 0))
         self.songLeftPlane = songLeftPlane
 
@@ -299,8 +274,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        songRightPlane.backgroundColor = colorConfig.songRight.background
-        songRightPlane.foregroundColor = colorConfig.songRight.foreground
         self.songRightPlane = songRightPlane
 
         guard
@@ -317,8 +290,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        albumRightPlane.backgroundColor = colorConfig.albumRight.background
-        albumRightPlane.foregroundColor = colorConfig.albumRight.foreground
         self.albumRightPlane = albumRightPlane
 
         guard
@@ -335,8 +306,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        currentTimePlane.backgroundColor = colorConfig.currentTime.background
-        currentTimePlane.foregroundColor = colorConfig.currentTime.foreground
         self.currentTimePlane = currentTimePlane
 
         guard
@@ -353,8 +322,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        durationPlane.backgroundColor = colorConfig.duration.background
-        durationPlane.foregroundColor = colorConfig.duration.foreground
         self.durationPlane = durationPlane
 
         guard
@@ -382,12 +349,35 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        albumLeftPlane.backgroundColor = colorConfig.albumLeft.background
-        albumLeftPlane.foregroundColor = colorConfig.albumLeft.foreground
         albumLeftPlane.putString("Album:", at: (0, 0))
         self.albumLeftPlane = albumLeftPlane
 
         self.currentSong = player.nowPlaying
+
+        updateColors()
+    }
+
+    public func updateColors() {
+        let colorConfig = Config.shared.ui.colors.nowPlaying
+        borderPlane.setColorPair(colorConfig.border)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        pagePlane.setColorPair(colorConfig.page)
+        sliderPlane.setColorPair(colorConfig.slider)
+        sliderKnobPlane.setColorPair(colorConfig.sliderKnob)
+        controlsPlane.setColorPair(colorConfig.controls)
+        artistLeftPlane.setColorPair(colorConfig.artistLeft)
+        artistRightPlane.setColorPair(colorConfig.artistRight)
+        songLeftPlane.setColorPair(colorConfig.songLeft)
+        songRightPlane.setColorPair(colorConfig.songRight)
+        albumRightPlane.setColorPair(colorConfig.albumRight)
+        currentTimePlane.setColorPair(colorConfig.currentTime)
+        durationPlane.setColorPair(colorConfig.duration)
+        albumLeftPlane.setColorPair(colorConfig.albumLeft)
+
+        Task {
+            await onResize(newPageState: self.state)
+        }
+
     }
 
     private func updateControls() {
@@ -422,13 +412,13 @@ public class NowPlayingPage: Page {
             return
         }
         if let url = currentSong.artwork?.url(
-            width: Int(self.artworkPixelWidth),
-            height: Int(self.artworkPixelHeight)
+            width: Int(Config.shared.ui.artwork.width),
+            height: Int(Config.shared.ui.artwork.height)
         ) {
             downloadImageAndConvertToRGBA(
                 url: url,
-                width: Int(self.artworkPixelWidth),
-                heigth: Int(self.artworkPixelHeight)
+                width: Int(Config.shared.ui.artwork.width),
+                heigth: Int(Config.shared.ui.artwork.height)
             ) { pixelArray in
                 if let pixelArray = pixelArray {
                     await logger?.debug(
@@ -470,8 +460,8 @@ public class NowPlayingPage: Page {
         self.artworkVisual?.destroy()
         self.artworkVisual = Visual(
             in: UI.notcurses!,
-            width: Int32(self.artworkPixelWidth),
-            height: Int32(self.artworkPixelHeight),
+            width: Int32(Config.shared.ui.artwork.width),
+            height: Int32(Config.shared.ui.artwork.height),
             from: pixelArray,
             for: self.artworkPlane
         )
