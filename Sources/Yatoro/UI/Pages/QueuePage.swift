@@ -77,7 +77,6 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        plane.blank()
         self.plane = plane
 
         guard
@@ -94,7 +93,6 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
         guard
@@ -111,7 +109,6 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        pageNamePlane.putString("Player Queue", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
         guard
@@ -159,7 +156,14 @@ public class QueuePage: Page {
         pageNamePlane.setColorPair(colorConfig.pageName)
         shufflePlane.setColorPair(colorConfig.shuffleMode)
         repeatPlane.setColorPair(colorConfig.repeatMode)
-        self.currentQueue = nil
+
+        plane.blank()
+        borderPlane.windowBorder(width: state.width, height: state.height)
+        pageNamePlane.putString("Player Queue", at: (0, 0))
+
+        for item in cache {
+            item.updateColors()
+        }
     }
 
     public func render() async {

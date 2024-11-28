@@ -124,7 +124,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
         guard
@@ -141,7 +140,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        pageNamePlane.putString("Now Playing", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
         guard
@@ -158,7 +156,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        pagePlane.blank()
         self.pagePlane = pagePlane
 
         guard
@@ -191,7 +188,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        sliderKnobPlane.putString("♦", at: (0, 0))
         self.sliderKnobPlane = sliderKnobPlane
 
         guard
@@ -224,7 +220,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        artistLeftPlane.putString("Artist:", at: (0, 0))
         self.artistLeftPlane = artistLeftPlane
 
         guard
@@ -257,7 +252,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        songLeftPlane.putString("Song: ", at: (0, 0))
         self.songLeftPlane = songLeftPlane
 
         guard
@@ -349,7 +343,6 @@ public class NowPlayingPage: Page {
         else {
             return nil
         }
-        albumLeftPlane.putString("Album:", at: (0, 0))
         self.albumLeftPlane = albumLeftPlane
 
         self.currentSong = player.nowPlaying
@@ -373,6 +366,14 @@ public class NowPlayingPage: Page {
         currentTimePlane.setColorPair(colorConfig.currentTime)
         durationPlane.setColorPair(colorConfig.duration)
         albumLeftPlane.setColorPair(colorConfig.albumLeft)
+
+        borderPlane.windowBorder(width: state.width, height: state.height)
+        pageNamePlane.putString("Now Playing", at: (0, 0))
+        pagePlane.blank()
+        sliderKnobPlane.putString("♦", at: (0, 0))
+        artistLeftPlane.putString("Artist:", at: (0, 0))
+        songLeftPlane.putString("Song: ", at: (0, 0))
+        albumLeftPlane.putString("Album:", at: (0, 0))
 
         Task {
             await onResize(newPageState: self.state)

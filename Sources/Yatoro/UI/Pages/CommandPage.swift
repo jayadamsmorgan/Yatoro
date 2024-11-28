@@ -100,7 +100,6 @@ public class CommandPage: Page {
         else {
             return nil
         }
-        plane.blank()
         self.plane = plane
 
         guard
@@ -261,6 +260,8 @@ public class CommandPage: Page {
         playStatusPlane.setColorPair(colorConfig.playStatus)
         completionsPlane.setColorPair(colorConfig.completions)
         completionSelectedPlane.setColorPair(colorConfig.completionSelected)
+
+        plane.blank()
     }
 
     func renderMode() {

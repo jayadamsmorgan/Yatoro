@@ -54,7 +54,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
         guard
@@ -71,7 +70,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.putString("Recommendation", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
         guard
@@ -88,7 +86,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        titleLeftPlane.putString("Title:", at: (0, 0))
         self.titleLeftPlane = titleLeftPlane
 
         if let title = item.title {
@@ -107,7 +104,6 @@ public class RecommendationItemPage: DestroyablePage {
             else {
                 return nil
             }
-            titleRightPlane.putString(title, at: (0, 0))
             self.titleRightPlane = titleRightPlane
         } else {
             self.titleRightPlane = nil
@@ -127,7 +123,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        typesLeftPlane.putString("Types:", at: (0, 0))
         self.typesLeftPlane = typesLeftPlane
 
         var typesStr = ""
@@ -152,7 +147,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        typesRightPlane.putString(typesStr, at: (0, 0))
         self.typesRightPlane = typesRightPlane
 
         guard
@@ -169,7 +163,6 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        refreshDateLeftPlane.putString("Refresh:", at: (0, 0))
         self.refreshDateLeftPlane = refreshDateLeftPlane
 
         if let refreshDate = item.nextRefreshDate?.formatted() {
@@ -188,7 +181,6 @@ public class RecommendationItemPage: DestroyablePage {
             else {
                 return nil
             }
-            refreshDateRightPlane.putString(refreshDate, at: (0, 0))
             self.refreshDateRightPlane = refreshDateRightPlane
         } else {
             self.refreshDateRightPlane = nil
@@ -211,6 +203,27 @@ public class RecommendationItemPage: DestroyablePage {
         typesRightPlane.setColorPair(colorConfig.typesRight)
         refreshDateLeftPlane.setColorPair(colorConfig.refreshDateLeft)
         refreshDateRightPlane?.setColorPair(colorConfig.refreshDateRight)
+
+        plane.blank()
+        pageNamePlane.putString("Recommendation", at: (0, 0))
+        titleLeftPlane.putString("Title:", at: (0, 0))
+        if let title = item.title {
+            titleRightPlane?.putString(title, at: (0, 0))
+        }
+        refreshDateLeftPlane.putString("Refresh:", at: (0, 0))
+        if let refreshDate = item.nextRefreshDate?.formatted() {
+            refreshDateRightPlane?.putString(refreshDate, at: (0, 0))
+        }
+        typesLeftPlane.putString("Types:", at: (0, 0))
+        var typesStr = ""
+        for type in item.types {
+            typesStr.append("\(type), ")
+        }
+        if typesStr.count >= 2 {
+            typesStr.removeLast(2)
+        }
+        typesRightPlane.putString(typesStr, at: (0, 0))
+        borderPlane.windowBorder(width: state.width, height: state.height)
     }
 
     public func destroy() async {

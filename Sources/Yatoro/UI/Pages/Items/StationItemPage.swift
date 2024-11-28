@@ -54,7 +54,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
         guard
@@ -71,7 +70,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.putString("Station", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
         guard
@@ -88,7 +86,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        stationLeftPlane.putString("Station:", at: (0, 0))
         self.stationLeftPlane = stationLeftPlane
 
         let stationRightWidth = min(UInt32(item.name.count), state.width - 12)
@@ -106,7 +103,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        stationRightPlane.putString(item.name, at: (0, 0))
         self.stationRightPlane = stationRightPlane
 
         guard
@@ -123,7 +119,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        notesLeftPlane.putString("Notes:", at: (0, 0))
         self.notesLeftPlane = notesLeftPlane
 
         var notesRightWidth = min(UInt32(item.editorialNotes?.standard?.count ?? 1), state.width - 10)
@@ -142,7 +137,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        notesRightPlane.putString(item.editorialNotes?.standard ?? "", at: (0, 0))
         self.notesRightPlane = notesRightPlane
 
         guard
@@ -159,7 +153,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        isLiveLeftPlane.putString("IsLive:", at: (0, 0))
         self.isLiveLeftPlane = isLiveLeftPlane
 
         let isLiveRightWidth = min(UInt32("\(item.isLive)".count), state.width - 11)
@@ -177,7 +170,6 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        isLiveRightPlane.putString("\(item.isLive)", at: (0, 0))
         self.isLiveRightPlane = isLiveRightPlane
 
         self.item = item
@@ -196,6 +188,16 @@ public class StationItemPage: DestroyablePage {
         notesRightPlane.setColorPair(colorConfig.notesRight)
         isLiveLeftPlane.setColorPair(colorConfig.isLiveLeft)
         isLiveRightPlane.setColorPair(colorConfig.isLiveRight)
+
+        plane.blank()
+        borderPlane.windowBorder(width: state.width, height: state.height)
+        pageNamePlane.putString("Station", at: (0, 0))
+        stationLeftPlane.putString("Station:", at: (0, 0))
+        stationRightPlane.putString(item.name, at: (0, 0))
+        notesLeftPlane.putString("Notes:", at: (0, 0))
+        notesRightPlane.putString(item.editorialNotes?.standard ?? "", at: (0, 0))
+        isLiveLeftPlane.putString("IsLive:", at: (0, 0))
+        isLiveRightPlane.putString("\(item.isLive)", at: (0, 0))
     }
 
     public func destroy() async {

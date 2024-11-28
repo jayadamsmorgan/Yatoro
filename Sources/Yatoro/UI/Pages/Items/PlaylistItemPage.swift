@@ -54,7 +54,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
         guard
@@ -71,7 +70,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.putString("Playlist", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
         guard
@@ -88,7 +86,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        playlistLeftPlane.putString("Playlist:", at: (0, 0))
         self.playlistLeftPlane = playlistLeftPlane
 
         let playlistRightWidth = min(UInt32(item.name.count), state.width - 13)
@@ -106,7 +103,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        playlistRightPlane.putString(item.name, at: (0, 0))
         self.playlistRightPlane = playlistRightPlane
 
         guard
@@ -123,7 +119,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        descriptionLeftPlane.putString("Description:", at: (0, 0))
         self.descriptionLeftPlane = descriptionLeftPlane
 
         var descriptionRightWidth = min(UInt32(item.standardDescription?.count ?? 1), state.width - 16)
@@ -142,7 +137,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        descriptionRightPlane.putString(item.standardDescription ?? "", at: (0, 0))
         self.descriptionRightPlane = descriptionRightPlane
 
         guard
@@ -159,7 +153,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        curatorLeftPlane.putString("Curator:", at: (0, 0))
         self.curatorLeftPlane = curatorLeftPlane
 
         let curatorRightWidth = min(UInt32(item.curatorName?.count ?? 1), state.width - 12)
@@ -177,7 +170,6 @@ public class PlaylistItemPage: DestroyablePage {
         else {
             return nil
         }
-        curatorRightPlane.putString(item.curatorName ?? "", at: (0, 0))
         self.curatorRightPlane = curatorRightPlane
 
         self.item = item
@@ -196,6 +188,16 @@ public class PlaylistItemPage: DestroyablePage {
         descriptionRightPlane.setColorPair(colorConfig.descriptionRight)
         curatorLeftPlane.setColorPair(colorConfig.curatorLeft)
         curatorRightPlane.setColorPair(colorConfig.curatorRight)
+
+        plane.blank()
+        borderPlane.windowBorder(width: state.width, height: state.height)
+        pageNamePlane.putString("Playlist", at: (0, 0))
+        playlistLeftPlane.putString("Playlist:", at: (0, 0))
+        playlistRightPlane.putString(item.name, at: (0, 0))
+        descriptionLeftPlane.putString("Description:", at: (0, 0))
+        descriptionRightPlane.putString(item.standardDescription ?? "", at: (0, 0))
+        curatorLeftPlane.putString("Curator:", at: (0, 0))
+        curatorRightPlane.putString(item.curatorName ?? "", at: (0, 0))
     }
 
     public func destroy() async {

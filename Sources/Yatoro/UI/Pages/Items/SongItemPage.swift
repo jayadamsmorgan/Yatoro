@@ -63,7 +63,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
         guard
@@ -80,7 +79,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.putString("Song", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
         guard
@@ -97,7 +95,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        artistLeftPlane.putString("Artist:", at: (0, 0))
         self.artistLeftPlane = artistLeftPlane
 
         let artistRightWidth = min(UInt32(item.artistName.count), state.width - 11)
@@ -115,7 +112,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        artistRightPlane.putString(item.artistName, at: (0, 0))
         self.artistRightPlane = artistRightPlane
 
         guard
@@ -132,7 +128,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        songLeftPlane.putString("Song:", at: (0, 0))
         self.songLeftPlane = songLeftPlane
 
         let songRightWidth = min(UInt32(item.title.count), state.width - 9)
@@ -150,7 +145,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        songRightPlane.putString(item.title, at: (0, 0))
         self.songRightPlane = songRightPlane
 
         guard
@@ -167,7 +161,6 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        albumLeftPlane.putString("Album:", at: (0, 0))
         self.albumLeftPlane = albumLeftPlane
 
         let albumRightWidth = min(UInt32(item.albumTitle?.count ?? 1), state.width - 10)
@@ -185,12 +178,12 @@ public class SongItemPage: DestroyablePage {
         else {
             return nil
         }
-        albumRightPlane.putString(item.albumTitle ?? " ", at: (0, 0))
         self.albumRightPlane = albumRightPlane
 
         self.item = item
 
         updateColors()
+
     }
 
     public func updateColors() {
@@ -208,6 +201,16 @@ public class SongItemPage: DestroyablePage {
         songRightPlane.setColorPair(colorConfig.songRight)
         albumLeftPlane.setColorPair(colorConfig.albumLeft)
         albumRightPlane.setColorPair(colorConfig.albumRight)
+
+        plane.blank()
+        borderPlane.windowBorder(width: state.width, height: state.height)
+        pageNamePlane.putString("Song", at: (0, 0))
+        artistLeftPlane.putString("Artist:", at: (0, 0))
+        artistRightPlane.putString(item.artistName, at: (0, 0))
+        songLeftPlane.putString("Song:", at: (0, 0))
+        songRightPlane.putString(item.title, at: (0, 0))
+        albumLeftPlane.putString("Album:", at: (0, 0))
+        albumRightPlane.putString(item.albumTitle ?? " ", at: (0, 0))
     }
 
     public func destroy() async {

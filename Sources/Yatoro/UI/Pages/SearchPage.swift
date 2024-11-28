@@ -68,7 +68,6 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        plane.blank()
         self.plane = plane
 
         guard
@@ -85,7 +84,6 @@ public class SearchPage: Page {
         else {
             return nil
         }
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
         guard
@@ -144,6 +142,13 @@ public class SearchPage: Page {
         searchPhrasePlane.setColorPair(colorConfig.searchPhrase)
         pageNamePlane.setColorPair(colorConfig.pageName)
         itemIndicesPlane.setColorPair(colorConfig.itemIndices)
+
+        plane.blank()
+        borderPlane.windowBorder(width: state.width, height: state.height)
+
+        for item in searchCache {
+            item.updateColors()
+        }
     }
 
     public func render() async {
