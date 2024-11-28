@@ -237,7 +237,6 @@ public class ArtistItemPage: DestroyablePage {
                 genreStr.removeLast(2)
             }
             genreRightPlane?.putString(genreStr, at: (0, 0))
-            logger?.debug("GR: \(genreStr), \(genreRightPlane?.foregroundColor)")
         }
         albumsLeftPlane.putString("Albums:", at: (0, 0))
         if let albums = item.albums {
