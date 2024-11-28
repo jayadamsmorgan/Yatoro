@@ -226,11 +226,6 @@ Each `Mapping` has 3 properties:
 - `action` - **String** --- Action to be performed when the key is pressed. See [mappings.action](#mappings.action)
 - `remap` - **Bool** --- When set to `true` removes the default mapping with the same key and modifiers. **Default: false**
 
-## settings
-
-- `disableSigInt` - **Bool** --- Disable `<CTRL-c>` default behaviour (quitApplication) to use it for remapping
-- `disableResize` - **Bool** --- Disable resizing the UI
-
 You can check the default mappings down below in the default configuration.
 
 Available modifiers:
@@ -268,3 +263,7 @@ Some examples:
 
 See [COMMANDS.md](#COMMANDS.md) for all available commands
 
+## settings
+
+- `disableSigInt` - **Bool** --- Disable `<CTRL-c>` default behaviour (quitApplication) to use it for remapping
+- `disableResize` - **Bool** --- Disable resizing the UI
