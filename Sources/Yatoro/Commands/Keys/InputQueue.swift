@@ -10,6 +10,8 @@ public class InputQueue {
 
     public var mappings: [Mapping] = []
 
+    private var mappingPlaying: Int = 0
+
     private let queue: BlockingQueue<Input> = .init()
 
     private var commandHistoryActive: Bool {
@@ -36,6 +38,10 @@ public class InputQueue {
             while (true) {
                 let input = await self.queue.dequeue()
 
+                if mappingPlaying > 0 {
+                    mappingPlaying -= 1
+                }
+
                 guard UI.mode == .normal else {
                     // CMD mode
                     await CommandInput.shared.setLastCommandOutput("")
@@ -57,7 +63,9 @@ public class InputQueue {
                             break
                         }
 
-                        fullCommandHistory.append(commandString)
+                        if mappingPlaying == 0 {
+                            fullCommandHistory.append(commandString)
+                        }
                         clearCurrentHistory()
 
                         UI.mode = .normal
@@ -162,15 +170,18 @@ public class InputQueue {
                         for char in string {
                             let input = Input(utf8: String(char))
                             add(input)
+                            mappingPlaying += 1
                         }
                     case .special(let char):
                         if let input = parseToken(char) {
                             add(input)
+                            mappingPlaying += 1
                         } else {
                             logger?.error("InputQueue: Unable to parse token \(char)")
                         }
                     }
                 }
+                mappingPlaying += 1
 
             }
         }
