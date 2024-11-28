@@ -248,9 +248,13 @@ public class InputQueue {
         completionCommands.removeAll(where: { !$0.hasPrefix(command) || $0.isEmpty })
         completionCommands.sort()
         if !completionCommands.isEmpty {
-            self.currentCompletionCommandIndex = 0
             await CommandInput.shared.clear()
             await CommandInput.shared.add(completionCommands.first!)
+            if completionCommands.count == 1 {
+                closeCompletionCommands()
+            } else {
+                self.currentCompletionCommandIndex = 0
+            }
         }
     }
 
