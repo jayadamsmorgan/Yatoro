@@ -154,6 +154,10 @@ public class SearchPage: Page {
     public func render() async {
 
         guard let result = SearchManager.shared.lastSearchResult else {
+            for case let item as DestroyablePage in searchCache {
+                await item.destroy()
+            }
+            searchCache = []
             pageNamePlane.width = 6
             pageNamePlane.putString("Search", at: (0, 0))
             searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))

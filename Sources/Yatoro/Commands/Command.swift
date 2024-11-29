@@ -23,7 +23,7 @@ public struct Command: Sendable {
         .init(name: "playPauseToggle", short: "pp", action: .playPauseToggle),
         .init(name: "pause", short: "pa", action: .pause),
         .init(name: "stop", short: "s", action: .stop),
-        .init(name: "clearQueue", short: "c", action: .clearQueue),
+        .init(name: "clearQueue", short: "cq", action: .clearQueue),
         .init(name: "playNext", short: "pn", action: .playNext),
         .init(name: "startSeekingForward", short: "sf", action: .startSeekingForward),
         .init(name: "playPrevious", short: "b", action: .playPrevious),
@@ -37,6 +37,9 @@ public struct Command: Sendable {
         .init(name: "shuffleMode", short: "shuffle", action: .shuffleMode),
         .init(name: "repeatMode", short: "repeat", action: .repeatMode),
         .init(name: "reloadConfig", short: "upd", action: .reloadConfig),
+        .init(name: "open", short: "o", action: .open),
+        .init(name: "close", short: "c", action: .close),
+        .init(name: "closeAll", short: "ca", action: .closeAll),
     ]
 
     @MainActor
@@ -108,6 +111,13 @@ public struct Command: Sendable {
             Config.load(logLevel: logger?.logLevel)
             UIPageManager.configReload = true
 
+        case .open: break
+
+        case .close:
+            SearchManager.shared.lastSearchResult = nil
+
+        case .closeAll: break
+
         }
         return
     }
@@ -133,4 +143,7 @@ public enum CommandAction: String, Sendable, Codable {
     case repeatMode
     case shuffleMode
     case reloadConfig
+    case open
+    case close
+    case closeAll
 }
