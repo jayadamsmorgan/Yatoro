@@ -149,8 +149,8 @@ struct OpenCommand: AsyncParsableCommand {
             }
 
             switch musicItem {
-            case let songItem as Song:
-                // try await songItem = songItem.with([.albums, .artists]) // Not sure
+            case var songItem as Song:
+                songItem = try await songItem.with([.albums, .artists])
                 let songDescription = SongDescriptionResult(
                     song: songItem,
                     artists: songItem.artists,
@@ -161,7 +161,8 @@ struct OpenCommand: AsyncParsableCommand {
                     .songDescription(songDescription),
                     inPlace: false
                 )
-            case let albumItem as Album:
+            case var albumItem as Album:
+                albumItem = try await albumItem.with([.tracks, .artists])
                 var songs: [Song] = []
                 if let tracks = albumItem.tracks {
                     for track in tracks {
@@ -182,7 +183,8 @@ struct OpenCommand: AsyncParsableCommand {
                     .albumDescription(albumDescription),
                     inPlace: false
                 )
-            case let artistItem as Artist:
+            case var artistItem as Artist:
+                artistItem = try await artistItem.with([.topSongs, .albums])
                 let artistDescription = ArtistDescriptionResult(
                     artist: artistItem,
                     topSongs: artistItem.topSongs,
@@ -193,7 +195,8 @@ struct OpenCommand: AsyncParsableCommand {
                     .artistDescription(artistDescription),
                     inPlace: false
                 )
-            case let playlistItem as Playlist:
+            case var playlistItem as Playlist:
+                playlistItem = try await playlistItem.with([.tracks])
                 var songs: [Song] = []
                 if let tracks = playlistItem.tracks {
                     for track in tracks {
@@ -221,6 +224,9 @@ struct OpenCommand: AsyncParsableCommand {
                 var playlists: MusicItemCollection<Playlist>?
                 var stations: MusicItemCollection<Station>?
                 var albums: MusicItemCollection<Album>?
+                // Sometimes the recommendationItem is received with 'tracks' property,
+                // Sometimes it's received containing playlists, stations and albums as a separate properties...
+                // That's how Apple Music API works... :(
                 if recommendationItem.items.isEmpty {
                     for type in recommendationItem.types {
                         switch type {
@@ -271,7 +277,6 @@ struct OpenCommand: AsyncParsableCommand {
                     inPlace: false
                 )
             default: break
-
             }
 
         } catch {

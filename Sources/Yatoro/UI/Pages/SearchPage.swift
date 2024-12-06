@@ -15,7 +15,7 @@ public class SearchPage: Page {
 
     private var songDetailPage: SongDetailPage?
     // private var albumDetailPage: AlbumDetailPage
-    // private var artistDetailPage: ArtistDetailPage
+    private var artistDetailPage: ArtistDetailPage?
     // private var playlistDetailPage: PlaylistDetailPage
     // private var stationDetailPage: StationDetailPage
     // private var recommendationDetailPage: RecommendationDetailPage
@@ -267,8 +267,23 @@ public class SearchPage: Page {
 
                 await update(result: searchResult)
             }
+
         case .albumDescription(_): break
-        case .artistDescription(_): break
+
+        case .artistDescription(let artistDescription):
+            if artistDetailPage == nil {
+                artistDetailPage = .init(
+                    in: stdPlane,
+                    state: .init(
+                        absX: 5,
+                        absY: 2,
+                        width: stdPlane.width - 10,
+                        height: stdPlane.height - 6
+                    ),
+                    artistDescription: artistDescription
+                )
+            }
+
         case .playlistDescription(_): break
 
         case .songDescription(let songDescription):
@@ -286,6 +301,7 @@ public class SearchPage: Page {
             }
 
         case .stationDescription(_): break
+
         case .recommendationDescription(_): break
 
         }
