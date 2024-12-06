@@ -111,7 +111,7 @@ public struct Command: Sendable {
             Config.load(logLevel: logger?.logLevel)
             UIPageManager.configReload = true
 
-        case .open: break
+        case .open: await OpenCommand.execute(arguments: arguments)
 
         case .close:
             SearchManager.shared.lastSearchResult = nil

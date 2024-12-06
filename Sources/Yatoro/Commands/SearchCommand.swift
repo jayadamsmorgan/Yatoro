@@ -47,6 +47,7 @@ struct SearchCommand: AsyncParsableCommand {
                     for: searchPhrase,
                     itemType: command.type,
                     in: command.from ?? .catalogSearch,
+                    inPlace: true,
                     limit: limit
                 )
             }

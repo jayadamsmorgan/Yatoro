@@ -5,11 +5,20 @@ import SwiftNotCurses
 @MainActor
 public class SearchPage: Page {
 
+    private let stdPlane: Plane
+
     private let plane: Plane
     private let pageNamePlane: Plane
     private let borderPlane: Plane
     private let searchPhrasePlane: Plane
     private let itemIndicesPlane: Plane
+
+    private var songDetailPage: SongDetailPage?
+    // private var albumDetailPage: AlbumDetailPage
+    // private var artistDetailPage: ArtistDetailPage
+    // private var playlistDetailPage: PlaylistDetailPage
+    // private var stationDetailPage: StationDetailPage
+    // private var recommendationDetailPage: RecommendationDetailPage
 
     private var state: PageState
 
@@ -53,6 +62,7 @@ public class SearchPage: Page {
     public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 17) }
 
     public init?(stdPlane: Plane, state: PageState, colorConfig: Config.UIConfig.Colors.Search) {
+        self.stdPlane = stdPlane
         self.state = state
         guard
             let plane = Plane(
@@ -153,7 +163,7 @@ public class SearchPage: Page {
 
     public func render() async {
 
-        guard let result = SearchManager.shared.lastSearchResult else {
+        guard let result = SearchManager.shared.lastSearchResult?.result else {
             for case let item as DestroyablePage in searchCache {
                 await item.destroy()
             }
@@ -166,93 +176,117 @@ public class SearchPage: Page {
             return
         }
 
-        switch result.searchType {
+        switch result {
 
-        case .recentlyPlayed:
+        case .searchResult(let searchResult):
+            switch searchResult.searchType {
 
-            pageNamePlane.width = 15
-            pageNamePlane.putString("Recently Played", at: (0, 0))
-            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
-            searchPhrasePlane.erase()
+            case .recentlyPlayed:
 
-            await update(result: result)
-        case .recommended:
-            pageNamePlane.width = 11
-            pageNamePlane.putString("Recommended", at: (0, 0))
-            searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
-            searchPhrasePlane.erase()
-
-            await update(result: result)
-
-        case .catalogSearch:
-            guard let searchPhrase = result.searchPhrase else {
-                return
-            }
-            switch result.itemType {
-            case .song:
-                pageNamePlane.width = 14
-                pageNamePlane.putString("Catalog songs:", at: (0, 0))
-            case .album:
                 pageNamePlane.width = 15
-                pageNamePlane.putString("Catalog albums:", at: (0, 0))
-            case .artist:
-                pageNamePlane.width = 16
-                pageNamePlane.putString("Catalog artists:", at: (0, 0))
-            case .playlist:
-                pageNamePlane.width = 18
-                pageNamePlane.putString("Catalog playlists:", at: (0, 0))
-            case .station:
-                pageNamePlane.width = 17
-                pageNamePlane.putString("Catalog stations:", at: (0, 0))
-            }
-            let searchPhrasePlaneWidth = min(
-                UInt32(searchPhrase.count),
-                self.state.width - pageNamePlane.width - 4
-            )
-            searchPhrasePlane.updateByPageState(
-                .init(
-                    absX: Int32(pageNamePlane.width) + 3,
-                    absY: 0,
-                    width: searchPhrasePlaneWidth,
-                    height: 1
+                pageNamePlane.putString("Recently Played", at: (0, 0))
+                searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
+                searchPhrasePlane.erase()
+
+                await update(result: searchResult)
+            case .recommended:
+                pageNamePlane.width = 11
+                pageNamePlane.putString("Recommended", at: (0, 0))
+                searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
+                searchPhrasePlane.erase()
+
+                await update(result: searchResult)
+
+            case .catalogSearch:
+                guard let searchPhrase = searchResult.searchPhrase else {
+                    return
+                }
+                switch searchResult.itemType {
+                case .song:
+                    pageNamePlane.width = 14
+                    pageNamePlane.putString("Catalog songs:", at: (0, 0))
+                case .album:
+                    pageNamePlane.width = 15
+                    pageNamePlane.putString("Catalog albums:", at: (0, 0))
+                case .artist:
+                    pageNamePlane.width = 16
+                    pageNamePlane.putString("Catalog artists:", at: (0, 0))
+                case .playlist:
+                    pageNamePlane.width = 18
+                    pageNamePlane.putString("Catalog playlists:", at: (0, 0))
+                case .station:
+                    pageNamePlane.width = 17
+                    pageNamePlane.putString("Catalog stations:", at: (0, 0))
+                }
+                let searchPhrasePlaneWidth = min(
+                    UInt32(searchPhrase.count),
+                    self.state.width - pageNamePlane.width - 4
                 )
-            )
-            searchPhrasePlane.putString(searchPhrase, at: (0, 0))
-
-            await update(result: result)
-
-        case .librarySearch:
-            guard let searchPhrase = result.searchPhrase else {
-                return
-            }
-            switch result.itemType {
-            case .song:
-                pageNamePlane.width = 14
-                pageNamePlane.putString("Library songs:", at: (0, 0))
-            case .album:
-                pageNamePlane.width = 15
-                pageNamePlane.putString("Library albums:", at: (0, 0))
-            case .artist:
-                pageNamePlane.width = 16
-                pageNamePlane.putString("Library artists:", at: (0, 0))
-            case .playlist:
-                pageNamePlane.width = 18
-                pageNamePlane.putString("Library playlists:", at: (0, 0))
-            case .station:
-                pageNamePlane.width = 17
-                pageNamePlane.putString("Library stations:", at: (0, 0))
-            }
-            searchPhrasePlane.updateByPageState(
-                .init(
-                    absX: Int32(pageNamePlane.width) + 3,
-                    absY: 0,
-                    width: UInt32(searchPhrase.count),
-                    height: 1
+                searchPhrasePlane.updateByPageState(
+                    .init(
+                        absX: Int32(pageNamePlane.width) + 3,
+                        absY: 0,
+                        width: searchPhrasePlaneWidth,
+                        height: 1
+                    )
                 )
-            )
-            searchPhrasePlane.putString(searchPhrase, at: (0, 0))
+                searchPhrasePlane.putString(searchPhrase, at: (0, 0))
 
-            await update(result: result)
+                await update(result: searchResult)
+
+            case .librarySearch:
+                guard let searchPhrase = searchResult.searchPhrase else {
+                    return
+                }
+                switch searchResult.itemType {
+                case .song:
+                    pageNamePlane.width = 14
+                    pageNamePlane.putString("Library songs:", at: (0, 0))
+                case .album:
+                    pageNamePlane.width = 15
+                    pageNamePlane.putString("Library albums:", at: (0, 0))
+                case .artist:
+                    pageNamePlane.width = 16
+                    pageNamePlane.putString("Library artists:", at: (0, 0))
+                case .playlist:
+                    pageNamePlane.width = 18
+                    pageNamePlane.putString("Library playlists:", at: (0, 0))
+                case .station:
+                    pageNamePlane.width = 17
+                    pageNamePlane.putString("Library stations:", at: (0, 0))
+                }
+                searchPhrasePlane.updateByPageState(
+                    .init(
+                        absX: Int32(pageNamePlane.width) + 3,
+                        absY: 0,
+                        width: UInt32(searchPhrase.count),
+                        height: 1
+                    )
+                )
+                searchPhrasePlane.putString(searchPhrase, at: (0, 0))
+
+                await update(result: searchResult)
+            }
+        case .albumDescription(_): break
+        case .artistDescription(_): break
+        case .playlistDescription(_): break
+
+        case .songDescription(let songDescription):
+            if songDetailPage == nil {
+                songDetailPage = .init(
+                    in: stdPlane,
+                    state: .init(
+                        absX: 5,
+                        absY: 2,
+                        width: stdPlane.width - 10,
+                        height: stdPlane.height - 6
+                    ),
+                    songDescription: songDescription
+                )
+            }
+
+        case .stationDescription(_): break
+        case .recommendationDescription(_): break
 
         }
 
