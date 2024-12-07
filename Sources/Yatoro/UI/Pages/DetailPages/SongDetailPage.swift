@@ -5,6 +5,8 @@ public class SongDetailPage: Page {
 
     private var state: PageState
 
+    private let songDescription: SongDescriptionResult
+
     private var plane: Plane
 
     private var borderPlane: Plane
@@ -13,9 +15,13 @@ public class SongDetailPage: Page {
     private var artworkVisual: Visual?
 
     private var songTitlePlane: Plane  // Name of the song
-    private var artistsTitlePlane: Plane  // "Artists:"
-    // private var artistsPlane: Plane  // list of artists themselves
-    // private var albumPlane: Plane  // Name of the album
+    private var artistsTitlePlane: Plane?  // "Artists:"
+    private var artistsIndicesPlane: Plane?  // Indexes of artists
+
+    private var artistItemPages: [Page?]
+    private var albumItemPage: Page?
+    private var albumTitlePlane: Plane?  // "Album:"
+    private var albumIndexPlane: Plane?
 
     // TODO: Maybe consider displaying lyrics if they're present, idk
 
@@ -25,6 +31,7 @@ public class SongDetailPage: Page {
         songDescription: SongDescriptionResult
     ) {
         self.state = state
+        self.songDescription = songDescription
 
         guard
             let plane = Plane(
@@ -36,7 +43,6 @@ public class SongDetailPage: Page {
             return nil
         }
         self.plane = plane
-        plane.moveOnTopOfZStack()
         plane.blank()
 
         guard
@@ -77,8 +83,8 @@ public class SongDetailPage: Page {
             let songTitlePlane = Plane(
                 in: plane,
                 state: .init(
-                    absX: 2,
-                    absY: 0,
+                    absX: 4,
+                    absY: 2,
                     width: UInt32(title.count),
                     height: 1
                 ),
@@ -90,62 +96,131 @@ public class SongDetailPage: Page {
         songTitlePlane.putString(title, at: (0, 0))
         self.songTitlePlane = songTitlePlane
 
-        guard
-            let artistsTitlePlane = Plane(
-                in: plane,
-                state: .init(
-                    absX: 30,
-                    absY: 2,
-                    width: 8,
-                    height: 1
-                ),
-                debugID: "SDPATP"
-            )
-        else {
-            return nil
-        }
-        self.artistsTitlePlane = artistsTitlePlane
+        let oneThirdWidth = Int32(state.width) / 3
 
-        Task {
-            do {
-                if let url = songDescription.song.artwork?.url(
-                    width: Int(Config.shared.ui.artwork.width),
-                    height: Int(Config.shared.ui.artwork.height)
-                ) {
-                    downloadImageAndConvertToRGBA(
-                        url: url,
-                        width: Int(Config.shared.ui.artwork.width),
-                        heigth: Int(Config.shared.ui.artwork.height)
-                    ) { pixelArray in
-                        if let pixelArray = pixelArray {
-                            await logger?.debug(
-                                "Now Playing: Successfully obtained artwork RGBA byte array with count: \(pixelArray.count)"
-                            )
-                            Task { @MainActor in
-                                self.handleArtwork(pixelArray: pixelArray)
-                            }
-                        } else {
-                            await logger?.error("Now Playing: Failed to get artwork RGBA byte array.")
-                        }
-                    }
-                }
-            } catch {
+        self.artistsTitlePlane = Plane(
+            in: plane,
+            state: .init(
+                absX: oneThirdWidth * 2 + 2,
+                absY: 2,
+                width: 8,
+                height: 1
+            ),
+            debugID: "SDPARTP"
+        )
+        artistsTitlePlane?.putString("Artists:", at: (0, 0))
 
+        self.albumTitlePlane = Plane(
+            in: plane,
+            state: .init(
+                absX: oneThirdWidth + 2,
+                absY: 2,
+                width: 6,
+                height: 1
+            ),
+            debugID: "SDPALTP"
+        )
+        albumTitlePlane?.putString("Album:", at: (0, 0))
+
+        artistItemPages = []
+
+        loadArtists()
+
+        loadAlbum()
+
+        loadArtwork()
+
+    }
+
+    private func loadAlbum() {
+        if let album = songDescription.album {
+            Task {
+                self.albumItemPage = AlbumItemPage(
+                    in: plane,
+                    state: .init(
+                        absX: Int32(state.width) / 3 + 4,
+                        absY: 4,
+                        width: state.width / 3 - 6,
+                        height: 5
+                    ),
+                    item: album
+                )
+                self.albumIndexPlane = Plane(
+                    in: plane,
+                    state: .init(
+                        absX: Int32(state.width) / 3 + 2,
+                        absY: 4,
+                        width: 2,
+                        height: 5
+                    ),
+                    debugID: "SDPALIP"
+                )
+                self.albumIndexPlane?.putString("a0", at: (0, 2))
             }
         }
-
     }
 
-    public func render() async {
-
+    private func loadArtists() {
+        if let artists = songDescription.artists {
+            if artists.count > 0 {
+                self.artistsIndicesPlane = Plane(
+                    in: plane,
+                    state: .init(
+                        absX: Int32(state.width) / 3 * 2 + 2,
+                        absY: 4,
+                        width: 2,
+                        height: 5 * UInt32(artists.count)
+                    ),
+                    debugID: "SDPARIP"
+                )
+            }
+            for artistIndex in 0..<artists.count {
+                Task {
+                    let artistItem = await ArtistItemPage(
+                        in: plane,
+                        state: .init(
+                            absX: Int32(state.width) / 3 * 2 + 4,
+                            absY: 4 + Int32(artistIndex * 5),
+                            width: state.width / 3 - 6,
+                            height: 5
+                        ),
+                        item: artists[artistIndex]
+                    )
+                    artistItemPages.append(artistItem)
+                    artistsIndicesPlane?.putString("w\(artistIndex)", at: (0, 2 + Int32(artistIndex * 5)))
+                }
+            }
+        }
     }
 
-    public func updateColors() {
-
+    private func loadArtwork() {
+        Task {
+            if let url = songDescription.song.artwork?.url(
+                width: Int(Config.shared.ui.artwork.width),
+                height: Int(Config.shared.ui.artwork.height)
+            ) {
+                downloadImageAndConvertToRGBA(
+                    url: url,
+                    width: Int(Config.shared.ui.artwork.width),
+                    heigth: Int(Config.shared.ui.artwork.height)
+                ) { pixelArray in
+                    if let pixelArray = pixelArray {
+                        await logger?.debug(
+                            "Now Playing: Successfully obtained artwork RGBA byte array with count: \(pixelArray.count)"
+                        )
+                        Task { @MainActor in
+                            self.handleArtwork(pixelArray: pixelArray)
+                        }
+                    } else {
+                        await logger?.error("Now Playing: Failed to get artwork RGBA byte array.")
+                    }
+                }
+            }
+        }
     }
 
     func handleArtwork(pixelArray: [UInt8]) {
-        let artworkPlaneWidth = min(self.state.width / 2, self.state.height - 3)
+        let artworkPlaneWidth = state.width / 3 - 5
         let artworkPlaneHeight = artworkPlaneWidth / 2 - 1
         if artworkPlaneHeight > self.state.height - 12 {  // TODO: fix
             self.artworkVisual?.destroy()
@@ -161,8 +236,8 @@ public class SongDetailPage: Page {
         }
         self.artworkPlane.updateByPageState(
             .init(
-                absX: Int32(self.state.width / 2 - artworkPlaneWidth / 2),
-                absY: Int32(self.state.height / 2 - artworkPlaneHeight / 2),
+                absX: 4,
+                absY: 6,
                 width: artworkPlaneWidth,
                 height: artworkPlaneHeight
             )
@@ -178,8 +253,18 @@ public class SongDetailPage: Page {
         self.artworkVisual?.render()
     }
 
+    public func render() async {
+
+    }
+
+    public func updateColors() {
+
+    }
+
     public func onResize(newPageState: PageState) async {
         self.state = newPageState
+
+        plane.updateByPageState(state)
 
         borderPlane.updateByPageState(.init(absX: 0, absY: 0, width: state.width, height: state.height))
         borderPlane.erase()
