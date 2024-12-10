@@ -81,6 +81,7 @@ public enum OpenedResult {
 }
 
 public class ResultNode {
+
     public var previous: ResultNode?
     public var result: OpenedResult
     public var inPlace: Bool

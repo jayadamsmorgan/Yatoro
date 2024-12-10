@@ -13,12 +13,7 @@ public class SearchPage: Page {
     private let searchPhrasePlane: Plane
     private let itemIndicesPlane: Plane
 
-    private var songDetailPage: SongDetailPage?
-    // private var albumDetailPage: AlbumDetailPage
-    private var artistDetailPage: ArtistDetailPage?
-    // private var playlistDetailPage: PlaylistDetailPage
-    // private var stationDetailPage: StationDetailPage
-    // private var recommendationDetailPage: RecommendationDetailPage
+    private var searchPageQueue: SearchPageQueue?
 
     private var state: PageState
 
@@ -173,6 +168,19 @@ public class SearchPage: Page {
             searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
             searchPhrasePlane.erase()
             itemIndicesPlane.erase()
+            while searchPageQueue.size() > 0 {
+                await searchPageQueue?.page?.destroy()
+                searchPageQueue = searchPageQueue?.previous
+            }
+            return
+        }
+
+        while searchPageQueue.size() > SearchManager.shared.lastSearchResult.size() {
+            await searchPageQueue?.page?.destroy()
+            searchPageQueue = searchPageQueue?.previous
+        }
+
+        guard searchPageQueue.size() < SearchManager.shared.lastSearchResult.size() else {
             return
         }
 
@@ -267,38 +275,37 @@ public class SearchPage: Page {
 
                 await update(result: searchResult)
             }
+            searchPageQueue = .init(searchPageQueue, page: nil, type: result)
 
         case .albumDescription(_): break
 
         case .artistDescription(let artistDescription):
-            if artistDetailPage == nil {
-                artistDetailPage = .init(
-                    in: stdPlane,
-                    state: .init(
-                        absX: 5,
-                        absY: 2,
-                        width: stdPlane.width - 10,
-                        height: stdPlane.height - 6
-                    ),
-                    artistDescription: artistDescription
-                )
-            }
+            let artistDetailPage = ArtistDetailPage(
+                in: stdPlane,
+                state: .init(
+                    absX: 5,
+                    absY: 2,
+                    width: stdPlane.width - 10,
+                    height: stdPlane.height - 6
+                ),
+                artistDescription: artistDescription
+            )
+            self.searchPageQueue = .init(searchPageQueue, page: artistDetailPage, type: result)
 
         case .playlistDescription(_): break
 
         case .songDescription(let songDescription):
-            if songDetailPage == nil {
-                songDetailPage = .init(
-                    in: stdPlane,
-                    state: .init(
-                        absX: 5,
-                        absY: 2,
-                        width: stdPlane.width - 10,
-                        height: stdPlane.height - 6
-                    ),
-                    songDescription: songDescription
-                )
-            }
+            let songDetailPage = SongDetailPage(
+                in: stdPlane,
+                state: .init(
+                    absX: 5,
+                    absY: 2,
+                    width: stdPlane.width - 10,
+                    height: stdPlane.height - 6
+                ),
+                songDescription: songDescription
+            )
+            self.searchPageQueue = .init(searchPageQueue, page: songDetailPage, type: result)
 
         case .stationDescription(_): break
 
@@ -510,4 +517,36 @@ public class SearchPage: Page {
         self.searchCache.append(item)
     }
 
+}
+
+class SearchPageQueue {
+    let previous: SearchPageQueue?
+    let page: DestroyablePage?
+    let type: OpenedResult
+    let timestamp: Date
+
+    init(_ previous: SearchPageQueue? = nil, page: DestroyablePage?, type: OpenedResult) {
+        self.previous = previous
+        self.page = page
+        self.type = type
+        self.timestamp = Date.now
+    }
+}
+
+extension Optional where Wrapped == SearchPageQueue {
+    func size() -> Int {
+        if self == nil {
+            return 0
+        }
+        return 1 + (self?.previous.size() ?? 0)
+    }
+}
+
+extension Optional where Wrapped == ResultNode {
+    func size() -> Int {
+        if self == nil {
+            return 0
+        }
+        return 1 + (self?.previous.size() ?? 0)
+    }
 }

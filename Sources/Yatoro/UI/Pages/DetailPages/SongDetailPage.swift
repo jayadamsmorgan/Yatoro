@@ -1,7 +1,7 @@
 import SwiftNotCurses
 
 @MainActor
-public class SongDetailPage: Page {
+public class SongDetailPage: DestroyablePage {
 
     private var state: PageState
 
@@ -18,8 +18,8 @@ public class SongDetailPage: Page {
     private var artistsTitlePlane: Plane?  // "Artists:"
     private var artistsIndicesPlane: Plane?  // Indexes of artists
 
-    private var artistItemPages: [Page?]
-    private var albumItemPage: Page?
+    private var artistItemPages: [ArtistItemPage?]
+    private var albumItemPage: AlbumItemPage?
     private var albumTitlePlane: Plane?  // "Album:"
     private var albumIndexPlane: Plane?
 
@@ -251,6 +251,39 @@ public class SongDetailPage: Page {
             for: self.artworkPlane
         )
         self.artworkVisual?.render()
+    }
+
+    public func destroy() async {
+        self.plane.erase()
+        self.plane.destroy()
+
+        self.borderPlane.erase()
+        self.borderPlane.destroy()
+
+        self.artworkVisual?.destroy()
+        self.artworkPlane.erase()
+        self.artworkPlane.destroy()
+
+        self.songTitlePlane.erase()
+        self.songTitlePlane.destroy()
+
+        self.albumTitlePlane?.erase()
+        self.albumTitlePlane?.destroy()
+
+        self.albumIndexPlane?.erase()
+        self.albumIndexPlane?.blank()
+        self.albumIndexPlane?.destroy()
+
+        self.artistsTitlePlane?.erase()
+        self.artistsTitlePlane?.destroy()
+
+        self.artistsIndicesPlane?.erase()
+        self.artistsIndicesPlane?.destroy()
+
+        await self.albumItemPage?.destroy()
+        for artistPage in self.artistItemPages {
+            await artistPage?.destroy()
+        }
     }
 
     public func render() async {

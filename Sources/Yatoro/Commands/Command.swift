@@ -114,9 +114,10 @@ public struct Command: Sendable {
         case .open: await OpenCommand.execute(arguments: arguments)
 
         case .close:
-            SearchManager.shared.lastSearchResult = nil
+            SearchManager.shared.lastSearchResult = SearchManager.shared.lastSearchResult?.previous
 
-        case .closeAll: break
+        case .closeAll:
+            SearchManager.shared.lastSearchResult = nil
 
         }
         return

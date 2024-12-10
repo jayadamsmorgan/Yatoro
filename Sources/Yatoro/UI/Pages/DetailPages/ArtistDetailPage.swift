@@ -1,6 +1,6 @@
 import SwiftNotCurses
 
-public class ArtistDetailPage: Page {
+public class ArtistDetailPage: DestroyablePage {
 
     private var state: PageState
 
@@ -12,6 +12,10 @@ public class ArtistDetailPage: Page {
     private var artistTitlePlane: Plane  // Name of the song
     // private var topSongsTitlePlane: Plane  // "Top Songs:"
     // private var albumsTitlePlane: Plane  // Name of the album
+
+    public func destroy() async {
+
+    }
 
     public init?(
         in plane: Plane,
