@@ -23,6 +23,10 @@ public class SongDetailPage: DestroyablePage {
     private var albumTitlePlane: Plane?  // "Album:"
     private var albumIndexPlane: Plane?
 
+    private var maxItemsDisplayed: Int {
+        Int(state.height - 8) / 5
+    }
+
     // TODO: Maybe consider displaying lyrics if they're present, idk
 
     public init?(
@@ -43,7 +47,6 @@ public class SongDetailPage: DestroyablePage {
             return nil
         }
         self.plane = plane
-        plane.blank()
 
         guard
             let artworkPlane = Plane(
@@ -75,7 +78,6 @@ public class SongDetailPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
         let title = songDescription.song.title
@@ -93,7 +95,6 @@ public class SongDetailPage: DestroyablePage {
         else {
             return nil
         }
-        songTitlePlane.putString(title, at: (0, 0))
         self.songTitlePlane = songTitlePlane
 
         let oneThirdWidth = Int32(state.width) / 3
@@ -108,7 +109,6 @@ public class SongDetailPage: DestroyablePage {
             ),
             debugID: "SDPARTP"
         )
-        artistsTitlePlane?.putString("Artists:", at: (0, 0))
 
         self.albumTitlePlane = Plane(
             in: plane,
@@ -120,7 +120,6 @@ public class SongDetailPage: DestroyablePage {
             ),
             debugID: "SDPALTP"
         )
-        albumTitlePlane?.putString("Album:", at: (0, 0))
 
         artistItemPages = []
 
@@ -129,6 +128,8 @@ public class SongDetailPage: DestroyablePage {
         loadAlbum()
 
         loadArtwork()
+
+        updateColors()
 
     }
 
@@ -143,7 +144,8 @@ public class SongDetailPage: DestroyablePage {
                         width: state.width / 3 - 6,
                         height: 5
                     ),
-                    item: album
+                    item: album,
+                    type: .songDetailPage
                 )
                 self.albumIndexPlane = Plane(
                     in: plane,
@@ -155,7 +157,6 @@ public class SongDetailPage: DestroyablePage {
                     ),
                     debugID: "SDPALIP"
                 )
-                self.albumIndexPlane?.putString("a0", at: (0, 2))
             }
         }
     }
@@ -175,6 +176,9 @@ public class SongDetailPage: DestroyablePage {
                 )
             }
             for artistIndex in 0..<artists.count {
+                if maxItemsDisplayed < maxItemsDisplayed {
+                    break
+                }
                 Task {
                     let artistItem = await ArtistItemPage(
                         in: plane,
@@ -184,10 +188,10 @@ public class SongDetailPage: DestroyablePage {
                             width: state.width / 3 - 6,
                             height: 5
                         ),
-                        item: artists[artistIndex]
+                        item: artists[artistIndex],
+                        type: .songDetailPage
                     )
                     artistItemPages.append(artistItem)
-                    artistsIndicesPlane?.putString("w\(artistIndex)", at: (0, 2 + Int32(artistIndex * 5)))
                 }
             }
         }
@@ -206,13 +210,13 @@ public class SongDetailPage: DestroyablePage {
                 ) { pixelArray in
                     if let pixelArray = pixelArray {
                         await logger?.debug(
-                            "Now Playing: Successfully obtained artwork RGBA byte array with count: \(pixelArray.count)"
+                            "SongDetailPage: Successfully obtained artwork RGBA byte array with count: \(pixelArray.count)"
                         )
                         Task { @MainActor in
                             self.handleArtwork(pixelArray: pixelArray)
                         }
                     } else {
-                        await logger?.error("Now Playing: Failed to get artwork RGBA byte array.")
+                        await logger?.error("SongDetailPage: Failed to get artwork RGBA byte array.")
                     }
                 }
             }
@@ -291,7 +295,39 @@ public class SongDetailPage: DestroyablePage {
     }
 
     public func updateColors() {
+        let colorConfig = Config.shared.ui.colors.songDetail
 
+        self.plane.setColorPair(colorConfig.page)
+        self.plane.blank()
+
+        self.borderPlane.setColorPair(colorConfig.border)
+        self.borderPlane.windowBorder(width: state.width, height: state.height)
+
+        self.songTitlePlane.setColorPair(colorConfig.songTitle)
+        self.songTitlePlane.putString(self.songDescription.song.title, at: (0, 0))
+
+        self.albumTitlePlane?.setColorPair(colorConfig.albumText)
+        if songDescription.album != nil {
+            self.albumTitlePlane?.putString("Album:", at: (0, 0))
+            self.albumIndexPlane?.putString("a", at: (0, 2))
+        }
+
+        self.artistsTitlePlane?.setColorPair(colorConfig.artistsText)
+        self.artistsIndicesPlane?.setColorPair(colorConfig.artistIndices)
+        if songDescription.artists != nil && !songDescription.artists!.isEmpty {
+            self.artistsTitlePlane?.putString("Artists:", at: (0, 0))
+            for artistIndex in 0..<songDescription.artists!.count {
+                if maxItemsDisplayed < artistIndex {
+                    break
+                }
+                self.artistsIndicesPlane?.putString("w\(artistIndex)", at: (0, 2 + Int32(artistIndex * 5)))
+            }
+        }
+
+        self.albumItemPage?.updateColors()
+        for page in artistItemPages {
+            page?.updateColors()
+        }
     }
 
     public func onResize(newPageState: PageState) async {

@@ -20,11 +20,20 @@ public class ArtistItemPage: DestroyablePage {
 
     public func getItem() async -> Artist { item }
 
+    public enum ArtistItemPageType {
+        case searchPage
+        case songDetailPage
+    }
+
+    private let type: ArtistItemPageType
+
     public init?(
         in plane: Plane,
         state: PageState,
-        item: Artist
+        item: Artist,
+        type: ArtistItemPageType
     ) async {
+        self.type = type
         self.state = state
         guard
             let pagePlane = Plane(
@@ -211,7 +220,13 @@ public class ArtistItemPage: DestroyablePage {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.colors.search.artistItem
+        let colorConfig: Config.UIConfig.Colors.ArtistItem
+        switch type {
+        case .searchPage:
+            colorConfig = Config.shared.ui.colors.search.artistItem
+        case .songDetailPage:
+            colorConfig = Config.shared.ui.colors.songDetail.artistItem
+        }
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)
         pageNamePlane.setColorPair(colorConfig.pageName)

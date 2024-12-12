@@ -154,6 +154,12 @@ public class SearchPage: Page {
         for item in searchCache {
             item.updateColors()
         }
+
+        var node = searchPageQueue
+        while node != nil {
+            node?.page?.updateColors()
+            node = node?.previous
+        }
     }
 
     public func render() async {
@@ -404,7 +410,8 @@ public class SearchPage: Page {
                     width: state.width - 3,
                     height: 5
                 ),
-                item: album
+                item: album,
+                type: .searchPage
             )
         else { return }
         self.searchCache.append(item)
@@ -430,7 +437,8 @@ public class SearchPage: Page {
                     width: state.width - 3,
                     height: 5
                 ),
-                item: artist
+                item: artist,
+                type: .searchPage
             )
         else { return }
         self.searchCache.append(item)
