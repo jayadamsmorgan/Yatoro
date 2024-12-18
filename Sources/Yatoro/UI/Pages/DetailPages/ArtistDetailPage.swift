@@ -130,7 +130,7 @@ public class ArtistDetailPage: DestroyablePage {
                 absX: oneThirdWidth + 2,
                 absY: 4,
                 width: 2,
-                height: 5 * UInt32(min(topSongs.count, maxAmountOfItemsDisplayed))
+                height: 5 * UInt32(min(topSongs.count, maxAmountOfItemsDisplayed + 1))
             ),
             debugID: "ARDPTSI"
         )
@@ -140,7 +140,7 @@ public class ArtistDetailPage: DestroyablePage {
             }
             Task {
                 let topSongItem = SongItemPage(
-                    in: plane,
+                    in: borderPlane,
                     state: .init(
                         absX: oneThirdWidth + 4,
                         absY: 4 + Int32(topSongIndex * 5),
@@ -176,7 +176,7 @@ public class ArtistDetailPage: DestroyablePage {
                 absX: twoThirdsWidth + 2,
                 absY: 4,
                 width: 2,
-                height: 5 * UInt32(min(albums.count, maxAmountOfItemsDisplayed))
+                height: 5 * UInt32(min(albums.count, maxAmountOfItemsDisplayed + 1))
             ),
             debugID: "ARDPAI"
         )
@@ -186,7 +186,7 @@ public class ArtistDetailPage: DestroyablePage {
             }
             Task {
                 let albumItem = AlbumItemPage(
-                    in: plane,
+                    in: borderPlane,
                     state: .init(
                         absX: twoThirdsWidth + 4,
                         absY: 4 + Int32(albumIndex * 5),
@@ -330,10 +330,10 @@ public class ArtistDetailPage: DestroyablePage {
         self.topSongsIndicesPlane?.setColorPair(colorConfig.topSongIndices)
         if let songs = artistDescription.topSongs, !songs.isEmpty {
             for songIndex in 0..<songs.count {
-                if maxAmountOfItemsDisplayed < songIndex {
-                    break
-                }
-                self.topSongsIndicesPlane?.putString("s\(songIndex)", at: (0, 2 + Int32(songIndex * 5)))
+                // if maxAmountOfItemsDisplayed < songIndex {
+                //     break
+                // }
+                self.topSongsIndicesPlane?.putString("t\(songIndex)", at: (0, 2 + Int32(songIndex * 5)))
             }
         }
 

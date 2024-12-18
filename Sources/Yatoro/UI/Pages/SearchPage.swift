@@ -13,7 +13,7 @@ public class SearchPage: Page {
     private let searchPhrasePlane: Plane
     private let itemIndicesPlane: Plane
 
-    private var searchPageQueue: SearchPageQueue?
+    public static var searchPageQueue: SearchPageQueue?
 
     private var state: PageState
 
@@ -155,7 +155,7 @@ public class SearchPage: Page {
             item.updateColors()
         }
 
-        var node = searchPageQueue
+        var node = SearchPage.searchPageQueue
         while node != nil {
             node?.page?.updateColors()
             node = node?.previous
@@ -163,6 +163,8 @@ public class SearchPage: Page {
     }
 
     public func render() async {
+
+        await SearchPage.searchPageQueue?.page?.render()
 
         guard let result = SearchManager.shared.lastSearchResult?.result else {
             for case let item as DestroyablePage in searchCache {
@@ -174,19 +176,19 @@ public class SearchPage: Page {
             searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
             searchPhrasePlane.erase()
             itemIndicesPlane.erase()
-            while searchPageQueue.size() > 0 {
-                await searchPageQueue?.page?.destroy()
-                searchPageQueue = searchPageQueue?.previous
+            while SearchPage.searchPageQueue.size() > 0 {
+                await SearchPage.searchPageQueue?.page?.destroy()
+                SearchPage.searchPageQueue = SearchPage.searchPageQueue?.previous
             }
             return
         }
 
-        while searchPageQueue.size() > SearchManager.shared.lastSearchResult.size() {
-            await searchPageQueue?.page?.destroy()
-            searchPageQueue = searchPageQueue?.previous
+        while SearchPage.searchPageQueue.size() > SearchManager.shared.lastSearchResult.size() {
+            await SearchPage.searchPageQueue?.page?.destroy()
+            SearchPage.searchPageQueue = SearchPage.searchPageQueue?.previous
         }
 
-        guard searchPageQueue.size() < SearchManager.shared.lastSearchResult.size() else {
+        guard SearchPage.searchPageQueue.size() < SearchManager.shared.lastSearchResult.size() else {
             return
         }
 
@@ -281,7 +283,7 @@ public class SearchPage: Page {
 
                 await update(result: searchResult)
             }
-            searchPageQueue = .init(searchPageQueue, page: nil, type: result)
+            SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: nil, type: result)
 
         case .albumDescription(_): break
 
@@ -296,7 +298,7 @@ public class SearchPage: Page {
                 ),
                 artistDescription: artistDescription
             )
-            self.searchPageQueue = .init(searchPageQueue, page: artistDetailPage, type: result)
+            SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: artistDetailPage, type: result)
 
         case .playlistDescription(_): break
 
@@ -311,7 +313,7 @@ public class SearchPage: Page {
                 ),
                 songDescription: songDescription
             )
-            self.searchPageQueue = .init(searchPageQueue, page: songDetailPage, type: result)
+            SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: songDetailPage, type: result)
 
         case .stationDescription(_): break
 
@@ -355,7 +357,7 @@ public class SearchPage: Page {
                     stationItem(station: station, stationIndex: itemIndex)
                 case .playlist(let playlist):
                     playlistItem(playlist: playlist, playlistIndex: itemIndex)
-                default: break
+                @unknown default: break
                 }
                 if itemIndex >= maxItemsDisplayed {
                     break
@@ -372,7 +374,7 @@ public class SearchPage: Page {
             itemIndicesPlane.putString("\(songIndex)", at: (x: 0, y: 2 + Int32(songIndex) * 5))
             guard
                 let item = SongItemPage(
-                    in: plane,
+                    in: borderPlane,
                     state: .init(
                         absX: 2,
                         absY: 1 + Int32(songIndex) * 5,
@@ -403,7 +405,7 @@ public class SearchPage: Page {
         itemIndicesPlane.putString("\(albumIndex)", at: (x: 0, y: 2 + Int32(albumIndex) * 5))
         guard
             let item = AlbumItemPage(
-                in: plane,
+                in: borderPlane,
                 state: .init(
                     absX: 2,
                     absY: 1 + Int32(albumIndex) * 5,
@@ -430,7 +432,7 @@ public class SearchPage: Page {
         itemIndicesPlane.putString("\(artistIndex)", at: (x: 0, y: 2 + Int32(artistIndex) * 5))
         guard
             let item = await ArtistItemPage(
-                in: plane,
+                in: borderPlane,
                 state: .init(
                     absX: 2,
                     absY: 1 + Int32(artistIndex) * 5,
@@ -457,7 +459,7 @@ public class SearchPage: Page {
         itemIndicesPlane.putString("\(playlistIndex)", at: (x: 0, y: 2 + Int32(playlistIndex) * 5))
         guard
             let item = PlaylistItemPage(
-                in: plane,
+                in: borderPlane,
                 state: .init(
                     absX: 2,
                     absY: 1 + Int32(playlistIndex) * 5,
@@ -483,7 +485,7 @@ public class SearchPage: Page {
         itemIndicesPlane.putString("\(stationIndex)", at: (x: 0, y: 2 + Int32(stationIndex) * 5))
         guard
             let item = StationItemPage(
-                in: plane,
+                in: borderPlane,
                 state: .init(
                     absX: 2,
                     absY: 1 + Int32(stationIndex) * 5,
@@ -512,7 +514,7 @@ public class SearchPage: Page {
         itemIndicesPlane.putString("\(recommendationIndex)", at: (x: 0, y: 2 + Int32(recommendationIndex) * 5))
         guard
             let item = RecommendationItemPage(
-                in: plane,
+                in: borderPlane,
                 state: .init(
                     absX: 2,
                     absY: 1 + Int32(recommendationIndex) * 5,
@@ -527,7 +529,7 @@ public class SearchPage: Page {
 
 }
 
-class SearchPageQueue {
+public class SearchPageQueue {
     let previous: SearchPageQueue?
     let page: DestroyablePage?
     let type: OpenedResult
@@ -543,18 +545,30 @@ class SearchPageQueue {
 
 extension Optional where Wrapped == SearchPageQueue {
     func size() -> Int {
-        if self == nil {
+        guard let queue = self else {
             return 0
         }
-        return 1 + (self?.previous.size() ?? 0)
+        return 1 + queue.previous.size()
+    }
+
+    /// Amount of pages opened excluding the in-place searches and pages
+    var amountOfPagesOpened: Int {
+        guard let queue = self else {
+            return 0
+        }
+        if queue.page == nil {
+            return queue.previous.amountOfPagesOpened
+        } else {
+            return queue.previous.amountOfPagesOpened + 1
+        }
     }
 }
 
 extension Optional where Wrapped == ResultNode {
     func size() -> Int {
-        if self == nil {
+        guard let queue = self else {
             return 0
         }
-        return 1 + (self?.previous.size() ?? 0)
+        return 1 + queue.previous.size()
     }
 }

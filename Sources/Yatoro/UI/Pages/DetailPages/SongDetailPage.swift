@@ -135,29 +135,27 @@ public class SongDetailPage: DestroyablePage {
 
     private func loadAlbum() {
         if let album = songDescription.album {
-            Task {
-                self.albumItemPage = AlbumItemPage(
-                    in: plane,
-                    state: .init(
-                        absX: Int32(state.width) / 3 + 4,
-                        absY: 4,
-                        width: state.width / 3 - 6,
-                        height: 5
-                    ),
-                    item: album,
-                    type: .songDetailPage
-                )
-                self.albumIndexPlane = Plane(
-                    in: plane,
-                    state: .init(
-                        absX: Int32(state.width) / 3 + 2,
-                        absY: 4,
-                        width: 2,
-                        height: 5
-                    ),
-                    debugID: "SDPALIP"
-                )
-            }
+            self.albumItemPage = AlbumItemPage(
+                in: borderPlane,
+                state: .init(
+                    absX: Int32(state.width) / 3 + 4,
+                    absY: 4,
+                    width: state.width / 3 - 6,
+                    height: 5
+                ),
+                item: album,
+                type: .songDetailPage
+            )
+            self.albumIndexPlane = Plane(
+                in: borderPlane,
+                state: .init(
+                    absX: Int32(state.width) / 3 + 2,
+                    absY: 4,
+                    width: 2,
+                    height: 5
+                ),
+                debugID: "SDPALIP"
+            )
         }
     }
 
@@ -181,7 +179,7 @@ public class SongDetailPage: DestroyablePage {
                 }
                 Task {
                     let artistItem = await ArtistItemPage(
-                        in: plane,
+                        in: borderPlane,
                         state: .init(
                             absX: Int32(state.width) / 3 * 2 + 4,
                             absY: 4 + Int32(artistIndex * 5),
@@ -309,7 +307,8 @@ public class SongDetailPage: DestroyablePage {
         self.albumTitlePlane?.setColorPair(colorConfig.albumText)
         if songDescription.album != nil {
             self.albumTitlePlane?.putString("Album:", at: (0, 0))
-            self.albumIndexPlane?.putString("a", at: (0, 2))
+            self.albumIndexPlane?.setColorPair(colorConfig.albumIndex)
+            self.albumIndexPlane?.putString("a0", at: (0, 2))
         }
 
         self.artistsTitlePlane?.setColorPair(colorConfig.artistsText)

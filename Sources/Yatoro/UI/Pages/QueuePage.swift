@@ -208,7 +208,7 @@ public class QueuePage: Page {
             case .song(let song):
                 guard
                     let page = SongItemPage(
-                        in: self.plane,
+                        in: self.borderPlane,
                         state: .init(
                             absX: 1,
                             absY: 1 + Int32(i) * 5,

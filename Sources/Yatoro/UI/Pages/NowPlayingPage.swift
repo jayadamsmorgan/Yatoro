@@ -25,7 +25,7 @@ public class NowPlayingPage: Page {
     private let currentTimePlane: Plane
     private let durationPlane: Plane
 
-    private var artworkPlane: Plane
+    private var artworkPlane: Plane?
     private var artworkVisual: Visual?
 
     private var state: PageState
@@ -319,17 +319,6 @@ public class NowPlayingPage: Page {
         self.durationPlane = durationPlane
 
         guard
-            let artworkPlane = Plane(
-                in: plane,
-                state: .init(absX: 2, absY: 4, width: 1, height: 1),
-                debugID: "NP_ART"
-            )
-        else {
-            return nil
-        }
-        self.artworkPlane = artworkPlane
-
-        guard
             let albumLeftPlane = Plane(
                 in: plane,
                 state: .init(
@@ -402,14 +391,7 @@ public class NowPlayingPage: Page {
     func processArtwork() {
         guard let currentSong else {
             self.artworkVisual?.destroy()
-            self.artworkPlane.updateByPageState(
-                .init(
-                    absX: 2,
-                    absY: 4,
-                    width: 1,
-                    height: 1
-                )
-            )
+            self.artworkPlane?.destroy()
             return
         }
         if let url = currentSong.artwork?.url(
@@ -436,37 +418,41 @@ public class NowPlayingPage: Page {
     }
 
     func handleArtwork(pixelArray: [UInt8]) {
+        self.artworkVisual?.destroy()
+        self.artworkPlane?.destroy()
         let artworkPlaneWidth = min(self.state.width / 2, self.state.height - 3)
         let artworkPlaneHeight = artworkPlaneWidth / 2 - 1
         if artworkPlaneHeight > self.state.height - 12 {
-            self.artworkVisual?.destroy()
-            self.artworkPlane.updateByPageState(
-                .init(
-                    absX: 2,
-                    absY: 4,
-                    width: 1,
-                    height: 1
-                )
-            )
             return
         }
-        self.artworkPlane.updateByPageState(
-            .init(
-                absX: Int32(self.state.width / 2 - artworkPlaneWidth / 2),
-                absY: Int32(self.state.height / 2 - artworkPlaneHeight / 2),
-                width: artworkPlaneWidth,
-                height: artworkPlaneHeight
-            )
+        self.artworkPlane = Plane(
+            in: self.plane,
+            state:
+                .init(
+                    absX: Int32(self.state.width / 2 - artworkPlaneWidth / 2),
+                    absY: Int32(self.state.height / 2 - artworkPlaneHeight / 2),
+                    width: artworkPlaneWidth,
+                    height: artworkPlaneHeight
+                ),
+            debugID: "NP_ARTP"
         )
-        self.artworkVisual?.destroy()
+        self.artworkPlane?.moveAbove(other: borderPlane)
         self.artworkVisual = Visual(
             in: UI.notcurses!,
             width: Int32(Config.shared.ui.artwork.width),
             height: Int32(Config.shared.ui.artwork.height),
             from: pixelArray,
-            for: self.artworkPlane
+            for: self.artworkPlane!
         )
-        self.artworkVisual?.render()
+        Task {
+            // Small workaround since NP artwork was showing on top
+            // of opened search pages
+            // Probably not the best idea...
+            while (SearchPage.searchPageQueue.amountOfPagesOpened != 0) {
+                try await Task.sleep(nanoseconds: Config.shared.ui.frameDelay)
+            }
+            self.artworkVisual?.render()
+        }
     }
 
     func updateSongDesc() {
@@ -482,7 +468,7 @@ public class NowPlayingPage: Page {
             self.albumRightPlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
             self.currentTimePlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
             self.durationPlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
-            self.artworkPlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
+            self.artworkPlane?.destroy()
             return
         }
         var width = min(UInt32(currentSong.artistName.count), self.state.width - 11)

@@ -39,6 +39,7 @@ public class StationItemPage: DestroyablePage {
             return nil
         }
         self.plane = pagePlane
+        self.plane.moveAbove(other: plane)
 
         guard
             let borderPlane = Plane(
@@ -55,6 +56,7 @@ public class StationItemPage: DestroyablePage {
             return nil
         }
         self.borderPlane = borderPlane
+        self.borderPlane.moveAbove(other: self.plane)
 
         guard
             let pageNamePlane = Plane(
@@ -71,6 +73,7 @@ public class StationItemPage: DestroyablePage {
             return nil
         }
         self.pageNamePlane = pageNamePlane
+        self.pageNamePlane.moveAbove(other: self.borderPlane)
 
         guard
             let stationLeftPlane = Plane(
@@ -87,6 +90,7 @@ public class StationItemPage: DestroyablePage {
             return nil
         }
         self.stationLeftPlane = stationLeftPlane
+        self.stationLeftPlane.moveAbove(other: self.pageNamePlane)
 
         let stationRightWidth = min(UInt32(item.name.count), state.width - 12)
         guard
@@ -104,6 +108,7 @@ public class StationItemPage: DestroyablePage {
             return nil
         }
         self.stationRightPlane = stationRightPlane
+        self.stationRightPlane.moveAbove(other: self.stationLeftPlane)
 
         guard
             let notesLeftPlane = Plane(
@@ -120,6 +125,7 @@ public class StationItemPage: DestroyablePage {
             return nil
         }
         self.notesLeftPlane = notesLeftPlane
+        self.notesLeftPlane.moveAbove(other: self.stationRightPlane)
 
         var notesRightWidth = min(UInt32(item.editorialNotes?.standard?.count ?? 1), state.width - 10)
         if notesRightWidth == 0 { notesRightWidth = 1 }
@@ -138,6 +144,7 @@ public class StationItemPage: DestroyablePage {
             return nil
         }
         self.notesRightPlane = notesRightPlane
+        self.notesRightPlane.moveAbove(other: self.notesLeftPlane)
 
         guard
             let isLiveLeftPlane = Plane(
@@ -154,6 +161,7 @@ public class StationItemPage: DestroyablePage {
             return nil
         }
         self.isLiveLeftPlane = isLiveLeftPlane
+        self.isLiveLeftPlane.moveAbove(other: self.notesRightPlane)
 
         let isLiveRightWidth = min(UInt32("\(item.isLive)".count), state.width - 11)
         guard
@@ -171,6 +179,7 @@ public class StationItemPage: DestroyablePage {
             return nil
         }
         self.isLiveRightPlane = isLiveRightPlane
+        self.isLiveRightPlane.moveAbove(other: self.isLiveLeftPlane)
 
         self.item = item
 
