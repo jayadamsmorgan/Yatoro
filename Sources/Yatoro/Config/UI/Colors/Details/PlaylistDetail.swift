@@ -3,7 +3,7 @@ extension Config.UIConfig.Colors {
     public struct PlaylistDetail {
         public var page: ColorPair
         public var border: ColorPair
-        public var songIndices: ColorPair
+        public var songsIndices: ColorPair
         public var playlistTitle: ColorPair
         public var songsText: ColorPair
 
@@ -12,7 +12,7 @@ extension Config.UIConfig.Colors {
         public init() {
             self.page = .init()
             self.border = .init()
-            self.songIndices = .init()
+            self.songsIndices = .init()
             self.playlistTitle = .init()
             self.songsText = .init()
 
@@ -26,7 +26,7 @@ extension Config.UIConfig.Colors.PlaylistDetail: Codable {
     enum CodingKeys: String, CodingKey {
         case page
         case border
-        case songIndices
+        case songsIndices
         case playlistTitle
         case songsText
         case songItem
@@ -40,8 +40,8 @@ extension Config.UIConfig.Colors.PlaylistDetail: Codable {
         self.border =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .border)
             ?? .init()
-        self.songIndices =
-            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .songIndices)
+        self.songsIndices =
+            try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .songsIndices)
             ?? .init()
         self.playlistTitle =
             try container.decodeIfPresent(Config.UIConfig.Colors.ColorPair.self, forKey: .playlistTitle)
@@ -59,7 +59,7 @@ extension Config.UIConfig.Colors.PlaylistDetail: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.page, forKey: .page)
         try container.encode(self.border, forKey: .border)
-        try container.encode(self.songIndices, forKey: .songIndices)
+        try container.encode(self.songsIndices, forKey: .songsIndices)
         try container.encode(self.playlistTitle, forKey: .playlistTitle)
         try container.encode(self.songsText, forKey: .songsText)
 
