@@ -3,7 +3,7 @@ import MusicKit
 
 struct OpenCommand: AsyncParsableCommand {
 
-    @Flag
+    @Flag(name: .shortAndLong)
     var inPlace: Bool = false
 
     @Argument
