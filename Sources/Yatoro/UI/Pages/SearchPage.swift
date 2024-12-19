@@ -195,6 +195,13 @@ public class SearchPage: Page {
         switch result {
 
         case .searchResult(let searchResult):
+
+            // Close other pages if they are opened at the moment
+            while SearchPage.searchPageQueue?.page != nil {
+                await SearchPage.searchPageQueue?.page?.destroy()
+                SearchPage.searchPageQueue = SearchPage.searchPageQueue?.previous
+            }
+
             switch searchResult.searchType {
 
             case .recentlyPlayed:
@@ -312,6 +319,33 @@ public class SearchPage: Page {
             SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: artistDetailPage, type: result)
 
         case .playlistDescription(let playlistDescription):
+            if SearchManager.shared.lastSearchResult?.inPlace ?? false {
+                // Close all active pages
+                while SearchPage.searchPageQueue?.page != nil {
+                    await SearchPage.searchPageQueue?.page?.destroy()
+                    SearchPage.searchPageQueue = SearchPage.searchPageQueue?.previous
+                }
+
+                // Open Playlist in-place
+                let name = playlistDescription.playlist.name
+                pageNamePlane.width = UInt32(name.count)
+                pageNamePlane.putString(name, at: (0, 0))
+                searchPhrasePlane.updateByPageState(.init(absX: 2, absY: 0, width: 1, height: 1))
+                searchPhrasePlane.erase()
+
+                SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: nil, type: result)
+
+                let searchResult = SearchResult(
+                    timestamp: .now,
+                    searchType: .catalogSearch,
+                    itemType: .song,
+                    searchPhrase: nil,
+                    result: playlistDescription.songs
+                )
+
+                await update(result: searchResult)
+                break
+            }
             let playlistDetailPage = PlaylistDetailPage(
                 in: stdPlane,
                 state: .init(
