@@ -58,10 +58,6 @@ public struct AlbumDescriptionResult {
     public let artists: MusicItemCollection<Artist>?  // Prefix "w"
 }
 
-public struct StationDescriptionResult {
-    public let station: Station
-}
-
 public struct RecommendationDescriptionResult {
     public let recommendation: MusicPersonalRecommendation
 
@@ -75,7 +71,6 @@ public enum OpenedResult {
     case albumDescription(AlbumDescriptionResult)
     case artistDescription(ArtistDescriptionResult)
     case playlistDescription(PlaylistDescriptionResult)
-    case stationDescription(StationDescriptionResult)
     case recommendationDescription(RecommendationDescriptionResult)
     case searchResult(SearchResult)
 }

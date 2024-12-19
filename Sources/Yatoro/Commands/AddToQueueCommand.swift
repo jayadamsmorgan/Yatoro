@@ -316,12 +316,6 @@ struct AddToQueueCommand: AsyncParsableCommand {
                     await Player.shared.addItemsToQueue(items: [item], at: command.to)
                 }
 
-            case .stationDescription(let stationDescription):
-                guard let _ = command.item else {
-                    await Player.shared.addItemsToQueue(items: [stationDescription.station], at: command.to)
-                    return
-                }
-                await executionError("Error: Not yet implemented")
             case .recommendationDescription(let recommendationDescription):
                 guard let item = command.item else {
                     // Not sure what to add here

@@ -116,10 +116,6 @@ struct OpenCommand: AsyncParsableCommand {
                     }
                     musicItem = playlistDescription.songs.item(at: intIndex)
 
-                case .stationDescription(_):
-                    await executionError("Error: Not yet implemented")
-                    return
-
                 case .recommendationDescription(let recommendationDescription):
                     guard index.count > 1 else {
                         await unknownIndexError(index)

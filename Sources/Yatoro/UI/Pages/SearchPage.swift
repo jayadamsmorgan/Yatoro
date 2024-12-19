@@ -337,8 +337,6 @@ public class SearchPage: Page {
             )
             SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: songDetailPage, type: result)
 
-        case .stationDescription(_): break
-
         case .recommendationDescription(let recommendationDescription):
             let recommendationDetailPage = RecommendationDetailPage(
                 in: stdPlane,
