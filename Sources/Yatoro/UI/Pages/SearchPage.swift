@@ -317,7 +317,18 @@ public class SearchPage: Page {
 
         case .stationDescription(_): break
 
-        case .recommendationDescription(_): break
+        case .recommendationDescription(let recommendationDescription):
+            let recommendationDetailPage = RecommendationDetailPage(
+                in: stdPlane,
+                state: .init(
+                    absX: 5,
+                    absY: 2,
+                    width: stdPlane.width - 10,
+                    height: stdPlane.height - 6
+                ),
+                recommendationDescription: recommendationDescription
+            )
+            SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: recommendationDetailPage, type: result)
 
         }
 
@@ -466,7 +477,8 @@ public class SearchPage: Page {
                     width: state.width - 3,
                     height: 5
                 ),
-                item: playlist
+                item: playlist,
+                type: .searchPage
             )
         else { return }
         self.searchCache.append(item)
@@ -492,7 +504,8 @@ public class SearchPage: Page {
                     width: state.width - 3,
                     height: 5
                 ),
-                item: station
+                item: station,
+                type: .searchPage
             )
         else { return }
         self.searchCache.append(item)

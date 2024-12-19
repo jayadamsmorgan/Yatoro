@@ -13,6 +13,7 @@ extension Config.UIConfig {
 
             self.songDetail = .init()
             self.artistDetail = .init()
+            self.recommendationDetail = .init()
         }
 
         public var nowPlaying: NowPlaying
@@ -22,6 +23,7 @@ extension Config.UIConfig {
 
         public var songDetail: SongDetail
         public var artistDetail: ArtistDetail
+        public var recommendationDetail: RecommendationDetail
 
         public struct ColorPair {
             var foreground: Plane.Color?
@@ -47,6 +49,7 @@ extension Config.UIConfig.Colors: Codable {
 
         case songDetail
         case artistDetail
+        case recommendationDetail
     }
 
     public init(from decoder: any Decoder) throws {
@@ -58,6 +61,8 @@ extension Config.UIConfig.Colors: Codable {
 
         self.songDetail = try container.decodeIfPresent(SongDetail.self, forKey: .songDetail) ?? .init()
         self.artistDetail = try container.decodeIfPresent(ArtistDetail.self, forKey: .artistDetail) ?? .init()
+        self.recommendationDetail =
+            try container.decodeIfPresent(RecommendationDetail.self, forKey: .recommendationDetail) ?? .init()
     }
 
     public func encode(to encoder: any Encoder) throws {

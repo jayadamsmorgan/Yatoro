@@ -168,13 +168,13 @@ public class SongDetailPage: DestroyablePage {
                         absX: Int32(state.width) / 3 * 2 + 2,
                         absY: 4,
                         width: 2,
-                        height: 5 * UInt32(artists.count)
+                        height: 5 * UInt32(min(maxItemsDisplayed + 1, artists.count))
                     ),
                     debugID: "SDPARIP"
                 )
             }
             for artistIndex in 0..<artists.count {
-                if maxItemsDisplayed < maxItemsDisplayed {
+                if maxItemsDisplayed < artistIndex {
                     break
                 }
                 Task {
