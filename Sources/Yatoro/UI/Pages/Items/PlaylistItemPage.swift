@@ -20,11 +20,20 @@ public class PlaylistItemPage: DestroyablePage {
 
     public func getItem() async -> Playlist { item }
 
+    public enum PlaylistItemPageType {
+        case searchPage
+        case recommendationDetail
+    }
+
+    private let type: PlaylistItemPageType
+
     public init?(
         in plane: Plane,
         state: PageState,
-        item: Playlist
+        item: Playlist,
+        type: PlaylistItemPageType
     ) {
+        self.type = type
         self.state = state
         guard
             let pagePlane = Plane(
@@ -39,6 +48,7 @@ public class PlaylistItemPage: DestroyablePage {
             return nil
         }
         self.plane = pagePlane
+        self.plane.moveAbove(other: plane)
 
         guard
             let borderPlane = Plane(
@@ -55,6 +65,7 @@ public class PlaylistItemPage: DestroyablePage {
             return nil
         }
         self.borderPlane = borderPlane
+        self.borderPlane.moveAbove(other: self.plane)
 
         guard
             let pageNamePlane = Plane(
@@ -71,6 +82,7 @@ public class PlaylistItemPage: DestroyablePage {
             return nil
         }
         self.pageNamePlane = pageNamePlane
+        self.pageNamePlane.moveAbove(other: self.borderPlane)
 
         guard
             let playlistLeftPlane = Plane(
@@ -87,6 +99,7 @@ public class PlaylistItemPage: DestroyablePage {
             return nil
         }
         self.playlistLeftPlane = playlistLeftPlane
+        self.playlistLeftPlane.moveAbove(other: self.pageNamePlane)
 
         let playlistRightWidth = min(UInt32(item.name.count), state.width - 13)
         guard
@@ -104,6 +117,7 @@ public class PlaylistItemPage: DestroyablePage {
             return nil
         }
         self.playlistRightPlane = playlistRightPlane
+        self.playlistRightPlane.moveAbove(other: self.playlistLeftPlane)
 
         guard
             let descriptionLeftPlane = Plane(
@@ -120,6 +134,7 @@ public class PlaylistItemPage: DestroyablePage {
             return nil
         }
         self.descriptionLeftPlane = descriptionLeftPlane
+        self.descriptionLeftPlane.moveAbove(other: self.playlistRightPlane)
 
         var descriptionRightWidth = min(UInt32(item.standardDescription?.count ?? 1), state.width - 16)
         if descriptionRightWidth == 0 { descriptionRightWidth = 1 }
@@ -138,6 +153,7 @@ public class PlaylistItemPage: DestroyablePage {
             return nil
         }
         self.descriptionRightPlane = descriptionRightPlane
+        self.descriptionRightPlane.moveAbove(other: self.descriptionLeftPlane)
 
         guard
             let curatorLeftPlane = Plane(
@@ -154,6 +170,7 @@ public class PlaylistItemPage: DestroyablePage {
             return nil
         }
         self.curatorLeftPlane = curatorLeftPlane
+        self.curatorLeftPlane.moveAbove(other: self.descriptionRightPlane)
 
         let curatorRightWidth = min(UInt32(item.curatorName?.count ?? 1), state.width - 12)
         guard
@@ -171,6 +188,7 @@ public class PlaylistItemPage: DestroyablePage {
             return nil
         }
         self.curatorRightPlane = curatorRightPlane
+        self.curatorRightPlane.moveAbove(other: self.curatorLeftPlane)
 
         self.item = item
 
@@ -178,7 +196,13 @@ public class PlaylistItemPage: DestroyablePage {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.colors.search.playlistItem
+        let colorConfig: Config.UIConfig.Colors.PlaylistItem
+        switch self.type {
+        case .searchPage:
+            colorConfig = Config.shared.ui.colors.search.playlistItem
+        case .recommendationDetail:
+            colorConfig = Config.shared.ui.colors.recommendationDetail.playlistItem
+        }
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)
         pageNamePlane.setColorPair(colorConfig.pageName)

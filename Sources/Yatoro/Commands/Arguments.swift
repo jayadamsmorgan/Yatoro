@@ -67,8 +67,8 @@ extension ApplicationMusicPlayer.Queue.EntryInsertionPosition:
 
 enum SearchItemIndex: ExpressibleByArgument {
     case all
-    case some([Int])
-    case one(Int)
+    case some([String])
+    case one(String)
 
     public init?(argument: String) {
         if argument == "all" || argument == "a" {
@@ -77,17 +77,17 @@ enum SearchItemIndex: ExpressibleByArgument {
         }
         let arguments = argument.split(separator: ",")
         guard arguments.count > 1 else {
-            self = .one(Int(argument) ?? 0)
+            self = .one(argument)
             return
         }
-        var ints: [Int] = []
+        var strs: [String] = []
         for arg in arguments {
-            let int = Int(arg) ?? 0
-            if !ints.contains(int) {
-                ints.append(int)
+            let str = String(arg)
+            if !strs.contains(str) {
+                strs.append(str)
             }
         }
-        self = .some(ints)
+        self = .some(strs)
     }
 }
 

@@ -35,15 +35,74 @@ public enum SearchType: Hashable, CaseIterable, Sendable {
     case librarySearch
 }
 
+public struct SongDescriptionResult {
+    public let song: Song
+    public let artists: MusicItemCollection<Artist>?  // Prefix "w"
+    public let album: Album?  // Prefix "a"
+}
+
+public struct ArtistDescriptionResult {
+    public let artist: Artist
+    public let topSongs: MusicItemCollection<Song>?  // Prefix "t"
+    public let lastAlbums: MusicItemCollection<Album>?  // Prefix "a"
+}
+
+public struct PlaylistDescriptionResult {
+    public let playlist: Playlist
+    public let songs: MusicItemCollection<Song>  // No prefix
+}
+
+public struct AlbumDescriptionResult {
+    public let album: Album
+    public let songs: MusicItemCollection<Song>  // Prefix "s"
+    public let artists: MusicItemCollection<Artist>?  // Prefix "w"
+}
+
+public struct RecommendationDescriptionResult {
+    public let recommendation: MusicPersonalRecommendation
+
+    public let albums: MusicItemCollection<Album>?  // Prefix "a"
+    public let stations: MusicItemCollection<Station>?  // Prefix "s"
+    public let playlists: MusicItemCollection<Playlist>?  // Prefix "p"
+}
+
+public enum OpenedResult {
+    case songDescription(SongDescriptionResult)
+    case albumDescription(AlbumDescriptionResult)
+    case artistDescription(ArtistDescriptionResult)
+    case playlistDescription(PlaylistDescriptionResult)
+    case recommendationDescription(RecommendationDescriptionResult)
+    case searchResult(SearchResult)
+}
+
+public class ResultNode {
+
+    public var previous: ResultNode?
+    public var result: OpenedResult
+    public var inPlace: Bool
+
+    public init(previous: ResultNode? = nil, _ result: OpenedResult, inPlace: Bool = true) {
+        self.previous = previous
+        self.result = result
+        self.inPlace = inPlace
+    }
+}
+
 public class SearchManager: @unchecked Sendable {
 
     public static let shared: SearchManager = .init()
 
-    public var lastSearchResult: SearchResult?
+    public var lastSearchResult: ResultNode?
 
     private init() {}
 
-    public func newSearch(for phrase: String? = nil, itemType: MusicItemType, in searchType: SearchType, limit: UInt32)
+    public func newSearch(
+        for phrase: String? = nil,
+        itemType: MusicItemType,
+        in searchType: SearchType,
+        inPlace: Bool,
+        limit: UInt32
+    )
         async
     {
         var result: (any AnyMusicItemCollection)?
@@ -100,7 +159,7 @@ public class SearchManager: @unchecked Sendable {
             searchPhrase: phrase,
             result: result
         )
-        lastSearchResult = searchResult
+        self.lastSearchResult = ResultNode(previous: lastSearchResult, .searchResult(searchResult), inPlace: inPlace)
     }
 
 }

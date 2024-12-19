@@ -23,6 +23,9 @@ public class SongItemPage: DestroyablePage {
     public enum SongItemPageType {
         case searchPage
         case queuePage
+        case artistDetailPage
+        case albumDetailPage
+        case playlistDetailPage
     }
 
     private let type: SongItemPageType
@@ -48,6 +51,7 @@ public class SongItemPage: DestroyablePage {
             return nil
         }
         self.plane = pagePlane
+        self.plane.moveAbove(other: plane)
 
         guard
             let borderPlane = Plane(
@@ -64,6 +68,7 @@ public class SongItemPage: DestroyablePage {
             return nil
         }
         self.borderPlane = borderPlane
+        self.borderPlane.moveAbove(other: self.plane)
 
         guard
             let pageNamePlane = Plane(
@@ -80,6 +85,7 @@ public class SongItemPage: DestroyablePage {
             return nil
         }
         self.pageNamePlane = pageNamePlane
+        self.pageNamePlane.moveAbove(other: self.borderPlane)
 
         guard
             let artistLeftPlane = Plane(
@@ -96,6 +102,7 @@ public class SongItemPage: DestroyablePage {
             return nil
         }
         self.artistLeftPlane = artistLeftPlane
+        self.artistLeftPlane.moveAbove(other: self.pageNamePlane)
 
         let artistRightWidth = min(UInt32(item.artistName.count), state.width - 11)
         guard
@@ -113,6 +120,7 @@ public class SongItemPage: DestroyablePage {
             return nil
         }
         self.artistRightPlane = artistRightPlane
+        self.artistRightPlane.moveAbove(other: self.artistLeftPlane)
 
         guard
             let songLeftPlane = Plane(
@@ -129,6 +137,7 @@ public class SongItemPage: DestroyablePage {
             return nil
         }
         self.songLeftPlane = songLeftPlane
+        self.songLeftPlane.moveAbove(other: self.artistRightPlane)
 
         let songRightWidth = min(UInt32(item.title.count), state.width - 9)
         guard
@@ -146,6 +155,7 @@ public class SongItemPage: DestroyablePage {
             return nil
         }
         self.songRightPlane = songRightPlane
+        self.songRightPlane.moveAbove(other: self.songLeftPlane)
 
         guard
             let albumLeftPlane = Plane(
@@ -162,6 +172,7 @@ public class SongItemPage: DestroyablePage {
             return nil
         }
         self.albumLeftPlane = albumLeftPlane
+        self.albumLeftPlane.moveAbove(other: self.songRightPlane)
 
         let albumRightWidth = min(UInt32(item.albumTitle?.count ?? 1), state.width - 10)
         guard
@@ -179,11 +190,11 @@ public class SongItemPage: DestroyablePage {
             return nil
         }
         self.albumRightPlane = albumRightPlane
+        self.albumRightPlane.moveAbove(other: self.albumLeftPlane)
 
         self.item = item
 
         updateColors()
-
     }
 
     public func updateColors() {
@@ -191,6 +202,9 @@ public class SongItemPage: DestroyablePage {
         switch type {
         case .queuePage: colorConfig = Config.shared.ui.colors.queue.songItem
         case .searchPage: colorConfig = Config.shared.ui.colors.search.songItem
+        case .artistDetailPage: colorConfig = Config.shared.ui.colors.artistDetail.songItem
+        case .albumDetailPage: colorConfig = Config.shared.ui.colors.albumDetail.songItem
+        case .playlistDetailPage: colorConfig = Config.shared.ui.colors.playlistDetail.songItem
         }
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)

@@ -8,7 +8,10 @@ Here are the available commands for the command mode and their description:
 | Command                   | Short     | Description                                                   |
 | ------------------------- | --------- | ------------------------------------------------------------- |
 | `addToQueue`              | `a`       | [See addToQueue](#addToQueue)                                 |
-| `clearQueue`              | `c`       | Clear playing queue                                           |
+| `clearQueue`              | `cq`      | Clear playing queue                                           |
+| `close`                   | `c`       | Close last opened detailed page                               |
+| `closeAll`                | `ca`      | Close all opened detailed pages                               |
+| `open`                    | `o`       | [See open](#open)                                             |
 | `pause`                   | `pa`      | Pause                                                         |
 | `play`                    | `pl`      | Continue playing                                              |
 | `playNext`                | `pn`      | Play next item in queue                                       |
@@ -42,18 +45,27 @@ Add to queue command expects 2 arguments:
     - indices of items separated by commas, e.g. `0,3,5`
     - or `all` (`a`) to add all items from the request
 
-**Note**: Indices are 0 based.
-
 - `to` --- **(Argument 2)** --- This argument is used to specify where to add to the queue:
     - `tail`, `end`, `later`, `t`, `e`, `l` - add the selected items to the end of the queue **(Default)**
     - `next`, `afterCurrentEntry`, `n`, `a` - add the selected items right after currently playing item 
 
-**Note**: Adding user recommendations is not supported at the moment
+**Note**: Some items such as user recommendations have to be opened with [open](#open) first to be able to add items to queue
 
 Examples:
     - `:a a n` --- Add all items from current search after currently playing entry
     - `:addToQueue 1,4 t` --- Add second and fifth items from current search to the end of the queue
     - `:a 0` --- Add first item from the current search after currently playing entry
+
+## open
+Opens a detailed page on the selected item
+
+Open command expects an argument and an optional flag:
+
+- `item` --- **(Argument)** --- The index of an item you want to open
+
+- `-i`, `--in-place` --- **(Flag)** --- Try to open detailed page in-place in the Search Page instead of full detailed page
+
+**Note**: Only playlists could be opened in-place at the moment
 
 ## repeatMode
 Sets repeat mode of the player.
@@ -103,7 +115,7 @@ Sets playback time for the current entry.
 
 Set song time command expects 1 argument and 1 optional flag:
 
-- `-r`, `relative` --- **(Flag)** --- This flag is used to treat the argument as relative time to the current playback time **(Default: false)**
+- `-r`, `--relative` --- **(Flag)** --- This flag is used to treat the argument as relative time to the current playback time **(Default: false)**
 
 - `time` --- **(Argument)** --- This argument can be expressed:
     - either in seconds, e.g. `13`, `-10`, `232`

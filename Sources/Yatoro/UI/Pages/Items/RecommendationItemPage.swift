@@ -39,6 +39,7 @@ public class RecommendationItemPage: DestroyablePage {
             return nil
         }
         self.plane = pagePlane
+        self.plane.moveAbove(other: plane)
 
         guard
             let borderPlane = Plane(
@@ -55,6 +56,7 @@ public class RecommendationItemPage: DestroyablePage {
             return nil
         }
         self.borderPlane = borderPlane
+        self.borderPlane.moveAbove(other: self.plane)
 
         guard
             let pageNamePlane = Plane(
@@ -71,6 +73,7 @@ public class RecommendationItemPage: DestroyablePage {
             return nil
         }
         self.pageNamePlane = pageNamePlane
+        self.pageNamePlane.moveAbove(other: self.borderPlane)
 
         guard
             let titleLeftPlane = Plane(
@@ -87,6 +90,7 @@ public class RecommendationItemPage: DestroyablePage {
             return nil
         }
         self.titleLeftPlane = titleLeftPlane
+        self.titleLeftPlane.moveAbove(other: self.pageNamePlane)
 
         if let title = item.title {
             let titleRightWidth = min(UInt32(title.count), state.width - 10)
@@ -105,6 +109,7 @@ public class RecommendationItemPage: DestroyablePage {
                 return nil
             }
             self.titleRightPlane = titleRightPlane
+            self.titleRightPlane?.moveAbove(other: self.titleLeftPlane)
         } else {
             self.titleRightPlane = nil
         }
@@ -124,6 +129,7 @@ public class RecommendationItemPage: DestroyablePage {
             return nil
         }
         self.typesLeftPlane = typesLeftPlane
+        self.typesLeftPlane.moveAbove(other: self.titleRightPlane ?? self.titleLeftPlane)
 
         var typesStr = ""
         for type in item.types {
@@ -148,6 +154,7 @@ public class RecommendationItemPage: DestroyablePage {
             return nil
         }
         self.typesRightPlane = typesRightPlane
+        self.typesRightPlane.moveAbove(other: self.typesLeftPlane)
 
         guard
             let refreshDateLeftPlane = Plane(
@@ -164,6 +171,7 @@ public class RecommendationItemPage: DestroyablePage {
             return nil
         }
         self.refreshDateLeftPlane = refreshDateLeftPlane
+        self.refreshDateLeftPlane.moveAbove(other: self.typesRightPlane)
 
         if let refreshDate = item.nextRefreshDate?.formatted() {
             let refreshDateRightWidth = min(UInt32(refreshDate.count), state.width - 12)
@@ -182,6 +190,7 @@ public class RecommendationItemPage: DestroyablePage {
                 return nil
             }
             self.refreshDateRightPlane = refreshDateRightPlane
+            self.refreshDateRightPlane?.moveAbove(other: self.refreshDateLeftPlane)
         } else {
             self.refreshDateRightPlane = nil
         }
