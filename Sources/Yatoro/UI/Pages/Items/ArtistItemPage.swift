@@ -23,6 +23,7 @@ public class ArtistItemPage: DestroyablePage {
     public enum ArtistItemPageType {
         case searchPage
         case songDetailPage
+        case albumDetailPage
     }
 
     private let type: ArtistItemPageType
@@ -235,6 +236,8 @@ public class ArtistItemPage: DestroyablePage {
             colorConfig = Config.shared.ui.colors.search.artistItem
         case .songDetailPage:
             colorConfig = Config.shared.ui.colors.songDetail.artistItem
+        case .albumDetailPage:
+            colorConfig = Config.shared.ui.colors.albumDetail.artistItem
         }
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)

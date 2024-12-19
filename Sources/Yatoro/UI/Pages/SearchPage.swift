@@ -285,7 +285,18 @@ public class SearchPage: Page {
             }
             SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: nil, type: result)
 
-        case .albumDescription(_): break
+        case .albumDescription(let albumDescription):
+            let albumDetailPage = AlbumDetailPage(
+                in: stdPlane,
+                state: .init(
+                    absX: 5,
+                    absY: 2,
+                    width: stdPlane.width - 10,
+                    height: stdPlane.height - 6
+                ),
+                albumDescription: albumDescription
+            )
+            SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: albumDetailPage, type: result)
 
         case .artistDescription(let artistDescription):
             let artistDetailPage = ArtistDetailPage(
