@@ -57,15 +57,25 @@ Examples:
     - `:a 0` --- Add first item from the current search after currently playing entry
 
 ## open
-Opens a detailed page on the selected item
+Opens a detailed page on the selected item.
 
 Open command expects an argument and an optional flag:
 
-- `item` --- **(Argument)** --- The index of an item you want to open
+- `item` --- **(Argument)** --- The index of an item you want to open (Case insensitive)
+
+To open detailed page within another one you will have to use named indices, e.g. `s0`, `p4`, `w2`, etc.
+
+`item` Argument could also be `np`, `nowplaying` or `now` to open the detailed page of currently playing song.
 
 - `-i`, `--in-place` --- **(Flag)** --- Try to open detailed page in-place in the Search Page instead of full detailed page
 
+**Note**: In-place opening will close all non-in-place opened detailed pages
+
 **Note**: Only playlists could be opened in-place at the moment
+
+Examples:
+    - `:open 4` - Open item with index 4 from search page
+    - `:o -i p4` - Open playlist from another detailed page with index 4 in-place
 
 ## repeatMode
 Sets repeat mode of the player.
@@ -142,4 +152,3 @@ When `status` argument is not passed shuffling mode is toggled.
 Examples:
     - `:shuffle` - Toggle shuffle mode
     - `:shuffleMode false` - Turn shuffling off
-
