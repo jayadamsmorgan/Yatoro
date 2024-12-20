@@ -37,6 +37,14 @@ extension Config {
 
 extension Config.UIConfig: Codable {
 
+    public enum CodingKeys: String, CodingKey {
+        case margins
+        case layout
+        case frameDelay
+        case artwork
+        case theme
+    }
+
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -50,7 +58,7 @@ extension Config.UIConfig: Codable {
             try container.decodeIfPresent(Artwork.self, forKey: .artwork) ?? .init()
 
         self.themeName =
-            try container.decodeIfPresent(String.self, forKey: .themeName) ?? "default"
+            try container.decodeIfPresent(String.self, forKey: .theme) ?? "default"
 
         self.theme = Theme.load(theme: themeName)
     }
