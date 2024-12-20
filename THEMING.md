@@ -4,6 +4,8 @@ Themes should be located in `"~/.config/Yatoro/themes"` directory.
 
 If this directory doesn't exist Yatoro will create it on startup and put the default one in there.
 
+So you can check the default config for the reference once it's created.
+
 ## Color
 
 `Color` is a string property, which could be represented in theme config file:
@@ -42,7 +44,7 @@ Each UI element has `bg` and `fg` properties.
 
 By default, both properties are `nil` on every UI element, which basically means using default terminal background and foreground colors.
 
-## ui.colors.commandLine
+## commandLine
 
 - `page` --- Command line background
 - `modeNormal` --- normal mode status
@@ -56,7 +58,7 @@ By default, both properties are `nil` on every UI element, which basically means
 - `completions` --- command line completions
 - `completionSelected` --- command line selected completion
 
-## ui.colors.nowPlaying
+## nowPlaying
 
 - `page` --- Now Playing page background
 - `pageName` --- "Now Playing" string
@@ -73,7 +75,7 @@ By default, both properties are `nil` on every UI element, which basically means
 - `currentTime` --- song playback time
 - `duration` --- song duration
 
-## ui.colors.queue
+## queue
 
 - `page` --- Queue page background
 - `pageName` --- "Player Queue" string
@@ -82,7 +84,7 @@ By default, both properties are `nil` on every UI element, which basically means
 - `repeatMode` --- status of repeat mode
 - `songItem` --- see [songItem](#songItem)
 
-## ui.colors.search
+## search
 
 - `page` --- Search page background
 - `pageName` --- "Search" string
@@ -95,7 +97,7 @@ By default, both properties are `nil` on every UI element, which basically means
 - `stationItem` --- see [stationItem](#stationItem)
 - `recommendationItem` --- see [recommendationItem](#recommendationItem)
 
-## songItem
+### songItem
 
 List pages such as Queue and Search pages can display song items which could be colored.
 
@@ -108,7 +110,7 @@ List pages such as Queue and Search pages can display song items which could be 
 - `albumLeft` --- "album:" string
 - `albumRight` --- album title string
 
-## albumItem
+### albumItem
 
 Similar to [songItem](#songItem), but used only in Search page when displaying Albums.
 
@@ -121,7 +123,7 @@ Similar to [songItem](#songItem), but used only in Search page when displaying A
 - `genreLeft` --- "genre:" string
 - `genreRight` --- genre names string
 
-## artistItem
+### artistItem
 
 Similar to [songItem](#songItem), but used only in Search page when displaying Artists.
 
@@ -134,7 +136,7 @@ Similar to [songItem](#songItem), but used only in Search page when displaying A
 - `albumsLeft` --- "albums:" string
 - `albumsRight` --- artist album titles string
 
-## playlistItem
+### playlistItem
 
 Similar to [songItem](#songItem), but used only in Search page when displaying Playlists.
 
@@ -147,7 +149,7 @@ Similar to [songItem](#songItem), but used only in Search page when displaying P
 - `descriptionLeft` --- "description:" string
 - `descriptionRight` --- playlist description string
 
-## playlistItem
+### playlistItem
 
 Similar to [songItem](#songItem), but used only in Search page when displaying Stations.
 
@@ -160,7 +162,7 @@ Similar to [songItem](#songItem), but used only in Search page when displaying S
 - `notesLeft` --- "notes:" string
 - `notesRight` --- station editorial notes string
 
-## recommendationItem
+### recommendationItem
 
 Similar to [songItem](#songItem), but used only in Search page when displaying Stations.
 
