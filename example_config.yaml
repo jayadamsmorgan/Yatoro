@@ -10,6 +10,8 @@ ui:
     cols: 2
     rows: 2
 
+  theme: default
+
 logging:
   logLevel: trace
 
