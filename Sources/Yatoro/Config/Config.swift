@@ -24,12 +24,13 @@ public struct Config {
 
 public extension Config {
 
-    static let defaultConfigPath = FileManager.default
+    static let yatoroConfigFolder = FileManager.default
         .homeDirectoryForCurrentUser
         .appendingPathComponent(".config", isDirectory: true)
         .appendingPathComponent("Yatoro", isDirectory: true)
-        .appendingPathComponent("config.yaml")
         .path
+
+    static let defaultConfigPath = yatoroConfigFolder + "/config.yaml"
 
     @MainActor
     static func load(logLevel: Logger.Level?) {
@@ -162,13 +163,6 @@ public extension Config {
 
 extension Config: Codable {
 
-    enum CodingKeys: String, CodingKey {
-        case mappings
-        case ui
-        case logging
-        case settings
-    }
-
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -180,14 +174,6 @@ extension Config: Codable {
             try container.decodeIfPresent(LoggingConfig.self, forKey: .logging) ?? .init()
         self.settings =
             try container.decodeIfPresent(Settings.self, forKey: .settings) ?? .init()
-    }
-
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.ui, forKey: .ui)
-        try container.encode(self.logging, forKey: .logging)
-        try container.encode(self.mappings, forKey: .mappings)
-        try container.encode(self.settings, forKey: .settings)
     }
 
 }

@@ -196,12 +196,12 @@ public class PlaylistItemPage: DestroyablePage {
     }
 
     public func updateColors() {
-        let colorConfig: Config.UIConfig.Colors.PlaylistItem
+        let colorConfig: Theme.PlaylistItem
         switch self.type {
         case .searchPage:
-            colorConfig = Config.shared.ui.colors.search.playlistItem
+            colorConfig = Config.shared.ui.theme.search.playlistItem
         case .recommendationDetail:
-            colorConfig = Config.shared.ui.colors.recommendationDetail.playlistItem
+            colorConfig = Config.shared.ui.theme.recommendationDetail.playlistItem
         }
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)

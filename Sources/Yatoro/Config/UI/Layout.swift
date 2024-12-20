@@ -22,12 +22,6 @@ extension Config.UIConfig {
 
 extension Config.UIConfig.UILayoutConfig: Codable {
 
-    enum CodingKeys: String, CodingKey {
-        case rows
-        case cols
-        case pages
-    }
-
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 

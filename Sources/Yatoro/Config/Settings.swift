@@ -17,12 +17,6 @@ extension Config {
 
 extension Config.Settings: Codable {
 
-    enum CodingKeys: String, CodingKey {
-        case disableSigInt
-        case disableResize
-        case searchItemLimit
-    }
-
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 

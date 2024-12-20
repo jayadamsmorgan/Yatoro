@@ -56,7 +56,7 @@ public class SearchPage: Page {
 
     public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 17) }
 
-    public init?(stdPlane: Plane, state: PageState, colorConfig: Config.UIConfig.Colors.Search) {
+    public init?(stdPlane: Plane, state: PageState) {
         self.stdPlane = stdPlane
         self.state = state
         guard
@@ -141,7 +141,7 @@ public class SearchPage: Page {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.colors.search
+        let colorConfig = Config.shared.ui.theme.search
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)
         searchPhrasePlane.setColorPair(colorConfig.searchPhrase)

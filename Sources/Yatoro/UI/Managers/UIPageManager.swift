@@ -83,8 +83,7 @@ public struct UIPageManager {
                                 absY: 0,
                                 width: 28,
                                 height: 13
-                            ),
-                            colorConfig: uiConfig.colors.search
+                            )
                         )
                     else {
                         logger?.critical("Failed to initiate Search Page.")
@@ -96,10 +95,7 @@ public struct UIPageManager {
             }
         }
         guard
-            let commandPage = CommandPage(
-                stdPlane: stdPlane,
-                colorConfig: uiConfig.colors.commandLine
-            )
+            let commandPage = CommandPage(stdPlane: stdPlane)
         else {
             fatalError("Failed to initiate Command Page.")
         }

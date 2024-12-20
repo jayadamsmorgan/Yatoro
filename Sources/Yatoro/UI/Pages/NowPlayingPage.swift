@@ -340,7 +340,7 @@ public class NowPlayingPage: Page {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.colors.nowPlaying
+        let colorConfig = Config.shared.ui.theme.nowPlaying
         borderPlane.setColorPair(colorConfig.border)
         pageNamePlane.setColorPair(colorConfig.pageName)
         pagePlane.setColorPair(colorConfig.page)

@@ -241,7 +241,7 @@ public class PlaylistDetailPage: DestroyablePage {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.colors.playlistDetail
+        let colorConfig = Config.shared.ui.theme.playlistDetail
 
         self.plane.setColorPair(colorConfig.page)
         self.plane.blank()

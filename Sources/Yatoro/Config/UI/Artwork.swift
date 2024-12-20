@@ -27,10 +27,4 @@ extension Config.UIConfig.Artwork: Codable {
             try container.decodeIfPresent(UInt32.self, forKey: .height) ?? 500
     }
 
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.width, forKey: .width)
-        try container.encode(self.height, forKey: .height)
-    }
-
 }

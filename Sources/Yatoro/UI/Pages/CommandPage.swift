@@ -18,6 +18,9 @@ public class CommandPage: Page {
     private var completionsPlane: Plane
     private var completionSelectedPlane: Plane
 
+    private var normalModeColorPair: Theme.ColorPair = Config.shared.ui.theme.commandLine.modeNormal
+    private var commandModeColorPair: Theme.ColorPair = Config.shared.ui.theme.commandLine.modeCommand
+
     private var state: PageState
 
     private var cursorState = CursorState((0, 0), enabled: false)
@@ -82,8 +85,7 @@ public class CommandPage: Page {
     public func getMaxDimensions() async -> (width: UInt32, height: UInt32)? { nil }
 
     public init?(
-        stdPlane: Plane,
-        colorConfig: Config.UIConfig.Colors.CommandLine
+        stdPlane: Plane
     ) {
         self.state = .init(
             absX: 0,
@@ -250,7 +252,7 @@ public class CommandPage: Page {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.colors.commandLine
+        let colorConfig = Config.shared.ui.theme.commandLine
         plane.setColorPair(colorConfig.page)
         inputPlane.setColorPair(colorConfig.input)
         nowPlayingArtistPlane.setColorPair(colorConfig.nowPlayingArtist)
@@ -261,6 +263,9 @@ public class CommandPage: Page {
         completionsPlane.setColorPair(colorConfig.completions)
         completionSelectedPlane.setColorPair(colorConfig.completionSelected)
 
+        self.normalModeColorPair = colorConfig.modeNormal
+        self.commandModeColorPair = colorConfig.modeCommand
+
         plane.blank()
     }
 
@@ -269,9 +274,9 @@ public class CommandPage: Page {
 
         switch UI.mode {
         case .normal:
-            modePlane.setColorPair(Config.shared.ui.colors.commandLine.modeNormal)
+            modePlane.setColorPair(self.normalModeColorPair)
         case .command:
-            modePlane.setColorPair(Config.shared.ui.colors.commandLine.modeCommand)
+            modePlane.setColorPair(self.commandModeColorPair)
         }
 
         switch size {

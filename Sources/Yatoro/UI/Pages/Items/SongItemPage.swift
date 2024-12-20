@@ -198,13 +198,13 @@ public class SongItemPage: DestroyablePage {
     }
 
     public func updateColors() {
-        let colorConfig: Config.UIConfig.Colors.SongItem
+        let colorConfig: Theme.SongItem
         switch type {
-        case .queuePage: colorConfig = Config.shared.ui.colors.queue.songItem
-        case .searchPage: colorConfig = Config.shared.ui.colors.search.songItem
-        case .artistDetailPage: colorConfig = Config.shared.ui.colors.artistDetail.songItem
-        case .albumDetailPage: colorConfig = Config.shared.ui.colors.albumDetail.songItem
-        case .playlistDetailPage: colorConfig = Config.shared.ui.colors.playlistDetail.songItem
+        case .queuePage: colorConfig = Config.shared.ui.theme.queue.songItem
+        case .searchPage: colorConfig = Config.shared.ui.theme.search.songItem
+        case .artistDetailPage: colorConfig = Config.shared.ui.theme.artistDetail.songItem
+        case .albumDetailPage: colorConfig = Config.shared.ui.theme.albumDetail.songItem
+        case .playlistDetailPage: colorConfig = Config.shared.ui.theme.playlistDetail.songItem
         }
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)

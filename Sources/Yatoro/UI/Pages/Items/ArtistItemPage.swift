@@ -230,14 +230,14 @@ public class ArtistItemPage: DestroyablePage {
     }
 
     public func updateColors() {
-        let colorConfig: Config.UIConfig.Colors.ArtistItem
+        let colorConfig: Theme.ArtistItem
         switch type {
         case .searchPage:
-            colorConfig = Config.shared.ui.colors.search.artistItem
+            colorConfig = Config.shared.ui.theme.search.artistItem
         case .songDetailPage:
-            colorConfig = Config.shared.ui.colors.songDetail.artistItem
+            colorConfig = Config.shared.ui.theme.songDetail.artistItem
         case .albumDetailPage:
-            colorConfig = Config.shared.ui.colors.albumDetail.artistItem
+            colorConfig = Config.shared.ui.theme.albumDetail.artistItem
         }
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)
