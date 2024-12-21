@@ -233,11 +233,11 @@ public class ArtistItemPage: DestroyablePage {
         let colorConfig: Theme.ArtistItem
         switch type {
         case .searchPage:
-            colorConfig = Config.shared.ui.theme.search.artistItem
+            colorConfig = Theme.shared.search.artistItem
         case .songDetailPage:
-            colorConfig = Config.shared.ui.theme.songDetail.artistItem
+            colorConfig = Theme.shared.songDetail.artistItem
         case .albumDetailPage:
-            colorConfig = Config.shared.ui.theme.albumDetail.artistItem
+            colorConfig = Theme.shared.albumDetail.artistItem
         }
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)

@@ -141,7 +141,7 @@ public class SearchPage: Page {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.theme.search
+        let colorConfig = Theme.shared.search
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)
         searchPhrasePlane.setColorPair(colorConfig.searchPhrase)

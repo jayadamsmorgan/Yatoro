@@ -199,9 +199,9 @@ public class StationItemPage: DestroyablePage {
         let colorConfig: Theme.StationItem
         switch self.type {
         case .searchPage:
-            colorConfig = Config.shared.ui.theme.search.stationItem
+            colorConfig = Theme.shared.search.stationItem
         case .recommendationDetail:
-            colorConfig = Config.shared.ui.theme.recommendationDetail.stationItem
+            colorConfig = Theme.shared.recommendationDetail.stationItem
         }
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)

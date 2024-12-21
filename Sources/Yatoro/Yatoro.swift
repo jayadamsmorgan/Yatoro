@@ -42,6 +42,13 @@ struct SettingsArgOptions: ParsableArguments {
 struct UIArgOptions: ParsableArguments {
     @Option(
         name: .shortAndLong,
+        help: "Set UI theme (default: \"default\")",
+        completion: .default
+    )
+    var theme: String?
+
+    @Option(
+        name: .shortAndLong,
         help: "Set UI margins, must be greater than 0 (default: 0)",
         completion: .default
     )
@@ -125,13 +132,13 @@ struct Yatoro: AsyncParsableCommand {
 
     @Option(
         name: .shortAndLong,
-        help: "Custom path to config.yaml",
-        completion: .file(extensions: ["yaml"])
+        help: "Custom path to config file",
+        completion: .file(extensions: ["yaml", "yml", "toml", "json"])
     )
-    var config: String = Config.defaultConfigPath
+    var config: String?
 
-    @MainActor private func initLogging(config: Config.LoggingConfig) {
-        guard let logLevel = config.logLevel else {
+    @MainActor private func initLogging() {
+        guard let logLevel = Config.shared.logging.logLevel else {
             return
         }
         logger = Logger(label: loggerLabel) {
@@ -141,14 +148,26 @@ struct Yatoro: AsyncParsableCommand {
 
     @MainActor
     mutating func run() async throws {
-        Config.parseOptions(
+
+        ConfigurationParser.setupConfigurationDirectory()
+
+        guard let configParser = ConfigurationParser(customConfigPath: config) else {
+            print("Error: Unable to find config at \(config!)")
+            return
+        }
+
+        configParser.loadConfig()
+
+        Config.applyArgumentOptions(
             uiOptions: uiOptions,
             loggingOptions: loggingOptions,
-            settingsOptions: settingsOptions,
-            configPath: config
+            settingsOptions: settingsOptions
         )
+        Config.processMappings()
 
-        initLogging(config: Config.shared.logging)
+        ConfigurationParser.loadTheme()
+
+        initLogging()
         logger?.info("Starting Yatoro...")
         logger?.debug("Config:\n\(Config.shared)")
 

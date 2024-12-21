@@ -293,7 +293,7 @@ public class SongDetailPage: DestroyablePage {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.theme.songDetail
+        let colorConfig = Theme.shared.songDetail
 
         self.plane.setColorPair(colorConfig.page)
         self.plane.blank()

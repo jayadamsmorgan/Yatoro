@@ -7,8 +7,7 @@ extension Config {
         var layout: UILayoutConfig
         var artwork: Artwork
 
-        var themeName: String
-        var theme: Theme
+        var theme: String
 
         public init() {
             self.margins = .init()
@@ -16,8 +15,7 @@ extension Config {
             self.frameDelay = 5_000_000
             self.artwork = .init()
 
-            self.themeName = "default"
-            self.theme = Theme.load(theme: themeName)
+            self.theme = "default"
         }
 
         public struct Margins {
@@ -37,14 +35,6 @@ extension Config {
 
 extension Config.UIConfig: Codable {
 
-    public enum CodingKeys: String, CodingKey {
-        case margins
-        case layout
-        case frameDelay
-        case artwork
-        case theme
-    }
-
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -57,10 +47,8 @@ extension Config.UIConfig: Codable {
         self.artwork =
             try container.decodeIfPresent(Artwork.self, forKey: .artwork) ?? .init()
 
-        self.themeName =
+        self.theme =
             try container.decodeIfPresent(String.self, forKey: .theme) ?? "default"
-
-        self.theme = Theme.load(theme: themeName)
     }
 
 }

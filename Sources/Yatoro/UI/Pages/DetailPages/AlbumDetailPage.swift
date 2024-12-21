@@ -301,7 +301,7 @@ public class AlbumDetailPage: DestroyablePage {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.theme.albumDetail
+        let colorConfig = Theme.shared.albumDetail
 
         self.plane.setColorPair(colorConfig.page)
         self.plane.blank()

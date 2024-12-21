@@ -18,8 +18,8 @@ public class CommandPage: Page {
     private var completionsPlane: Plane
     private var completionSelectedPlane: Plane
 
-    private var normalModeColorPair: Theme.ColorPair = Config.shared.ui.theme.commandLine.modeNormal
-    private var commandModeColorPair: Theme.ColorPair = Config.shared.ui.theme.commandLine.modeCommand
+    private var normalModeColorPair: Theme.ColorPair = Theme.shared.commandLine.modeNormal
+    private var commandModeColorPair: Theme.ColorPair = Theme.shared.commandLine.modeCommand
 
     private var state: PageState
 
@@ -252,7 +252,7 @@ public class CommandPage: Page {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.theme.commandLine
+        let colorConfig = Theme.shared.commandLine
         plane.setColorPair(colorConfig.page)
         inputPlane.setColorPair(colorConfig.input)
         nowPlayingArtistPlane.setColorPair(colorConfig.nowPlayingArtist)

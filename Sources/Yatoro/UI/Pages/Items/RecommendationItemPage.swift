@@ -202,7 +202,7 @@ public class RecommendationItemPage: DestroyablePage {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.theme.search.recommendationItem
+        let colorConfig = Theme.shared.search.recommendationItem
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)
         pageNamePlane.setColorPair(colorConfig.pageName)

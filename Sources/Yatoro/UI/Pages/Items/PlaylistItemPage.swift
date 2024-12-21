@@ -199,9 +199,9 @@ public class PlaylistItemPage: DestroyablePage {
         let colorConfig: Theme.PlaylistItem
         switch self.type {
         case .searchPage:
-            colorConfig = Config.shared.ui.theme.search.playlistItem
+            colorConfig = Theme.shared.search.playlistItem
         case .recommendationDetail:
-            colorConfig = Config.shared.ui.theme.recommendationDetail.playlistItem
+            colorConfig = Theme.shared.recommendationDetail.playlistItem
         }
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)

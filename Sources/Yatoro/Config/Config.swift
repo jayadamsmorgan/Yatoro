@@ -6,7 +6,6 @@ import Yams
 public struct Config {
 
     @MainActor public static var shared: Config = .init()
-    @MainActor public static var path = defaultConfigPath
 
     public var mappings: [Mapping]
     public var ui: UIConfig
@@ -24,60 +23,12 @@ public struct Config {
 
 public extension Config {
 
-    static let yatoroConfigFolder = FileManager.default
-        .homeDirectoryForCurrentUser
-        .appendingPathComponent(".config", isDirectory: true)
-        .appendingPathComponent("Yatoro", isDirectory: true)
-        .path
-
-    static let defaultConfigPath = yatoroConfigFolder + "/config.yaml"
-
-    @MainActor
-    static func load(logLevel: Logger.Level?) {
-        let fm = FileManager.default
-        let fileURL = URL(fileURLWithPath: path)
-        if !fm.fileExists(atPath: path) && path == defaultConfigPath {
-            do {
-                try fm.createDirectory(
-                    at: fileURL.deletingLastPathComponent(),
-                    withIntermediateDirectories: true
-                )
-            } catch {
-                return
-            }
-            FileManager.default.createFile(atPath: path, contents: nil)
-            return
-        }
-
-        do {
-            let yamlString = try String(contentsOf: fileURL, encoding: .utf8)
-            let decoder = YAMLDecoder()
-            let config = try decoder.decode(Config.self, from: yamlString)
-            Config.shared = config
-        } catch is DecodingError {
-            if let logLevel, logLevel <= .info {
-                print(
-                    "[INFO]: Failed to parse config: Config is either empty or incorrect."
-                )
-            }
-            return
-        } catch {
-            fatalError(error.localizedDescription)
-        }
-    }
-
-    @MainActor static internal func parseOptions(
+    @MainActor static internal func applyArgumentOptions(
         uiOptions: UIArgOptions,
         loggingOptions: LoggingArgOptions,
-        settingsOptions: SettingsArgOptions,
-        configPath: String
+        settingsOptions: SettingsArgOptions
     ) {
-        // Loading config from config path
-        path = configPath
-        load(logLevel: loggingOptions.logLevel)
         var config = Config.shared
-
-        // Then we overwrite it with command line arguments
 
         // Settings
         if settingsOptions.disableSigint {
@@ -124,6 +75,12 @@ public extension Config {
             config.ui.layout.rows = rows
         }
 
+        Config.shared = config
+    }
+
+    @MainActor static internal func processMappings() {
+        var config = Config.shared
+
         // Mappings processing
         var newMappings = Mapping.defaultMappings
         for var mapping in config.mappings {
@@ -159,6 +116,7 @@ public extension Config {
 
         Config.shared = config
     }
+
 }
 
 extension Config: Codable {

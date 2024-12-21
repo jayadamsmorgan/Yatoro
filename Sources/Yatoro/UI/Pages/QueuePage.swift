@@ -150,7 +150,7 @@ public class QueuePage: Page {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.theme.queue
+        let colorConfig = Theme.shared.queue
         plane.setColorPair(colorConfig.page)
         borderPlane.setColorPair(colorConfig.border)
         pageNamePlane.setColorPair(colorConfig.pageName)

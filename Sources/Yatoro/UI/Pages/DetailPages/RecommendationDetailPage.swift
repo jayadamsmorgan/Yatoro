@@ -277,7 +277,7 @@ public class RecommendationDetailPage: DestroyablePage {
     }
 
     public func updateColors() {
-        let colorConfig = Config.shared.ui.theme.recommendationDetail
+        let colorConfig = Theme.shared.recommendationDetail
 
         self.plane.setColorPair(colorConfig.page)
         self.plane.blank()

@@ -36,7 +36,7 @@ public struct Command: Sendable {
         .init(name: "stationFromCurrentEntry", short: "sce", action: .stationFromCurrentEntry),
         .init(name: "shuffleMode", short: "shuffle", action: .shuffleMode),
         .init(name: "repeatMode", short: "repeat", action: .repeatMode),
-        .init(name: "reloadConfig", short: "upd", action: .reloadConfig),
+        .init(name: "reloadTheme", short: "rld", action: .reloadTheme),
         .init(name: "open", short: "o", action: .open),
         .init(name: "close", short: "c", action: .close),
         .init(name: "closeAll", short: "ca", action: .closeAll),
@@ -107,8 +107,8 @@ public struct Command: Sendable {
 
         case .shuffleMode: await ShuffleModeCommand.execute(arguments: arguments)
 
-        case .reloadConfig:
-            Config.load(logLevel: logger?.logLevel)
+        case .reloadTheme:
+            ConfigurationParser.loadTheme()
             UIPageManager.configReload = true
 
         case .open: await OpenCommand.execute(arguments: arguments)
@@ -143,7 +143,7 @@ public enum CommandAction: String, Sendable, Codable {
     case stationFromCurrentEntry
     case repeatMode
     case shuffleMode
-    case reloadConfig
+    case reloadTheme
     case open
     case close
     case closeAll
