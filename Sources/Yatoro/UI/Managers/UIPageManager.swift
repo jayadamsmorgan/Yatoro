@@ -209,6 +209,15 @@ public struct UIPageManager {
             )
         )
     }
+
+    public func onQuit() async {
+        await forEachPage { page, _, _ in
+            if let page = page as? DestroyablePage {
+                await page.destroy()
+            }
+        }
+    }
+
     private func setMinimumRequiredDiminsions() async {
         // key: col, val: width
         var minWidthMap: [UInt32: UInt32] = [:]

@@ -127,7 +127,14 @@ public class InputQueue {
                     continue
                 }
 
+                // This is what happens in all terminals except for iTerm2
                 if input.utf8 == ":" && input.modifiers.isEmpty {
+                    UI.mode = .command
+                    continue
+                }
+
+                // This is what happens in iTerm2
+                if input.utf8 == ";" && input.modifiers == [.shift] {
                     UI.mode = .command
                     continue
                 }
