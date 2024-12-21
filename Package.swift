@@ -13,6 +13,7 @@ let package = Package(
         ),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.6.1"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.1.3"),
+        .package(url: "https://github.com/LebJe/TOMLKit.git", from: "0.6.0"),
         .package(url: "https://github.com/elegantchaos/Versionator.git", from: "2.0.6"),
     ],
     targets: [
@@ -37,6 +38,7 @@ let package = Package(
                 ),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Yams", package: "Yams"),
+                .product(name: "TOMLKit", package: "TOMLKit"),
                 "SwiftNotCurses",
             ],
             path: "Sources/Yatoro",
