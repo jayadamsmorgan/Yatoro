@@ -201,9 +201,6 @@ extension Config {
         settings:
           disableSigInt: false
 
-        logging:
-          logLevel: info
-
         mappings:
           - key: SPACE
             modifiers:
