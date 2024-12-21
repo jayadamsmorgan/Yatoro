@@ -1,8 +1,14 @@
 # Configuration
 
-Yatoro supports deep configuration through the configuration file which should be located in `~/.config/Yatoro`
+Yatoro supports deep configuration through the configuration file.
+
+If `XDG_CONFIG_HOME` environment is set, the configuration folder would be `$XDG_CONFIG_HOME/Yatoro`.
+Otherwise, `~/.config/Yatoro` will be used instead.
 
 If the directory doesn't exist, Yatoro will create it on startup.
+
+If config file doesn't exist, Yatoro will create it as well.
+So you can check the default config for the reference once it's created.
 
 Yatoro supports JSON, YAML and TOML for configuration. So the configuration file could be one of the following:
 - `config.json`
@@ -10,8 +16,6 @@ Yatoro supports JSON, YAML and TOML for configuration. So the configuration file
 - `config.toml`
 
 Alternatively, the path to config file could be provided with `-c` or `--config` argument.
-
-Check [example config](example_config.yaml) for the reference
 
 ## ui
 

@@ -18,7 +18,7 @@ Here are the available commands for the command mode and their description:
 | `playPauseToggle`         | `pp`      | Play/pause toggle                                             |
 | `playPrevious`            | `b`       | Play previous song                                            |
 | `quitApplication`         | `q`       | Quit Yatoro application                                       |
-| `reloadConfig`            | `rel`     | Reload Yatoro configuration                                   |
+| `reloadTheme`             | `rld`     | Reload theme                                         |
 | `repeatMode`              | `repeat`  | [See repeatMode](#repeatMode)                                 |
 | `restartSong`             | `r`       | Restart song                                                  |
 | `search`                  | `/`       | [See search](#search)                                         |

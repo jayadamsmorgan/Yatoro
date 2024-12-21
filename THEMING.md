@@ -4,7 +4,7 @@ Themes should be located in `"~/.config/Yatoro/themes"` directory.
 
 If this directory doesn't exist Yatoro will create it on startup and put the default one in there.
 
-So you can check the default config for the reference once it's created.
+So you can check the default theming config for the reference once it's created.
 
 ## Color
 
