@@ -75,7 +75,7 @@ public class UI {
         }
         setupSigintHandler {
             if !config.settings.disableSigInt {
-                self.stop()
+                await self.stop()
             }
         }
 
@@ -104,7 +104,7 @@ public class UI {
             try! await Task.sleep(nanoseconds: frameDelay)
         }
 
-        stop()
+        await stop()
     }
 
     func handleResize() async {
@@ -129,12 +129,23 @@ public class UI {
         guard let input = Input(notcurses: notcurses) else {
             return
         }
+        // Only happens in iTerm2
+        // Every other terminal just sends "unknown" instead
+        // So this is actually how it is supposed to work
+        guard input.eventType != .release else {
+            return
+        }
         logger?.trace("New input: \(input)")
         inputQueue.add(input)
     }
 
-    public func stop() {
+    public func stop() async {
+        await pageManager.onQuit()
         logger?.info("Stopping Yatoro...")
+
+        // Fix for artwork not getting destroyed in iTerm2
+        UI.notcurses?.render()
+
         UI.notcurses?.stop()
         logger?.debug("Notcurses stopped.")
         logger?.info("Yatoro stopped.\n")

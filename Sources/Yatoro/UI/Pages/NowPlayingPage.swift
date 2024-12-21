@@ -4,7 +4,7 @@ import MusicKit
 import SwiftNotCurses
 
 @MainActor
-public class NowPlayingPage: Page {
+public class NowPlayingPage: DestroyablePage {
 
     private let player: Player = Player.shared
 
@@ -539,6 +539,49 @@ public class NowPlayingPage: Page {
 
         updateSongDesc()
 
+    }
+
+    public func destroy() async {
+
+        self.plane.erase()
+        self.plane.destroy()
+
+        self.borderPlane.erase()
+        self.borderPlane.destroy()
+
+        self.sliderPlane.erase()
+        self.sliderPlane.destroy()
+
+        self.controlsPlane.erase()
+        self.controlsPlane.destroy()
+
+        self.durationPlane.erase()
+        self.durationPlane.destroy()
+
+        self.songLeftPlane.erase()
+        self.songLeftPlane.destroy()
+
+        self.songRightPlane.erase()
+        self.songRightPlane.destroy()
+
+        self.albumLeftPlane.erase()
+        self.albumLeftPlane.destroy()
+
+        self.albumRightPlane.erase()
+        self.albumRightPlane.destroy()
+
+        self.artistLeftPlane.erase()
+        self.artistLeftPlane.destroy()
+
+        self.artistRightPlane.erase()
+        self.artistRightPlane.destroy()
+
+        self.currentTimePlane.erase()
+        self.currentTimePlane.destroy()
+
+        self.artworkPlane?.erase()
+        self.artworkPlane?.destroy()
+        self.artworkVisual?.destroy()
     }
 
 }

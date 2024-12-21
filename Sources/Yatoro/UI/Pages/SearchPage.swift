@@ -3,7 +3,7 @@ import MusicKit
 import SwiftNotCurses
 
 @MainActor
-public class SearchPage: Page {
+public class SearchPage: DestroyablePage {
 
     private let stdPlane: Plane
 
@@ -592,6 +592,30 @@ public class SearchPage: Page {
             )
         else { return }
         self.searchCache.append(item)
+    }
+
+    public func destroy() async {
+        self.plane.erase()
+        self.plane.destroy()
+
+        self.borderPlane.erase()
+        self.borderPlane.destroy()
+
+        self.itemIndicesPlane.erase()
+        self.itemIndicesPlane.destroy()
+
+        self.pageNamePlane.erase()
+        self.pageNamePlane.destroy()
+
+        for case let page as DestroyablePage in searchCache {
+            await page.destroy()
+        }
+
+        var queue = SearchPage.searchPageQueue
+        while queue != nil {
+            await queue?.page?.destroy()
+            queue = queue?.previous
+        }
     }
 
 }
