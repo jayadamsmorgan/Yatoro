@@ -6,10 +6,14 @@ extension Config {
         var disableResize: Bool
         var searchItemLimit: UInt32
 
+        var disableITermWorkaround: Bool
+
         public init() {
             self.disableSigInt = false
             self.disableResize = false
             self.searchItemLimit = 10
+
+            self.disableITermWorkaround = false
         }
 
     }
@@ -26,6 +30,9 @@ extension Config.Settings: Codable {
             try container.decodeIfPresent(Bool.self, forKey: .disableResize) ?? false
         self.searchItemLimit =
             try container.decodeIfPresent(UInt32.self, forKey: .searchItemLimit) ?? 10
+
+        self.disableITermWorkaround =
+            try container.decodeIfPresent(Bool.self, forKey: .disableITermWorkaround) ?? false
     }
 
 }

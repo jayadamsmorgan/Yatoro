@@ -146,6 +146,16 @@ public class UI {
         // Fix for artwork not getting destroyed in iTerm2
         UI.notcurses?.render()
 
+        // Workaround for iTerm2 not recovering state after quitting Yatoro
+        if let termProg = ProcessInfo.processInfo.environment["TERM_PROGRAM"],
+            termProg == "iTerm.app"
+        {
+            if !Config.shared.settings.disableITermWorkaround {
+                let sequence = "\u{1B}[=0u"
+                FileHandle.standardOutput.write(sequence.data(using: .utf8)!)
+            }
+        }
+
         UI.notcurses?.stop()
         logger?.debug("Notcurses stopped.")
         logger?.info("Yatoro stopped.\n")
