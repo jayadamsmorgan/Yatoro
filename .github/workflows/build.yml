@@ -1,0 +1,74 @@
+name: Build macOS (x86 and ARM64)
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    name: Build for ${{ matrix.arch }}
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runsOn: macos-latest-large
+
+          - arch: arm64
+            runsOn: macos-latest
+
+    runs-on: ${{ matrix.runsOn }}
+    
+    env:
+      SWIFT_PATH: /Library/Developer/Toolchains/swift-6.0.3-RELEASE.xctoolchain/usr/bin
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Apple certificate
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERT_DATA }}
+          P12_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
+        run: |
+          # create certificate file from base64 secret
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+      - name: Install Swift
+        run: |
+          curl -O https://download.swift.org/swift-6.0.3-release/xcode/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE-osx.pkg
+          sudo installer -pkg swift-6.0.3-RELEASE-osx.pkg -target /
+          $SWIFT_PATH/swift --version
+
+      - name: Install dependencies
+        run: brew install notcurses
+
+      - name: Build
+        run: $SWIFT_PATH/swift build -c release
+
+      - name: Sign & Notarize binary
+        run: |
+          cp .build/release/yatoro .
+          codesign --sign "German Berdnikov (U537EV56Z3)" -o runtime --timestamp yatoro
+          zip yatoro.zip yatoro
+          xcrun notarytool submit yatoro.zip --apple-id $APPLE_NOTARY_USER --team-id U537EV56Z3 --password $APPLE_NOTARY_PASSWORD --wait
+        env:
+          APPLE_NOTARY_USER: ${{ secrets.APPLE_NOTARY_USER }}
+          APPLE_NOTARY_PASSWORD: ${{ secrets.APPLE_NOTARY_PASSWORD }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.arch }}-build
+          path: yatoro.zip
