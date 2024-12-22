@@ -19,6 +19,9 @@ jobs:
             runsOn: macos-latest
 
     runs-on: ${{ matrix.runsOn }}
+    
+    env:
+      SWIFT_PATH: /Library/Developer/Toolchains/swift-6.0.3-RELEASE.xctoolchain/usr/bin
 
     steps:
       - name: Check out
@@ -28,14 +31,13 @@ jobs:
         run: |
           curl -O https://download.swift.org/swift-6.0.3-release/xcode/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE-osx.pkg
           sudo installer -pkg swift-6.0.3-RELEASE-osx.pkg -target /
-          export SWIFT_PATH="/Library/Developer/Toolchains/swift-6.0.3-RELEASE.xctoolchain/usr/bin"
-          ${{ SWIFT_PATH }}/swift --version
+          $SWIFT_PATH/swift --version
 
       - name: Install dependencies (notcurses)
         run: brew install notcurses
 
       - name: Build (Swift release mode)
-        run: ${{ SWIFT_PATH }}/swift build -c release
+        run: $SWIFT_PATH/swift build -c release
 
       - name: Code sign
         run: |
