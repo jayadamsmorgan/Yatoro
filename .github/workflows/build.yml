@@ -13,7 +13,7 @@ jobs:
       matrix:
         include:
           - arch: x86_64
-            runsOn: macos-latest
+            runsOn: macos-latest-large
 
           - arch: arm64
             runsOn: macos-latest
