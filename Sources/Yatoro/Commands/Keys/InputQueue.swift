@@ -10,6 +10,8 @@ public class InputQueue {
 
     public var mappings: [Mapping] = []
 
+    private var mappingPlaying: Int = 0
+
     private let queue: BlockingQueue<Input> = .init()
 
     private var commandHistoryActive: Bool {
@@ -36,6 +38,10 @@ public class InputQueue {
             while (true) {
                 let input = await self.queue.dequeue()
 
+                if mappingPlaying > 0 {
+                    mappingPlaying -= 1
+                }
+
                 guard UI.mode == .normal else {
                     // CMD mode
                     await CommandInput.shared.setLastCommandOutput("")
@@ -57,7 +63,9 @@ public class InputQueue {
                             break
                         }
 
-                        fullCommandHistory.append(commandString)
+                        if mappingPlaying == 0 {
+                            fullCommandHistory.append(commandString)
+                        }
                         clearCurrentHistory()
 
                         UI.mode = .normal
@@ -119,7 +127,14 @@ public class InputQueue {
                     continue
                 }
 
+                // This is what happens in all terminals except for iTerm2
                 if input.utf8 == ":" && input.modifiers.isEmpty {
+                    UI.mode = .command
+                    continue
+                }
+
+                // This is what happens in iTerm2
+                if input.utf8 == ";" && input.modifiers == [.shift] {
                     UI.mode = .command
                     continue
                 }
@@ -162,15 +177,18 @@ public class InputQueue {
                         for char in string {
                             let input = Input(utf8: String(char))
                             add(input)
+                            mappingPlaying += 1
                         }
                     case .special(let char):
                         if let input = parseToken(char) {
                             add(input)
+                            mappingPlaying += 1
                         } else {
                             logger?.error("InputQueue: Unable to parse token \(char)")
                         }
                     }
                 }
+                mappingPlaying += 1
 
             }
         }
@@ -248,9 +266,13 @@ public class InputQueue {
         completionCommands.removeAll(where: { !$0.hasPrefix(command) || $0.isEmpty })
         completionCommands.sort()
         if !completionCommands.isEmpty {
-            self.currentCompletionCommandIndex = 0
             await CommandInput.shared.clear()
             await CommandInput.shared.add(completionCommands.first!)
+            if completionCommands.count == 1 {
+                closeCompletionCommands()
+            } else {
+                self.currentCompletionCommandIndex = 0
+            }
         }
     }
 

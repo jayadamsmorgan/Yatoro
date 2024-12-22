@@ -5,6 +5,8 @@ public protocol Page {
 
     func render() async
 
+    func updateColors()
+
     func onResize(newPageState: PageState) async
 
     func getPageState() async -> PageState

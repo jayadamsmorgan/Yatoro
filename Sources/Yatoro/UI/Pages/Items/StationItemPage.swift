@@ -20,12 +20,20 @@ public class StationItemPage: DestroyablePage {
 
     public func getItem() async -> Station { item }
 
+    public enum StationItemPageType {
+        case searchPage
+        case recommendationDetail
+    }
+
+    private let type: StationItemPageType
+
     public init?(
         in plane: Plane,
         state: PageState,
-        colorConfig: Config.UIConfig.Colors.StationItem,
-        item: Station
+        item: Station,
+        type: StationItemPageType
     ) {
+        self.type = type
         self.state = state
         guard
             let pagePlane = Plane(
@@ -39,9 +47,8 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        pagePlane.backgroundColor = colorConfig.page.background
-        pagePlane.foregroundColor = colorConfig.page.foreground
         self.plane = pagePlane
+        self.plane.moveAbove(other: plane)
 
         guard
             let borderPlane = Plane(
@@ -57,10 +64,8 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
+        self.borderPlane.moveAbove(other: self.plane)
 
         guard
             let pageNamePlane = Plane(
@@ -76,10 +81,8 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
-        pageNamePlane.putString("Station", at: (0, 0))
         self.pageNamePlane = pageNamePlane
+        self.pageNamePlane.moveAbove(other: self.borderPlane)
 
         guard
             let stationLeftPlane = Plane(
@@ -95,10 +98,8 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        stationLeftPlane.backgroundColor = colorConfig.stationLeft.background
-        stationLeftPlane.foregroundColor = colorConfig.stationLeft.foreground
-        stationLeftPlane.putString("Station:", at: (0, 0))
         self.stationLeftPlane = stationLeftPlane
+        self.stationLeftPlane.moveAbove(other: self.pageNamePlane)
 
         let stationRightWidth = min(UInt32(item.name.count), state.width - 12)
         guard
@@ -115,10 +116,8 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        stationRightPlane.backgroundColor = colorConfig.stationRight.background
-        stationRightPlane.foregroundColor = colorConfig.stationRight.foreground
-        stationRightPlane.putString(item.name, at: (0, 0))
         self.stationRightPlane = stationRightPlane
+        self.stationRightPlane.moveAbove(other: self.stationLeftPlane)
 
         guard
             let notesLeftPlane = Plane(
@@ -134,10 +133,8 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        notesLeftPlane.backgroundColor = colorConfig.notesLeft.background
-        notesLeftPlane.foregroundColor = colorConfig.notesLeft.foreground
-        notesLeftPlane.putString("Notes:", at: (0, 0))
         self.notesLeftPlane = notesLeftPlane
+        self.notesLeftPlane.moveAbove(other: self.stationRightPlane)
 
         var notesRightWidth = min(UInt32(item.editorialNotes?.standard?.count ?? 1), state.width - 10)
         if notesRightWidth == 0 { notesRightWidth = 1 }
@@ -155,10 +152,8 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        notesRightPlane.backgroundColor = colorConfig.notesRight.background
-        notesRightPlane.foregroundColor = colorConfig.notesRight.foreground
-        notesRightPlane.putString(item.editorialNotes?.standard ?? "", at: (0, 0))
         self.notesRightPlane = notesRightPlane
+        self.notesRightPlane.moveAbove(other: self.notesLeftPlane)
 
         guard
             let isLiveLeftPlane = Plane(
@@ -174,10 +169,8 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        isLiveLeftPlane.backgroundColor = colorConfig.isLiveLeft.background
-        isLiveLeftPlane.foregroundColor = colorConfig.isLiveLeft.foreground
-        isLiveLeftPlane.putString("IsLive:", at: (0, 0))
         self.isLiveLeftPlane = isLiveLeftPlane
+        self.isLiveLeftPlane.moveAbove(other: self.notesRightPlane)
 
         let isLiveRightWidth = min(UInt32("\(item.isLive)".count), state.width - 11)
         guard
@@ -194,12 +187,41 @@ public class StationItemPage: DestroyablePage {
         else {
             return nil
         }
-        isLiveRightPlane.backgroundColor = colorConfig.isLiveRight.background
-        isLiveRightPlane.foregroundColor = colorConfig.isLiveRight.foreground
-        isLiveRightPlane.putString("\(item.isLive)", at: (0, 0))
         self.isLiveRightPlane = isLiveRightPlane
+        self.isLiveRightPlane.moveAbove(other: self.isLiveLeftPlane)
 
         self.item = item
+
+        updateColors()
+    }
+
+    public func updateColors() {
+        let colorConfig: Theme.StationItem
+        switch self.type {
+        case .searchPage:
+            colorConfig = Theme.shared.search.stationItem
+        case .recommendationDetail:
+            colorConfig = Theme.shared.recommendationDetail.stationItem
+        }
+        plane.setColorPair(colorConfig.page)
+        borderPlane.setColorPair(colorConfig.border)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        stationLeftPlane.setColorPair(colorConfig.stationLeft)
+        stationRightPlane.setColorPair(colorConfig.stationRight)
+        notesLeftPlane.setColorPair(colorConfig.notesLeft)
+        notesRightPlane.setColorPair(colorConfig.notesRight)
+        isLiveLeftPlane.setColorPair(colorConfig.isLiveLeft)
+        isLiveRightPlane.setColorPair(colorConfig.isLiveRight)
+
+        plane.blank()
+        borderPlane.windowBorder(width: state.width, height: state.height)
+        pageNamePlane.putString("Station", at: (0, 0))
+        stationLeftPlane.putString("Station:", at: (0, 0))
+        stationRightPlane.putString(item.name, at: (0, 0))
+        notesLeftPlane.putString("Notes:", at: (0, 0))
+        notesRightPlane.putString(item.editorialNotes?.standard ?? "", at: (0, 0))
+        isLiveLeftPlane.putString("IsLive:", at: (0, 0))
+        isLiveRightPlane.putString("\(item.isLive)", at: (0, 0))
     }
 
     public func destroy() async {

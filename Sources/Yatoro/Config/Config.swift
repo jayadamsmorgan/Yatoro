@@ -5,72 +5,41 @@ import Yams
 
 public struct Config {
 
+    @MainActor public static var shared: Config = .init()
+
     public var mappings: [Mapping]
     public var ui: UIConfig
     public var logging: LoggingConfig
+    public var settings: Settings
 
     public init() {
         self.mappings = []
         self.ui = .init()
         self.logging = .init()
+        self.settings = .init()
     }
 
 }
 
 public extension Config {
 
-    static let defaultConfigPath = FileManager.default
-        .homeDirectoryForCurrentUser
-        .appendingPathComponent(".config", isDirectory: true)
-        .appendingPathComponent("Yatoro", isDirectory: true)
-        .appendingPathComponent("config.yaml")
-        .path
-
-    static func load(from path: String, logLevel: Logger.Level?) -> Config {
-        let fm = FileManager.default
-        let fileURL = URL(fileURLWithPath: path)
-        if !fm.fileExists(atPath: path) && path == defaultConfigPath {
-            do {
-                try fm.createDirectory(
-                    at: fileURL.deletingLastPathComponent(),
-                    withIntermediateDirectories: true
-                )
-            } catch {
-                return .init()
-            }
-            FileManager.default.createFile(atPath: path, contents: nil)
-            return .init()
-        }
-
-        do {
-            let yamlString = try String(contentsOf: fileURL, encoding: .utf8)
-            let decoder = YAMLDecoder()
-            let config = try decoder.decode(Config.self, from: yamlString)
-            return config
-        } catch is DecodingError {
-            if let logLevel, logLevel <= .info {
-                print(
-                    "[INFO]: Failed to parse config: Config is either empty or incorrect."
-                )
-            }
-            return .init()
-        } catch {
-            fatalError(error.localizedDescription)
-        }
-    }
-
-    @MainActor static internal func parseOptions(
+    @MainActor static internal func applyArgumentOptions(
         uiOptions: UIArgOptions,
         loggingOptions: LoggingArgOptions,
-        configPath: String
-    )
-        -> Config
-    {
-        // Loading config from config path
-        var config = load(from: configPath, logLevel: loggingOptions.logLevel)
+        settingsOptions: SettingsArgOptions
+    ) {
+        var config = Config.shared
 
-        // Then we overwrite it with command line arguments
-
+        // Settings
+        if settingsOptions.disableSigint {
+            config.settings.disableSigInt = true
+        }
+        if settingsOptions.disableResize {
+            config.settings.disableResize = true
+        }
+        if let searchItemLimit = settingsOptions.searchItemLimit {
+            config.settings.searchItemLimit = searchItemLimit
+        }
         // Logging
         if let logLevel = loggingOptions.logLevel {
             config.logging.logLevel = logLevel
@@ -106,6 +75,12 @@ public extension Config {
             config.ui.layout.rows = rows
         }
 
+        Config.shared = config
+    }
+
+    @MainActor static internal func processMappings() {
+        var config = Config.shared
+
         // Mappings processing
         var newMappings = Mapping.defaultMappings
         for var mapping in config.mappings {
@@ -139,17 +114,12 @@ public extension Config {
 
         config.mappings = newMappings
 
-        return config
+        Config.shared = config
     }
+
 }
 
 extension Config: Codable {
-
-    enum CodingKeys: String, CodingKey {
-        case mappings
-        case ui
-        case logging
-    }
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -160,13 +130,8 @@ extension Config: Codable {
             try container.decodeIfPresent(UIConfig.self, forKey: .ui) ?? .init()
         self.logging =
             try container.decodeIfPresent(LoggingConfig.self, forKey: .logging) ?? .init()
-    }
-
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.ui, forKey: .ui)
-        try container.encode(self.logging, forKey: .logging)
-        try container.encode(self.mappings, forKey: .mappings)
+        self.settings =
+            try container.decodeIfPresent(Settings.self, forKey: .settings) ?? .init()
     }
 
 }

@@ -38,12 +38,17 @@ struct SearchCommand: AsyncParsableCommand {
             for part in command.searchPhrase {
                 searchPhrase.append("\(part) ")
             }
-            searchPhrase.removeLast()
+            if searchPhrase.count > 0 {
+                searchPhrase.removeLast()
+            }
+            let limit = Config.shared.settings.searchItemLimit
             Task {
                 await SearchManager.shared.newSearch(
                     for: searchPhrase,
                     itemType: command.type,
-                    in: command.from ?? .catalogSearch
+                    in: command.from ?? .catalogSearch,
+                    inPlace: true,
+                    limit: limit
                 )
             }
         } catch {

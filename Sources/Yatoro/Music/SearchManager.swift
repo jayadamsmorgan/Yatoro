@@ -35,51 +35,114 @@ public enum SearchType: Hashable, CaseIterable, Sendable {
     case librarySearch
 }
 
+public struct SongDescriptionResult {
+    public let song: Song
+    public let artists: MusicItemCollection<Artist>?  // Prefix "w"
+    public let album: Album?  // Prefix "a"
+}
+
+public struct ArtistDescriptionResult {
+    public let artist: Artist
+    public let topSongs: MusicItemCollection<Song>?  // Prefix "t"
+    public let lastAlbums: MusicItemCollection<Album>?  // Prefix "a"
+}
+
+public struct PlaylistDescriptionResult {
+    public let playlist: Playlist
+    public let songs: MusicItemCollection<Song>  // No prefix
+}
+
+public struct AlbumDescriptionResult {
+    public let album: Album
+    public let songs: MusicItemCollection<Song>  // Prefix "s"
+    public let artists: MusicItemCollection<Artist>?  // Prefix "w"
+}
+
+public struct RecommendationDescriptionResult {
+    public let recommendation: MusicPersonalRecommendation
+
+    public let albums: MusicItemCollection<Album>?  // Prefix "a"
+    public let stations: MusicItemCollection<Station>?  // Prefix "s"
+    public let playlists: MusicItemCollection<Playlist>?  // Prefix "p"
+}
+
+public enum OpenedResult {
+    case songDescription(SongDescriptionResult)
+    case albumDescription(AlbumDescriptionResult)
+    case artistDescription(ArtistDescriptionResult)
+    case playlistDescription(PlaylistDescriptionResult)
+    case recommendationDescription(RecommendationDescriptionResult)
+    case searchResult(SearchResult)
+}
+
+public class ResultNode {
+
+    public var previous: ResultNode?
+    public var result: OpenedResult
+    public var inPlace: Bool
+
+    public init(previous: ResultNode? = nil, _ result: OpenedResult, inPlace: Bool = true) {
+        self.previous = previous
+        self.result = result
+        self.inPlace = inPlace
+    }
+}
+
 public class SearchManager: @unchecked Sendable {
 
     public static let shared: SearchManager = .init()
 
-    public var lastSearchResult: SearchResult?
+    public var lastSearchResult: ResultNode?
 
     private init() {}
 
-    public func newSearch(for phrase: String? = nil, itemType: MusicItemType, in searchType: SearchType) async {
+    public func newSearch(
+        for phrase: String? = nil,
+        itemType: MusicItemType,
+        in searchType: SearchType,
+        inPlace: Bool,
+        limit: UInt32
+    )
+        async
+    {
         var result: (any AnyMusicItemCollection)?
+
+        let limit = Int(limit)
 
         switch searchType {
 
         case .recentlyPlayed:
-            result = await getRecentlyPlayed() as MusicItemCollection<RecentlyPlayedMusicItem>?
+            result = await getRecentlyPlayed(limit: limit) as MusicItemCollection<RecentlyPlayedMusicItem>?
 
         case .recommended:
-            result = await getUserRecommendedBatch()
+            result = await getUserRecommendedBatch(limit: limit)
 
         case .catalogSearch:
             guard let phrase else { return }
             switch itemType {
             case .song:
-                result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Song>?
+                result = await searchCatalogBatch(for: phrase, limit: limit) as MusicItemCollection<Song>?
             case .album:
-                result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Album>?
+                result = await searchCatalogBatch(for: phrase, limit: limit) as MusicItemCollection<Album>?
             case .artist:
-                result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Artist>?
+                result = await searchCatalogBatch(for: phrase, limit: limit) as MusicItemCollection<Artist>?
             case .playlist:
-                result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Playlist>?
+                result = await searchCatalogBatch(for: phrase, limit: limit) as MusicItemCollection<Playlist>?
             case .station:
-                result = await searchCatalogBatch(for: phrase) as MusicItemCollection<Station>?
+                result = await searchCatalogBatch(for: phrase, limit: limit) as MusicItemCollection<Station>?
             }
 
         case .librarySearch:
             guard let phrase else { return }
             switch itemType {
             case .song:
-                result = await searchUserLibraryBatch(for: phrase) as MusicItemCollection<Song>?
+                result = await searchUserLibraryBatch(for: phrase, limit: limit) as MusicItemCollection<Song>?
             case .album:
-                result = await searchUserLibraryBatch(for: phrase) as MusicItemCollection<Album>?
+                result = await searchUserLibraryBatch(for: phrase, limit: limit) as MusicItemCollection<Album>?
             case .artist:
-                result = await searchUserLibraryBatch(for: phrase) as MusicItemCollection<Artist>?
+                result = await searchUserLibraryBatch(for: phrase, limit: limit) as MusicItemCollection<Artist>?
             case .playlist:
-                result = await searchUserLibraryBatch(for: phrase) as MusicItemCollection<Playlist>?
+                result = await searchUserLibraryBatch(for: phrase, limit: limit) as MusicItemCollection<Playlist>?
             case .station: break  // Should be handled in commands since station is not MusicLibraryRequestable
             }
 
@@ -96,7 +159,7 @@ public class SearchManager: @unchecked Sendable {
             searchPhrase: phrase,
             result: result
         )
-        lastSearchResult = searchResult
+        self.lastSearchResult = ResultNode(previous: lastSearchResult, .searchResult(searchResult), inPlace: inPlace)
     }
 
 }
@@ -105,7 +168,7 @@ public class SearchManager: @unchecked Sendable {
 public extension SearchManager {
 
     func getRecentlyPlayed<T>(
-        limit: Int = 10
+        limit: Int
     ) async
         -> MusicItemCollection<T>?
     where T: Decodable, T: MusicRecentlyPlayedRequestable {
@@ -127,7 +190,7 @@ public extension SearchManager {
     }
 
     func getRecentlyPlayedContainer(
-        limit: Int = 10
+        limit: Int
     ) async
         -> MusicItemCollection<RecentlyPlayedMusicItem>?
     {
@@ -151,7 +214,7 @@ public extension SearchManager {
     }
 
     func getUserRecommendedBatch(
-        limit: Int = 10
+        limit: Int
     ) async
         -> MusicItemCollection<MusicPersonalRecommendation>?
     {
@@ -173,7 +236,7 @@ public extension SearchManager {
     }
 
     func getUserLibraryBatch<T>(
-        limit: Int = 10,
+        limit: Int,
         onlyOfflineContent: Bool = false
     ) async
         -> MusicItemCollection<T>?
@@ -198,7 +261,7 @@ public extension SearchManager {
 
     func searchCatalogBatch<T>(
         for term: String,
-        limit: Int = 10
+        limit: Int
     ) async
         -> MusicItemCollection<T>?
     where T: MusicCatalogSearchable {
@@ -265,7 +328,7 @@ public extension SearchManager {
 
     func searchUserLibraryBatch<T>(
         for term: String,
-        limit: Int = 10
+        limit: Int
     ) async
         -> MusicItemCollection<T>?
     where T: MusicLibrarySearchable {
@@ -321,7 +384,7 @@ public extension SearchManager {
     }
 
     func getAllCatalogCharts(
-        limit: Int = 10
+        limit: Int
     ) async
         -> MusicCatalogChartsResponse?
     {
@@ -343,7 +406,7 @@ public extension SearchManager {
     }
 
     func getSpecificCatalogCharts<T>(
-        limit: Int = 10
+        limit: Int
     ) async
         -> [MusicCatalogChart<T>]? where T: MusicCatalogChartRequestable
     {
@@ -385,7 +448,7 @@ public extension SearchManager {
 
     func nextMusicItemsBatch<T>(
         for previousBatch: MusicItemCollection<T>,
-        limit: Int = 10
+        limit: Int
     ) async
         -> MusicItemCollection<T>?
     {
@@ -413,7 +476,7 @@ public extension SearchManager {
 
     func getUserLibrarySectioned<T, V>(
         for term: String? = nil,
-        limit: Int = 10,
+        limit: Int,
         onlyOfflineContent: Bool = false
     ) async
         -> MusicLibrarySectionedResponse<T, V>?

@@ -3,6 +3,8 @@ import SwiftNotCurses
 @MainActor
 public struct UIPageManager {
 
+    static var configReload: Bool = false
+
     var layoutRows: UInt32  // From left to right
     var layoutColumns: UInt32  // From top to bottom
 
@@ -42,7 +44,6 @@ public struct UIPageManager {
                     guard
                         let nowPlayingPage = NowPlayingPage(
                             stdPlane: stdPlane,
-                            uiConfig: uiConfig,
                             state: PageState(
                                 absX: 0,
                                 absY: 0,
@@ -65,8 +66,7 @@ public struct UIPageManager {
                                 absY: 13,
                                 width: 28,
                                 height: 13
-                            ),
-                            colorConfig: uiConfig.colors.queue
+                            )
                         )
                     else {
                         logger?.critical("Failed to initiate Queue Page.")
@@ -83,8 +83,7 @@ public struct UIPageManager {
                                 absY: 0,
                                 width: 28,
                                 height: 13
-                            ),
-                            colorConfig: uiConfig.colors.search
+                            )
                         )
                     else {
                         logger?.critical("Failed to initiate Search Page.")
@@ -96,10 +95,7 @@ public struct UIPageManager {
             }
         }
         guard
-            let commandPage = CommandPage(
-                stdPlane: stdPlane,
-                colorConfig: uiConfig.colors.commandLine
-            )
+            let commandPage = CommandPage(stdPlane: stdPlane)
         else {
             fatalError("Failed to initiate Command Page.")
         }
@@ -133,6 +129,12 @@ public struct UIPageManager {
     }
 
     public func renderPages() async {
+        if UIPageManager.configReload {
+            await forEachPage { page, _, _ in
+                page.updateColors()
+            }
+            UIPageManager.configReload = false
+        }
         if windowTooSmallPage.windowTooSmall() {
             await windowTooSmallPage.render()
             return
@@ -207,6 +209,15 @@ public struct UIPageManager {
             )
         )
     }
+
+    public func onQuit() async {
+        await forEachPage { page, _, _ in
+            if let page = page as? DestroyablePage {
+                await page.destroy()
+            }
+        }
+    }
+
     private func setMinimumRequiredDiminsions() async {
         // key: col, val: width
         var minWidthMap: [UInt32: UInt32] = [:]

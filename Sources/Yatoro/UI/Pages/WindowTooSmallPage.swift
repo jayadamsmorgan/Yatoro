@@ -4,6 +4,10 @@ import SwiftNotCurses
 @MainActor
 public class WindowTooSmallPage: Page {
 
+    public func updateColors() {
+
+    }
+
     private let plane: Plane
 
     private var state: PageState

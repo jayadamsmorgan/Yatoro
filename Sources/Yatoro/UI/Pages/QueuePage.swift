@@ -17,8 +17,6 @@ public class QueuePage: Page {
     private var currentQueue: ApplicationMusicPlayer.Queue.Entries?
     private var cache: [Page]
 
-    private let colorConfig: Config.UIConfig.Colors.Queue
-
     private var maxItemsDisplayed: Int {
         (Int(self.state.height) - 7) / 5
     }
@@ -59,7 +57,10 @@ public class QueuePage: Page {
 
     public func getMinDimensions() async -> (width: UInt32, height: UInt32) { (23, 17) }
 
-    public init?(stdPlane: Plane, state: PageState, colorConfig: Config.UIConfig.Colors.Queue) {
+    public init?(
+        stdPlane: Plane,
+        state: PageState
+    ) {
         self.state = state
         guard
             let plane = Plane(
@@ -76,9 +77,6 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        plane.backgroundColor = colorConfig.page.background
-        plane.foregroundColor = colorConfig.page.foreground
-        plane.blank()
         self.plane = plane
 
         guard
@@ -95,9 +93,6 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
 
         guard
@@ -114,9 +109,6 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
-        pageNamePlane.putString("Player Queue", at: (0, 0))
         self.pageNamePlane = pageNamePlane
 
         guard
@@ -133,8 +125,6 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        shufflePlane.backgroundColor = colorConfig.shuffleMode.background
-        shufflePlane.foregroundColor = colorConfig.shuffleMode.foreground
         self.shufflePlane = shufflePlane
 
         guard
@@ -151,13 +141,29 @@ public class QueuePage: Page {
         else {
             return nil
         }
-        repeatPlane.backgroundColor = colorConfig.repeatMode.background
-        repeatPlane.foregroundColor = colorConfig.repeatMode.foreground
         self.repeatPlane = repeatPlane
 
         self.cache = []
         self.currentQueue = nil
-        self.colorConfig = colorConfig
+
+        updateColors()
+    }
+
+    public func updateColors() {
+        let colorConfig = Theme.shared.queue
+        plane.setColorPair(colorConfig.page)
+        borderPlane.setColorPair(colorConfig.border)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        shufflePlane.setColorPair(colorConfig.shuffleMode)
+        repeatPlane.setColorPair(colorConfig.repeatMode)
+
+        plane.blank()
+        borderPlane.windowBorder(width: state.width, height: state.height)
+        pageNamePlane.putString("Player Queue", at: (0, 0))
+
+        for item in cache {
+            item.updateColors()
+        }
     }
 
     public func render() async {
@@ -202,14 +208,14 @@ public class QueuePage: Page {
             case .song(let song):
                 guard
                     let page = SongItemPage(
-                        in: self.plane,
+                        in: self.borderPlane,
                         state: .init(
                             absX: 1,
                             absY: 1 + Int32(i) * 5,
                             width: state.width - 2,
                             height: 5
                         ),
-                        colorConfig: colorConfig.songItem,
+                        type: .queuePage,
                         item: song
                     )
                 else {

@@ -23,7 +23,7 @@ public struct Command: Sendable {
         .init(name: "playPauseToggle", short: "pp", action: .playPauseToggle),
         .init(name: "pause", short: "pa", action: .pause),
         .init(name: "stop", short: "s", action: .stop),
-        .init(name: "clearQueue", short: "c", action: .clearQueue),
+        .init(name: "clearQueue", short: "cq", action: .clearQueue),
         .init(name: "playNext", short: "pn", action: .playNext),
         .init(name: "startSeekingForward", short: "sf", action: .startSeekingForward),
         .init(name: "playPrevious", short: "b", action: .playPrevious),
@@ -32,11 +32,14 @@ public struct Command: Sendable {
         .init(name: "restartSong", short: "r", action: .restartSong),
         .init(name: "quitApplication", short: "q", action: .quitApplication),
         .init(name: "search", short: "/", action: .search),
-        .init(name: "setSongTime", short: "set", action: .setSongTime),
+        .init(name: "setSongTime", short: "time", action: .setSongTime),
         .init(name: "stationFromCurrentEntry", short: "sce", action: .stationFromCurrentEntry),
         .init(name: "shuffleMode", short: "shuffle", action: .shuffleMode),
         .init(name: "repeatMode", short: "repeat", action: .repeatMode),
-        .init(name: "openCommandLine", action: .openCommandLine),
+        .init(name: "reloadTheme", short: "rld", action: .reloadTheme),
+        .init(name: "open", short: "o", action: .open),
+        .init(name: "close", short: "c", action: .close),
+        .init(name: "closeAll", short: "ca", action: .closeAll),
     ]
 
     @MainActor
@@ -100,11 +103,21 @@ public struct Command: Sendable {
 
         case .stationFromCurrentEntry: await Player.shared.playStationFromCurrentSong()
 
-        case .openCommandLine: UI.mode = .command
-
         case .repeatMode: await RepeatModeCommand.execute(arguments: arguments)
 
         case .shuffleMode: await ShuffleModeCommand.execute(arguments: arguments)
+
+        case .reloadTheme:
+            ConfigurationParser.loadTheme()
+            UIPageManager.configReload = true
+
+        case .open: await OpenCommand.execute(arguments: arguments)
+
+        case .close:
+            SearchManager.shared.lastSearchResult = SearchManager.shared.lastSearchResult?.previous
+
+        case .closeAll:
+            SearchManager.shared.lastSearchResult = nil
 
         }
         return
@@ -122,7 +135,6 @@ public enum CommandAction: String, Sendable, Codable {
     case startSeekingForward
     case playPrevious
     case startSeekingBackward
-    case openCommandLine
     case stopSeeking
     case restartSong
     case quitApplication
@@ -131,4 +143,8 @@ public enum CommandAction: String, Sendable, Codable {
     case stationFromCurrentEntry
     case repeatMode
     case shuffleMode
+    case reloadTheme
+    case open
+    case close
+    case closeAll
 }

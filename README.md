@@ -57,20 +57,19 @@ Check out [build instructions](BUILD.md).
 
 The player is still early in the development, so the features are quite limited for now.
 
-| Feature                  | Status  | Comments                                        |
-| ------------------------ | ------- | ----------------------------------------------- |
-| Playing music            | Working |                                                 |
-| Player controls          | Working |                                                 |
-| Now playing artwork      | Working |                                                 |
-| Status line              | Working |                                                 |
-| Command line             | Working |                                                 |
-| Command line history     | Working |                                                 |
-| Command line completions | Working |                                                 |
-| Searching music          | Working | Only with `:search` command                     |
-| Player queue             | Working | Only adding to queue with `:addToQueue` command |
-| Coloring the UI          | Working | Check [CONFIGURATION](CONFIGURATION.md)         |
-| Mouse controls           |   TBD   |                                                 |
-| Arrow navigation         |   TBD   |                                                 |
+
+| Feature             | Status  | Comments                                        |
+| ------------------- | ------- | ----------------------------------------------- |
+| Playing music       | Working |                                                 |
+| Player controls     | Working |                                                 |
+| Now playing artwork | Working |                                                 |
+| Status line         | Working |                                                 |
+| Command line        | Working |                                                 |
+| Searching music     | Working | Only with `:search` command                     |
+| Player queue        | Working | Only adding to queue with `:addToQueue` command |
+| Coloring the UI     | Working | Check [THEMING](THEMING.md)                     |
+| Mouse controls      |   TBD   |                                                 |
+| Arrow navigation    |   TBD   |                                                 |
 
 Feel free to suggest new features through issues!
 
@@ -81,30 +80,31 @@ Feel free to suggest new features through issues!
 
 Some of the options might be configured with command line arguments. Check `Yatoro -h`.
 
-Another way to configure everything is to edit `~/.config/Yatoro/config.yaml`. Check [CONFIGURATION](CONFIGURATION.md).
+Another way to configure everything is configuration file. Check [CONFIGURATION](CONFIGURATION.md).
 
-Command line arguments will overwrite the options set in `config.yaml`
+Command line arguments will overwrite the options set in configuration file.
 
 ### Default Controls
 
-| Action                     | Modifier | Button |
-|----------------------------| -------- | ------ |
-| Play/Pause Toggle          |          |  `p`   |
-| Play                       |  `SHIFT` |  `p`   |
-| Pause                      |  `CTRL`  |  `p`   |
-| Stop                       |          |  `c`   |
-| Clear queue                |          |  `x`   |
-| Play next                  |          |  `f`   |
-| Play previous              |          |  `b`   |
-| Start seeking forward      |  `CTRL`  |  `f`   |
-| Start seeking backward     |  `CTRL`  |  `b`   |
-| Stop seeking               |          |  `g`   |
-| Restart song               |          |  `r`   |
-| Start searching            |          |  `s`   |
-| Station from current entry |  `CTRL`  |  `s`   |
-| Open command line          |  `SHIFT` |  `:`   |
-| Quit application           |          |  `q`   |
-| Quit application (2)       |  `CTRL`  |  `c`   |
+| Action                                  | Modifier | Button |
+|-----------------------------------------| -------- | ------ |
+| Play/Pause Toggle                       |          |  `p`   |
+| Play                                    |  `SHIFT` |  `p`   |
+| Pause                                   |  `CTRL`  |  `p`   |
+| Stop                                    |          |  `c`   |
+| Clear queue                             |          |  `x`   |
+| Close last search result or detail page |          | `ESC`  |
+| Play next                               |          |  `f`   |
+| Play previous                           |          |  `b`   |
+| Start seeking forward                   |  `CTRL`  |  `f`   |
+| Start seeking backward                  |  `CTRL`  |  `b`   |
+| Stop seeking                            |          |  `g`   |
+| Restart song                            |          |  `r`   |
+| Start searching                         |          |  `s`   |
+| Station from current entry              |  `CTRL`  |  `s`   |
+| Open command line                       |  `SHIFT` |  `:`   |
+| Quit application                        |          |  `q`   |
+| Quit application (2)                    |  `CTRL`  |  `c`   |
 
 ### Commands
 

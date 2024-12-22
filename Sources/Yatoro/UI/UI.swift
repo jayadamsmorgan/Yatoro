@@ -19,16 +19,25 @@ public class UI {
 
     private let frameDelay: UInt64
 
-    public init(config: Config) async {
+    public init() async {
+
+        var flags: [UIOptionFlag] = [
+            .inhibitSetLocale,
+            .noFontChanges,
+            .noWinchSighandler,
+            .noQuitSighandlers,
+        ]
+
+        #if !DEBUG
+        flags.append(.suppressBanners)
+        #endif
+
+        let config = Config.shared
+
         var opts = UIOptions(
             logLevel: config.logging.ncLogLevel,
             config: config.ui,
-            flags: [
-                .inhibitSetLocale,
-                .noFontChanges,
-                .noWinchSighandler,
-                .noQuitSighandlers,
-            ]
+            flags: flags
         )
 
         self.frameDelay = config.ui.frameDelay
@@ -59,8 +68,16 @@ public class UI {
         self.pageManager = pageManager
         await handleResize()
 
-        setupSigwinchHandler(onResize: handleResize)
-        setupSigintHandler(onStop: stop)
+        setupSigwinchHandler {
+            if !config.settings.disableResize {
+                await self.handleResize()
+            }
+        }
+        setupSigintHandler {
+            if !config.settings.disableSigInt {
+                await self.stop()
+            }
+        }
 
         logger?.info("UI initialized successfully.")
     }
@@ -87,7 +104,7 @@ public class UI {
             try! await Task.sleep(nanoseconds: frameDelay)
         }
 
-        stop()
+        await stop()
     }
 
     func handleResize() async {
@@ -112,12 +129,33 @@ public class UI {
         guard let input = Input(notcurses: notcurses) else {
             return
         }
+        // Only happens in iTerm2
+        // Every other terminal just sends "unknown" instead
+        // So this is actually how it is supposed to work
+        guard input.eventType != .release else {
+            return
+        }
         logger?.trace("New input: \(input)")
         inputQueue.add(input)
     }
 
-    public func stop() {
+    public func stop() async {
+        await pageManager.onQuit()
         logger?.info("Stopping Yatoro...")
+
+        // Fix for artwork not getting destroyed in iTerm2
+        UI.notcurses?.render()
+
+        // Workaround for iTerm2 not recovering state after quitting Yatoro
+        if let termProg = ProcessInfo.processInfo.environment["TERM_PROGRAM"],
+            termProg == "iTerm.app"
+        {
+            if !Config.shared.settings.disableITermWorkaround {
+                let sequence = "\u{1B}[=0u"
+                FileHandle.standardOutput.write(sequence.data(using: .utf8)!)
+            }
+        }
+
         UI.notcurses?.stop()
         logger?.debug("Notcurses stopped.")
         logger?.info("Yatoro stopped.\n")

@@ -19,7 +19,34 @@ struct LoggingArgOptions: ParsableArguments {
     var ncLogLevel: UILogLevel?
 }
 
+struct SettingsArgOptions: ParsableArguments {
+    @Flag(
+        name: .long,
+        help: "Disable CTRL+C to exit (default: false (SIGINT enabled))"
+    )
+    var disableSigint: Bool = false
+
+    @Flag(
+        name: .long,
+        help: "Disable UI resizing (default: false (Resizing enabled))"
+    )
+    var disableResize: Bool = false
+
+    @Option(
+        name: .long,
+        help: "Limit amount of search items, must be greater than 0 (default: 10)"
+    )
+    var searchItemLimit: UInt32?
+}
+
 struct UIArgOptions: ParsableArguments {
+    @Option(
+        name: .shortAndLong,
+        help: "Set UI theme (default: \"default\")",
+        completion: .default
+    )
+    var theme: String?
+
     @Option(
         name: .shortAndLong,
         help: "Set UI margins, must be greater than 0 (default: 0)",
@@ -100,15 +127,18 @@ struct Yatoro: AsyncParsableCommand {
     @OptionGroup(title: "UI", visibility: .default)
     var uiOptions: UIArgOptions
 
+    @OptionGroup(title: "Settings", visibility: .default)
+    var settingsOptions: SettingsArgOptions
+
     @Option(
         name: .shortAndLong,
-        help: "Custom path to config.yaml",
-        completion: .file(extensions: ["yaml"])
+        help: "Custom path to config file",
+        completion: .file(extensions: ["yaml", "yml", "toml", "json"])
     )
-    var config: String = Config.defaultConfigPath
+    var config: String?
 
-    @MainActor private func initLogging(config: Config.LoggingConfig) {
-        guard let logLevel = config.logLevel else {
+    @MainActor private func initLogging() {
+        guard let logLevel = Config.shared.logging.logLevel else {
             return
         }
         logger = Logger(label: loggerLabel) {
@@ -118,20 +148,33 @@ struct Yatoro: AsyncParsableCommand {
 
     @MainActor
     mutating func run() async throws {
-        let config = Config.parseOptions(
+
+        ConfigurationParser.setupConfigurationDirectory()
+
+        guard let configParser = ConfigurationParser(customConfigPath: config) else {
+            print("Error: Unable to find config at \(config!)")
+            return
+        }
+
+        configParser.loadConfig()
+
+        Config.applyArgumentOptions(
             uiOptions: uiOptions,
             loggingOptions: loggingOptions,
-            configPath: config
+            settingsOptions: settingsOptions
         )
+        Config.processMappings()
 
-        initLogging(config: config.logging)
+        ConfigurationParser.loadTheme()
+
+        initLogging()
         logger?.info("Starting Yatoro...")
-        logger?.debug("Config:\n\(config)")
+        logger?.debug("Config:\n\(Config.shared)")
 
         let player = Player.shared
         await player.authorize()
 
-        let ui = await UI(config: config)
+        let ui = await UI()
         await ui.start()
     }
 }

@@ -23,7 +23,6 @@ public class RecommendationItemPage: DestroyablePage {
     public init?(
         in plane: Plane,
         state: PageState,
-        colorConfig: Config.UIConfig.Colors.RecommendationItem,
         item: MusicPersonalRecommendation
     ) {
         self.state = state
@@ -39,9 +38,8 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        pagePlane.backgroundColor = colorConfig.page.background
-        pagePlane.foregroundColor = colorConfig.page.foreground
         self.plane = pagePlane
+        self.plane.moveAbove(other: plane)
 
         guard
             let borderPlane = Plane(
@@ -57,10 +55,8 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
+        self.borderPlane.moveAbove(other: self.plane)
 
         guard
             let pageNamePlane = Plane(
@@ -76,10 +72,8 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
-        pageNamePlane.putString("Recommendation", at: (0, 0))
         self.pageNamePlane = pageNamePlane
+        self.pageNamePlane.moveAbove(other: self.borderPlane)
 
         guard
             let titleLeftPlane = Plane(
@@ -95,10 +89,8 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        titleLeftPlane.backgroundColor = colorConfig.titleLeft.background
-        titleLeftPlane.foregroundColor = colorConfig.titleLeft.foreground
-        titleLeftPlane.putString("Title:", at: (0, 0))
         self.titleLeftPlane = titleLeftPlane
+        self.titleLeftPlane.moveAbove(other: self.pageNamePlane)
 
         if let title = item.title {
             let titleRightWidth = min(UInt32(title.count), state.width - 10)
@@ -116,10 +108,8 @@ public class RecommendationItemPage: DestroyablePage {
             else {
                 return nil
             }
-            titleRightPlane.backgroundColor = colorConfig.titleRight.background
-            titleRightPlane.foregroundColor = colorConfig.titleRight.foreground
-            titleRightPlane.putString(title, at: (0, 0))
             self.titleRightPlane = titleRightPlane
+            self.titleRightPlane?.moveAbove(other: self.titleLeftPlane)
         } else {
             self.titleRightPlane = nil
         }
@@ -138,10 +128,8 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        typesLeftPlane.backgroundColor = colorConfig.typesLeft.background
-        typesLeftPlane.foregroundColor = colorConfig.typesLeft.foreground
-        typesLeftPlane.putString("Types:", at: (0, 0))
         self.typesLeftPlane = typesLeftPlane
+        self.typesLeftPlane.moveAbove(other: self.titleRightPlane ?? self.titleLeftPlane)
 
         var typesStr = ""
         for type in item.types {
@@ -165,10 +153,8 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        typesRightPlane.backgroundColor = colorConfig.typesRight.background
-        typesRightPlane.foregroundColor = colorConfig.typesRight.foreground
-        typesRightPlane.putString(typesStr, at: (0, 0))
         self.typesRightPlane = typesRightPlane
+        self.typesRightPlane.moveAbove(other: self.typesLeftPlane)
 
         guard
             let refreshDateLeftPlane = Plane(
@@ -184,10 +170,8 @@ public class RecommendationItemPage: DestroyablePage {
         else {
             return nil
         }
-        refreshDateLeftPlane.backgroundColor = colorConfig.refreshDateLeft.background
-        refreshDateLeftPlane.foregroundColor = colorConfig.refreshDateLeft.foreground
-        refreshDateLeftPlane.putString("Refresh:", at: (0, 0))
         self.refreshDateLeftPlane = refreshDateLeftPlane
+        self.refreshDateLeftPlane.moveAbove(other: self.typesRightPlane)
 
         if let refreshDate = item.nextRefreshDate?.formatted() {
             let refreshDateRightWidth = min(UInt32(refreshDate.count), state.width - 12)
@@ -205,16 +189,50 @@ public class RecommendationItemPage: DestroyablePage {
             else {
                 return nil
             }
-            refreshDateRightPlane.backgroundColor = colorConfig.refreshDateRight.background
-            refreshDateRightPlane.foregroundColor = colorConfig.refreshDateRight.foreground
-            refreshDateRightPlane.putString(refreshDate, at: (0, 0))
             self.refreshDateRightPlane = refreshDateRightPlane
+            self.refreshDateRightPlane?.moveAbove(other: self.refreshDateLeftPlane)
         } else {
             self.refreshDateRightPlane = nil
         }
 
         self.item = item
 
+        updateColors()
+
+    }
+
+    public func updateColors() {
+        let colorConfig = Theme.shared.search.recommendationItem
+        plane.setColorPair(colorConfig.page)
+        borderPlane.setColorPair(colorConfig.border)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        titleLeftPlane.setColorPair(colorConfig.titleLeft)
+        titleRightPlane?.setColorPair(colorConfig.titleRight)
+        typesLeftPlane.setColorPair(colorConfig.typesLeft)
+        typesRightPlane.setColorPair(colorConfig.typesRight)
+        refreshDateLeftPlane.setColorPair(colorConfig.refreshDateLeft)
+        refreshDateRightPlane?.setColorPair(colorConfig.refreshDateRight)
+
+        plane.blank()
+        pageNamePlane.putString("Recommendation", at: (0, 0))
+        titleLeftPlane.putString("Title:", at: (0, 0))
+        if let title = item.title {
+            titleRightPlane?.putString(title, at: (0, 0))
+        }
+        refreshDateLeftPlane.putString("Refresh:", at: (0, 0))
+        if let refreshDate = item.nextRefreshDate?.formatted() {
+            refreshDateRightPlane?.putString(refreshDate, at: (0, 0))
+        }
+        typesLeftPlane.putString("Types:", at: (0, 0))
+        var typesStr = ""
+        for type in item.types {
+            typesStr.append("\(type), ")
+        }
+        if typesStr.count >= 2 {
+            typesStr.removeLast(2)
+        }
+        typesRightPlane.putString(typesStr, at: (0, 0))
+        borderPlane.windowBorder(width: state.width, height: state.height)
     }
 
     public func destroy() async {

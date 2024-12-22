@@ -18,14 +18,24 @@ public class AlbumItemPage: DestroyablePage {
 
     private let item: Album
 
+    public enum AlbumItemPageType {
+        case searchPage
+        case songDetailPage
+        case artistDetailPage
+        case recommendationDetailPage
+    }
+
+    private let type: AlbumItemPageType
+
     public func getItem() async -> Album { item }
 
     public init?(
         in plane: Plane,
         state: PageState,
-        colorConfig: Config.UIConfig.Colors.AlbumItem,
-        item: Album
+        item: Album,
+        type: AlbumItemPageType
     ) {
+        self.type = type
         self.state = state
         guard
             let pagePlane = Plane(
@@ -39,9 +49,8 @@ public class AlbumItemPage: DestroyablePage {
         else {
             return nil
         }
-        pagePlane.backgroundColor = colorConfig.page.background
-        pagePlane.foregroundColor = colorConfig.page.foreground
         self.plane = pagePlane
+        self.plane.moveAbove(other: plane)
 
         guard
             let borderPlane = Plane(
@@ -57,10 +66,8 @@ public class AlbumItemPage: DestroyablePage {
         else {
             return nil
         }
-        borderPlane.backgroundColor = colorConfig.border.background
-        borderPlane.foregroundColor = colorConfig.border.foreground
-        borderPlane.windowBorder(width: state.width, height: state.height)
         self.borderPlane = borderPlane
+        self.borderPlane.moveAbove(other: self.plane)
 
         guard
             let pageNamePlane = Plane(
@@ -76,10 +83,8 @@ public class AlbumItemPage: DestroyablePage {
         else {
             return nil
         }
-        pageNamePlane.backgroundColor = colorConfig.pageName.background
-        pageNamePlane.foregroundColor = colorConfig.pageName.foreground
-        pageNamePlane.putString("Album", at: (0, 0))
         self.pageNamePlane = pageNamePlane
+        self.pageNamePlane.moveAbove(other: self.borderPlane)
 
         guard
             let artistLeftPlane = Plane(
@@ -95,10 +100,8 @@ public class AlbumItemPage: DestroyablePage {
         else {
             return nil
         }
-        artistLeftPlane.backgroundColor = colorConfig.artistLeft.background
-        artistLeftPlane.foregroundColor = colorConfig.artistLeft.foreground
-        artistLeftPlane.putString("Artist:", at: (0, 0))
         self.artistLeftPlane = artistLeftPlane
+        self.artistLeftPlane.moveAbove(other: self.pageNamePlane)
 
         let artistRightWidth = min(UInt32(item.artistName.count), state.width - 11)
         guard
@@ -115,10 +118,8 @@ public class AlbumItemPage: DestroyablePage {
         else {
             return nil
         }
-        artistRightPlane.backgroundColor = colorConfig.artistRight.background
-        artistRightPlane.foregroundColor = colorConfig.artistRight.foreground
-        artistRightPlane.putString(item.artistName, at: (0, 0))
         self.artistRightPlane = artistRightPlane
+        self.artistLeftPlane.moveAbove(other: self.artistLeftPlane)
 
         guard
             let genreLeftPlane = Plane(
@@ -134,10 +135,8 @@ public class AlbumItemPage: DestroyablePage {
         else {
             return nil
         }
-        genreLeftPlane.backgroundColor = colorConfig.genreLeft.background
-        genreLeftPlane.foregroundColor = colorConfig.genreLeft.foreground
-        genreLeftPlane.putString("Genre:", at: (0, 0))
         self.genreLeftPlane = genreLeftPlane
+        self.genreLeftPlane.moveAbove(other: self.artistRightPlane)
 
         var genreStr = ""
         for genre in item.genreNames {
@@ -164,10 +163,8 @@ public class AlbumItemPage: DestroyablePage {
         else {
             return nil
         }
-        genreRightPlane.backgroundColor = colorConfig.genreRight.background
-        genreRightPlane.foregroundColor = colorConfig.genreRight.foreground
-        genreRightPlane.putString(genreStr, at: (0, 0))
         self.genreRightPlane = genreRightPlane
+        self.genreRightPlane.moveAbove(other: self.genreLeftPlane)
 
         guard
             let albumLeftPlane = Plane(
@@ -183,10 +180,8 @@ public class AlbumItemPage: DestroyablePage {
         else {
             return nil
         }
-        albumLeftPlane.backgroundColor = colorConfig.albumLeft.background
-        albumLeftPlane.foregroundColor = colorConfig.albumLeft.foreground
-        albumLeftPlane.putString("Album:", at: (0, 0))
         self.albumLeftPlane = albumLeftPlane
+        self.albumLeftPlane.moveAbove(other: self.genreRightPlane)
 
         let albumRightWidth = min(UInt32(item.title.count), state.width - 10)
         guard
@@ -203,12 +198,55 @@ public class AlbumItemPage: DestroyablePage {
         else {
             return nil
         }
-        albumRightPlane.backgroundColor = colorConfig.albumRight.background
-        albumRightPlane.foregroundColor = colorConfig.albumRight.foreground
-        albumRightPlane.putString(item.title, at: (0, 0))
         self.albumRightPlane = albumRightPlane
+        self.albumRightPlane.moveAbove(other: self.albumLeftPlane)
 
         self.item = item
+
+        updateColors()
+    }
+
+    public func updateColors() {
+        let colorConfig: Theme.AlbumItem
+        switch self.type {
+        case .searchPage:
+            colorConfig = Theme.shared.search.albumItem
+        case .songDetailPage:
+            colorConfig = Theme.shared.songDetail.albumItem
+        case .artistDetailPage:
+            colorConfig = Theme.shared.artistDetail.albumItem
+        case .recommendationDetailPage:
+            colorConfig = Theme.shared.recommendationDetail.albumItem
+        }
+        plane.setColorPair(colorConfig.page)
+        borderPlane.setColorPair(colorConfig.border)
+        pageNamePlane.setColorPair(colorConfig.pageName)
+        artistLeftPlane.setColorPair(colorConfig.artistLeft)
+        artistRightPlane.setColorPair(colorConfig.artistRight)
+        genreLeftPlane.setColorPair(colorConfig.genreLeft)
+        genreRightPlane.setColorPair(colorConfig.genreRight)
+        albumLeftPlane.setColorPair(colorConfig.albumLeft)
+        albumRightPlane.setColorPair(colorConfig.albumRight)
+
+        plane.blank()
+        borderPlane.windowBorder(width: state.width, height: state.height)
+        pageNamePlane.putString("Album", at: (0, 0))
+        artistLeftPlane.putString("Artist:", at: (0, 0))
+        artistRightPlane.putString(item.artistName, at: (0, 0))
+        genreLeftPlane.putString("Genre:", at: (0, 0))
+        var genreStr = ""
+        for genre in item.genreNames {
+            if genre == "Music" {
+                continue
+            }
+            genreStr.append("\(genre), ")
+        }
+        if genreStr.count >= 2 {
+            genreStr.removeLast(2)
+        }
+        genreRightPlane.putString(genreStr, at: (0, 0))
+        albumLeftPlane.putString("Album:", at: (0, 0))
+        albumRightPlane.putString(item.title, at: (0, 0))
     }
 
     public func destroy() async {
