@@ -39,16 +39,25 @@ jobs:
       - name: Build (Swift release mode)
         run: $SWIFT_PATH/swift build -c release
 
-      - name: Code sign
+      - name: Sign binary
+        uses: lando/code-sign-action@v3
+        with:
+          file: .build/release/yatoro
+          certificate-data: ${{ secrets.APPLE_CERT_DATA }}
+          certificate-id: U537EV56Z3
+          certificate-password: ${{ secrets.APPLE_CERT_PASSWORD }}
+
+      - name: Notarize binary
         run: |
-          codesign --force --deep --options runtime \
-                   --sign "$SIGN_IDENTITY" \
-                   .build/release/yatoro
+          zip yatoro.zip .build/release/yatoro
+          xcrun notarytool submit yatoro.zip --apple-id $APPLE_NOTARY_USER --team-id U537EV56Z3 --password $APPLE_NOTARY_PASSWORD --wait
         env:
-          SIGN_IDENTITY: ${{ secrets.SIGN_IDENTITY }}
+          APPLE_NOTARY_USER: ${{ secrets.APPLE_NOTARY_USER }}
+          APPLE_NOTARY_PASSWORD: ${{ secrets.APPLE_NOTARY_PASSWORD }}
+
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.arch }}-build
-          path: .build/release/yatoro
+          path: yatoro.zip
