@@ -30,11 +30,14 @@ jobs:
           sudo installer -pkg swift-6.0.3-RELEASE-osx.pkg -target /
           swift --version
 
+      - name: Add Swift 6.0.3 to environment variable
+        run: export $SWIFT_PATH="/Library/Developer/Toolchains/swift-6.0.3-RELEASE.xctoolchain/usr/bin"
+
       - name: Install dependencies (notcurses)
         run: brew install notcurses
 
       - name: Build (Swift release mode)
-        run: swift build -c release
+        run: $SWIFT_PATH/swift build -c release
 
       - name: Code sign
         run: |
