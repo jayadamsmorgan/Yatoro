@@ -6,8 +6,6 @@ If this directory doesn't exist Yatoro will create it on startup and put the def
 
 So you can check the default theming config for the reference once it's created.
 
-## Color
-
 `Color` is a string property, which could be represented in theme config file:
 
 - either as a string of RGB hex in format `#rrggbb`, example: `#bd93f9`
@@ -34,8 +32,6 @@ So you can check the default theming config for the reference once it's created.
 - `brightWhite`
 
 </details>
-
-## Color pairs
 
 Each UI element has `bg` and `fg` properties.
 
@@ -66,11 +62,11 @@ By default, both properties are `nil` on every UI element, which basically means
 - `slider` --- time slider
 - `sliderKnob` --- time slider knob
 - `controls` --- backward, play/pause, forward icons
-- `artistLeft` --- "artist:" string
+- `artistLeft` --- "Artist:" string
 - `artistRight` --- artist name string
-- `songLeft` --- "song:" string
+- `songLeft` --- "Song:" string
 - `songRight` ---  song title string
-- `albumLeft` --- "album:" string
+- `albumLeft` --- "Album:" string
 - `albumRight` --- album title string
 - `currentTime` --- song playback time
 - `duration` --- song duration
@@ -97,80 +93,128 @@ By default, both properties are `nil` on every UI element, which basically means
 - `stationItem` --- see [stationItem](#stationItem)
 - `recommendationItem` --- see [recommendationItem](#recommendationItem)
 
+## albumDetail
+
+- `page` --- Album detail page background
+- `border` --- page border
+- `albumTitle` --- the name of the album
+- `artistsText` --- "Artists:" string
+- `artistIndices` --- indices of artist items
+- `songsText` --- "Songs:" string
+- `songIndices` --- indices of song items
+- `songItem` --- see [songItem](#songItem)
+- `artistItem` --- see [artistItem](#artistItem)
+
+## artistDetail
+
+- `page` --- Artist detail page background
+- `border` --- page border
+- `artistTitle` --- the name of the artist
+- `albumsText` --- "Albums:" string
+- `albumIndices` --- indices of album items
+- `topSongsText` --- "Top Songs:" string
+- `topSongIndices` --- indices of song items
+- `songItem` --- see [songItem](#songItem)
+- `albumItem` -- see [albumItem](#albumItem)
+
+## playlistDetail
+
+- `page` --- Playlist detail page background
+- `border` --- page border
+- `playlistTitle` --- the name of the playlist
+- `songsText` --- "Songs:" string
+- `songIndices` --- indices of song items
+- `songItem` --- see [songItem](#songItem)
+
+## recommendationDetail
+
+- `page` --- Recommendation detail page background
+- `border` --- page border
+- `recommendationTitle` --- the name of the recommendation
+- `albumsText` --- "Albums:" string
+- `albumIndices` --- indices of album items
+- `stationsText` --- "Stations:" string
+- `stationIndices` --- indices of station items
+- `playlistsText` --- "Playlists:" string
+- `playlistIndices` --- indices of playlist items
+- `albumItem` --- see [albumItem](#albumItem)
+- `stationItem` --- see [stationItem](#stationItem)
+- `playlistItem` --- see [playlistItem](#playlistItem)
+
 ### songItem
 
-List pages such as Queue and Search pages can display song items which could be colored.
+Some pages pages can display song items which could be colored.
 
 - `page` --- song item background
 - `border` --- song item border
-- `artistLeft` --- "artist:" string
+- `artistLeft` --- "Artist:" string
 - `artistRight` --- artist name string
-- `songLeft` --- "song:" string
+- `songLeft` --- "Song:" string
 - `songRight` --- song title string
-- `albumLeft` --- "album:" string
+- `albumLeft` --- "Album:" string
 - `albumRight` --- album title string
 
 ### albumItem
 
-Similar to [songItem](#songItem), but used only in Search page when displaying Albums.
+Similar to [songItem](#songItem), but used when displaying Albums.
 
 - `page` --- album item background
 - `border` --- album item border
-- `artistLeft` --- "artist:" string
+- `artistLeft` --- "Artist:" string
 - `artistRight` --- artist name string
-- `albumLeft` --- "album:" string
+- `albumLeft` --- "Album:" string
 - `albumRight` --- album title string
-- `genreLeft` --- "genre:" string
+- `genreLeft` --- "Genre:" string
 - `genreRight` --- genre names string
 
 ### artistItem
 
-Similar to [songItem](#songItem), but used only in Search page when displaying Artists.
+Similar to [songItem](#songItem), but used when displaying Artists.
 
 - `page` --- artist item background
 - `border` --- artist item border
-- `artistLeft` --- "artist:" string
+- `artistLeft` --- "Artist:" string
 - `artistRight` --- artist name string
-- `genreLeft` --- "genre:" string
+- `genreLeft` --- "Genre:" string
 - `genreRight` --- genre names string
-- `albumsLeft` --- "albums:" string
+- `albumsLeft` --- "Albums:" string
 - `albumsRight` --- artist album titles string
 
 ### playlistItem
 
-Similar to [songItem](#songItem), but used only in Search page when displaying Playlists.
+Similar to [songItem](#songItem), but used when displaying Playlists.
 
 - `page` --- playlist item background
 - `border` --- playlist item border
-- `playlistLeft` --- "playlist:" string
+- `playlistLeft` --- "Playlist:" string
 - `playlistRight` --- playlist name string
-- `curatorLeft` --- "curator:" string
+- `curatorLeft` --- "Curator:" string
 - `curatorRight` --- curator name string
-- `descriptionLeft` --- "description:" string
+- `descriptionLeft` --- "Description:" string
 - `descriptionRight` --- playlist description string
 
-### playlistItem
+### stationItem
 
-Similar to [songItem](#songItem), but used only in Search page when displaying Stations.
+Similar to [songItem](#songItem), but used when displaying Stations.
 
 - `page` --- station item background
 - `border` --- station item border
-- `stationLeft` --- "station:" string
+- `stationLeft` --- "Station:" string
 - `stationRight` --- station name string
-- `isLiveLeft` --- "isLive:" string
+- `isLiveLeft` --- "IsLive:" string
 - `isLiveRight` --- is station live boolean string
-- `notesLeft` --- "notes:" string
+- `notesLeft` --- "Notes:" string
 - `notesRight` --- station editorial notes string
 
 ### recommendationItem
 
-Similar to [songItem](#songItem), but used only in Search page when displaying Stations.
+Similar to [songItem](#songItem), but used when displaying Recommendations.
 
 - `page` --- recommnedation item background
 - `border` --- recommnedation item border
-- `titleLeft` --- "title:" string
+- `titleLeft` --- "Title:" string
 - `titleRight` --- recommendation name string
-- `refreshDateLeft` --- "refresh:" string
+- `refreshDateLeft` --- "Refresh:" string
 - `refreshDateRight` --- recommnedation next refresh date string
-- `typesLeft` --- "types:" string
+- `typesLeft` --- "Types:" string
 - `typesRight` --- recommendation types string
