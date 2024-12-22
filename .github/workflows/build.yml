@@ -25,16 +25,15 @@ jobs:
 
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3\
 
-      - name: Import codesigning certificate
-        uses: apple-actions/import-codesign-certs@v3
-        with: 
-          p12-file-base64: $APPLE_CERT_DATA
-          p12-password: $APPLE_CERT_PASSWORD
-        env:
-          APPLE_CERT_DATA: ${{ secrets.APPLE_CERT_DATA }}
-          APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+      - name: Sign binary
+        uses: lando/code-sign-action@v3
+        with:
+          file: .build/release/yatoro
+          certificate-data: ${{ secrets.APPLE_CERT_DATA }}
+          certificate-id: U537EV56Z3
+          certificate-password: ${{ secrets.APPLE_CERT_PASSWORD }}
 
       - name: Install Swift
         run: |
@@ -50,7 +49,7 @@ jobs:
 
       - name: Sign & Notarize binary
         run: |
-          codesign --sign "German Berdnikov (U537EV56Z3)" -o runtime --timestamp .build/release/yatoro
+          # codesign --sign "German Berdnikov (U537EV56Z3)" -o runtime --timestamp .build/release/yatoro
           zip yatoro.zip .build/release/yatoro
           xcrun notarytool submit yatoro.zip --apple-id $APPLE_NOTARY_USER --team-id U537EV56Z3 --password $APPLE_NOTARY_PASSWORD --wait
         env:
