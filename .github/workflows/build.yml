@@ -30,8 +30,11 @@ jobs:
       - name: Import codesigning certificate
         uses: apple-actions/import-codesign-certs@v3
         with: 
-          p12-file-base64: ${{ secrets.APPLE_CERT_DATA }}
-          p12-password: ${{ secrets.APPLE_CERT_PASSWORD }}
+          p12-file-base64: $APPLE_CERT_DATA
+          p12-password: $APPLE_CERT_PASSWORD
+        env:
+          APPLE_CERT_DATA: ${{ secrets.APPLE_CERT_DATA }}
+          APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
 
       - name: Install Swift
         run: |
