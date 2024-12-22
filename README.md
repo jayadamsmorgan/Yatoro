@@ -31,18 +31,6 @@ brew tap jayadamsmorgan/yatoro
 brew install yatoro
 ```
 
-### Installer
-
-- Install notcurses library with [Homebrew][homebrew]:
-
-```
-brew install notcurses
-```
-
-- [Download latest pkg][release_page] and install it.
-
-The installer will put the executable in `/usr/local/bin/yatoro`
-
 ### Build from source
 
 Check out [build instructions](BUILD.md).
