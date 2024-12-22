@@ -479,7 +479,6 @@ public class NowPlayingPage: DestroyablePage {
             self.albumRightPlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
             self.currentTimePlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
             self.durationPlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
-            self.artworkPlane?.destroy()
             return
         }
         var width = min(UInt32(currentSong.artistName.count), self.state.width - 11)
