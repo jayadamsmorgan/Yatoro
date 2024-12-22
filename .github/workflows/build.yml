@@ -2,7 +2,7 @@ name: Build macOS (x86 and ARM64)
 
 on:
   push:
-    branches: [ "master" ]
+    tags: [ "v*" ]
 
 jobs:
   build:
