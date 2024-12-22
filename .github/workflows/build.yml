@@ -2,9 +2,7 @@ name: Build macOS (x86 and ARM64)
 
 on:
   push:
-    branches: [ "build-workflow" ] # Change to "master" once it's fully working
-  pull_request:
-    branches: [ "build-workflow" ] # Change to "master" once it's fully working
+    branches: [ "master" ]
 
 jobs:
   build:
