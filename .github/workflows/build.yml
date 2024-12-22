@@ -27,23 +27,23 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
 
-      - name: Install Swift 6.0.3
-        run: |
-          curl -O https://download.swift.org/swift-6.0.3-release/xcode/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE-osx.pkg
-          sudo installer -pkg swift-6.0.3-RELEASE-osx.pkg -target /
-          $SWIFT_PATH/swift --version
-
-      - name: Install dependencies (notcurses)
-        run: brew install notcurses
-
-      - name: Build
-        run: $SWIFT_PATH/swift build -c release
-
       - name: Import codesigning certificate
         uses: apple-actions/import-codesign-certs@v3
         with: 
           p12-file-base64: ${{ secrets.APPLE_CERT_DATA }}
           p12-password: ${{ secrets.APPLE_CERT_PASSWORD }}
+
+      - name: Install Swift
+        run: |
+          curl -O https://download.swift.org/swift-6.0.3-release/xcode/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE-osx.pkg
+          sudo installer -pkg swift-6.0.3-RELEASE-osx.pkg -target /
+          $SWIFT_PATH/swift --version
+
+      - name: Install dependencies
+        run: brew install notcurses
+
+      - name: Build
+        run: $SWIFT_PATH/swift build -c release
 
       - name: Sign & Notarize binary
         run: |
