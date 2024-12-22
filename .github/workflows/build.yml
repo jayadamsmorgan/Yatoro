@@ -28,10 +28,8 @@ jobs:
         run: |
           curl -O https://download.swift.org/swift-6.0.3-release/xcode/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE-osx.pkg
           sudo installer -pkg swift-6.0.3-RELEASE-osx.pkg -target /
+          export SWIFT_PATH="/Library/Developer/Toolchains/swift-6.0.3-RELEASE.xctoolchain/usr/bin"
           swift --version
-
-      - name: Add Swift 6.0.3 to environment variable
-        run: export $SWIFT_PATH="/Library/Developer/Toolchains/swift-6.0.3-RELEASE.xctoolchain/usr/bin"
 
       - name: Install dependencies (notcurses)
         run: brew install notcurses
