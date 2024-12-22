@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Apple certificate
         env:
@@ -62,8 +62,9 @@ jobs:
 
       - name: Sign & Notarize binary
         run: |
-          codesign --sign "German Berdnikov (U537EV56Z3)" -o runtime --timestamp .build/release/yatoro
-          zip yatoro.zip .build/release/yatoro
+          cp .build/release/yatoro .
+          codesign --sign "German Berdnikov (U537EV56Z3)" -o runtime --timestamp yatoro
+          zip yatoro.zip yatoro
           xcrun notarytool submit yatoro.zip --apple-id $APPLE_NOTARY_USER --team-id U537EV56Z3 --password $APPLE_NOTARY_PASSWORD --wait
         env:
           APPLE_NOTARY_USER: ${{ secrets.APPLE_NOTARY_USER }}
