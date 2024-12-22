@@ -24,6 +24,12 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
 
+      - name: Install Swift 6.0.3
+        run: |
+          curl -O https://download.swift.org/swift-6.0.3-release/xcode/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE-osx.pkg
+          sudo installer -pkg swift-6.0.3-RELEASE-osx.pkg -target /
+          swift --version
+
       - name: Install dependencies (notcurses)
         run: brew install notcurses
 
