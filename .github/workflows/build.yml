@@ -27,16 +27,26 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
 
-      - name: Sign binary
-        uses: lando/code-sign-action@v3
-        with:
-          file: .build/release/yatoro
-          certificate-data: $APPLE_CERT_DATA
-          certificate-id: U537EV56Z3
-          certificate-password: $APPLE_CERT_PASSWORD
+      - name: Install Apple certificate
         env:
-          APPLE_CERT_DATA: ${{ secrets.APPLE_CERT_DATA }}
-          APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERT_DATA }}
+          P12_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
+        run: |
+          # create certificate file from base64 secret
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
 
       - name: Install Swift
         run: |
@@ -52,7 +62,7 @@ jobs:
 
       - name: Sign & Notarize binary
         run: |
-          # codesign --sign "German Berdnikov (U537EV56Z3)" -o runtime --timestamp .build/release/yatoro
+          codesign --sign "German Berdnikov (U537EV56Z3)" -o runtime --timestamp .build/release/yatoro
           zip yatoro.zip .build/release/yatoro
           xcrun notarytool submit yatoro.zip --apple-id $APPLE_NOTARY_USER --team-id U537EV56Z3 --password $APPLE_NOTARY_PASSWORD --wait
         env:
