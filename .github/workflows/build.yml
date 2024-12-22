@@ -36,25 +36,23 @@ jobs:
       - name: Install dependencies (notcurses)
         run: brew install notcurses
 
-      - name: Build (Swift release mode)
+      - name: Build
         run: $SWIFT_PATH/swift build -c release
 
-      - name: Sign binary
-        uses: lando/code-sign-action@v3
-        with:
-          file: .build/release/yatoro
-          certificate-data: ${{ secrets.APPLE_CERT_DATA }}
-          certificate-id: U537EV56Z3
-          certificate-password: ${{ secrets.APPLE_CERT_PASSWORD }}
+      - name: Import codesigning certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with: 
+          p12-file-base64: ${{ secrets.APPLE_CERT_DATA }}
+          p12-password: ${{ secrets.APPLE_CERT_PASSWORD }}
 
-      - name: Notarize binary
+      - name: Sign & Notarize binary
         run: |
+          codesign --sign "German Berdnikov (U537EV56Z3)" -o runtime --timestamp .build/release/yatoro
           zip yatoro.zip .build/release/yatoro
           xcrun notarytool submit yatoro.zip --apple-id $APPLE_NOTARY_USER --team-id U537EV56Z3 --password $APPLE_NOTARY_PASSWORD --wait
         env:
           APPLE_NOTARY_USER: ${{ secrets.APPLE_NOTARY_USER }}
           APPLE_NOTARY_PASSWORD: ${{ secrets.APPLE_NOTARY_PASSWORD }}
-
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
