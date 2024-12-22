@@ -4,7 +4,7 @@ extension Theme {
         public var page: ColorPair
         public var border: ColorPair
         public var artistIndices: ColorPair
-        public var songsIndices: ColorPair
+        public var songIndices: ColorPair
         public var albumTitle: ColorPair
         public var artistsText: ColorPair
         public var songsText: ColorPair
@@ -16,7 +16,7 @@ extension Theme {
             self.page = .init()
             self.border = .init()
             self.artistIndices = .init()
-            self.songsIndices = .init()
+            self.songIndices = .init()
             self.albumTitle = .init()
             self.artistsText = .init()
             self.songsText = .init()
@@ -33,7 +33,7 @@ extension Theme.AlbumDetail: Codable {
         case page
         case border
         case artistIndices
-        case songsIndices
+        case songIndices
         case albumTitle
         case artistsText
         case songsText
@@ -52,8 +52,8 @@ extension Theme.AlbumDetail: Codable {
         self.artistIndices =
             try container.decodeIfPresent(Theme.ColorPair.self, forKey: .artistIndices)
             ?? .init()
-        self.songsIndices =
-            try container.decodeIfPresent(Theme.ColorPair.self, forKey: .songsIndices)
+        self.songIndices =
+            try container.decodeIfPresent(Theme.ColorPair.self, forKey: .songIndices)
             ?? .init()
         self.albumTitle =
             try container.decodeIfPresent(Theme.ColorPair.self, forKey: .albumTitle)

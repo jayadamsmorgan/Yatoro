@@ -253,7 +253,7 @@ public class PlaylistDetailPage: DestroyablePage {
         self.playlistTitlePlane?.putString(playlistDescription.playlist.name, at: (0, 0))
 
         self.songsTitlePlane?.setColorPair(colorConfig.songsText)
-        self.songIndicesPlane?.setColorPair(colorConfig.songsIndices)
+        self.songIndicesPlane?.setColorPair(colorConfig.songIndices)
         let songs = playlistDescription.songs
         if !songs.isEmpty {
             self.songsTitlePlane?.putString("Songs:", at: (0, 0))

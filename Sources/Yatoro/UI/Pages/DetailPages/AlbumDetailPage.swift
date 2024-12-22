@@ -313,7 +313,7 @@ public class AlbumDetailPage: DestroyablePage {
         self.albumTitlePlane?.putString(albumDescription.album.title, at: (0, 0))
 
         self.songsTitlePlane?.setColorPair(colorConfig.songsText)
-        self.songIndicesPlane?.setColorPair(colorConfig.songsIndices)
+        self.songIndicesPlane?.setColorPair(colorConfig.songIndices)
         let songs = albumDescription.songs
         if !songs.isEmpty {
             self.songsTitlePlane?.putString("Songs:", at: (0, 0))

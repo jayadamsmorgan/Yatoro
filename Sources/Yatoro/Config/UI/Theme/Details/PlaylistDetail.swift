@@ -3,7 +3,7 @@ extension Theme {
     public struct PlaylistDetail {
         public var page: ColorPair
         public var border: ColorPair
-        public var songsIndices: ColorPair
+        public var songIndices: ColorPair
         public var playlistTitle: ColorPair
         public var songsText: ColorPair
 
@@ -12,7 +12,7 @@ extension Theme {
         public init() {
             self.page = .init()
             self.border = .init()
-            self.songsIndices = .init()
+            self.songIndices = .init()
             self.playlistTitle = .init()
             self.songsText = .init()
 
@@ -26,7 +26,7 @@ extension Theme.PlaylistDetail: Codable {
     enum CodingKeys: String, CodingKey {
         case page
         case border
-        case songsIndices
+        case songIndices
         case playlistTitle
         case songsText
         case songItem
@@ -40,8 +40,8 @@ extension Theme.PlaylistDetail: Codable {
         self.border =
             try container.decodeIfPresent(Theme.ColorPair.self, forKey: .border)
             ?? .init()
-        self.songsIndices =
-            try container.decodeIfPresent(Theme.ColorPair.self, forKey: .songsIndices)
+        self.songIndices =
+            try container.decodeIfPresent(Theme.ColorPair.self, forKey: .songIndices)
             ?? .init()
         self.playlistTitle =
             try container.decodeIfPresent(Theme.ColorPair.self, forKey: .playlistTitle)
