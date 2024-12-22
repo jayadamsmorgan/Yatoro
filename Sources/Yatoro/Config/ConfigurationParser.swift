@@ -268,6 +268,52 @@ extension Theme {
         recommendationDetail:
           border:
             fg: blue
+          albumsText:
+            fg: blue
+          albumIndices:
+            fg: blue
+          stationsText:
+            fg: magenta
+          stationIndices:
+            fg: magenta
+          playlistsText:
+            fg: yellow
+          playlistIndices:
+            fg: yellow
+          albumItem:
+            border:
+              fg: blue
+            pageName:
+              fg: blue
+            albumRight:
+              fg: blue
+            artistRight:
+              fg: cyan
+            genreRight:
+              fg: green
+          playlistItem:
+            border:
+              fg: yellow
+            pageName:
+              fg: yellow
+            playlistRight:
+              fg: yellow
+            curatorRight:
+              fg: blue
+            descriptionRight:
+              fg: green
+          stationItem:
+            border:
+              fg: magenta
+            pageName:
+              fg: magenta
+            stationRight:
+              fg: magenta
+            isLiveRight:
+              fg: blue
+            notesRight:
+              fg: green
+
 
         artistDetail:
           border:
@@ -293,6 +339,59 @@ extension Theme {
               fg: cyan
             genreRight:
               fg: green
+          songItem:
+            border:
+              fg: cyan
+            pageName:
+              fg: cyan
+            songRight:
+              fg: magenta
+            albumRight:
+              fg: blue
+            artistRight:
+              fg: cyan
+
+        albumDetail:
+          border:
+            fg: blue
+          artistsText:
+            fg: cyan
+          artistIndices:
+            fg: cyan
+          songsText:
+            fg: blue
+          songIndices:
+            fg: blue
+          songItem:
+            border:
+              fg: blue
+            pageName:
+              fg: blue
+            songRight:
+              fg: magenta
+            albumRight:
+              fg: blue
+            artistRight:
+              fg: cyan
+          artistItem:
+            border:
+              fg: cyan
+            pageName:
+              fg: cyan
+            artistRight:
+              fg: cyan
+            genreRight:
+              fg: green
+            albumsRight:
+              fg: blue
+
+        playlistDetail:
+          border:
+            fg: blue
+          songIndices:
+            fg: cyan
+          songsText:
+            fg: cyan
           songItem:
             border:
               fg: cyan
