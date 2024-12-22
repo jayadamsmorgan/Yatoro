@@ -21,6 +21,33 @@ struct AddToQueueCommand: AsyncParsableCommand {
     }
 
     @MainActor
+    private static func songsFromPlaylist(_ playlist: Playlist) async throws
+        -> [Song]?
+    {
+        let item = try await playlist.with([.tracks])
+        guard let tracks = item.tracks, !tracks.isEmpty else {
+            return nil
+        }
+        var songs: [Song] = []
+        for track in tracks {
+            switch track {
+            case .song(let song):
+                songs.append(song)
+            case .musicVideo(_):
+                // MusicVideos are not supported yet, skipping them
+                continue
+            @unknown default:
+                // Shouldn't happen
+                continue
+            }
+        }
+        if songs.isEmpty {
+            return nil
+        }
+        return songs
+    }
+
+    @MainActor
     static func execute(arguments: Array<String>) async {
         do {
             let command = try AddToQueueCommand.parse(arguments)
@@ -54,10 +81,37 @@ struct AddToQueueCommand: AsyncParsableCommand {
                         await Player.shared.addItemsToQueue(items: result, at: command.to)
 
                     case let result as MusicItemCollection<RecentlyPlayedMusicItem>:
+                        let recentlyPlayedItems: [RecentlyPlayedMusicItem]
+                        if command.to == .afterCurrentEntry {
+                            recentlyPlayedItems = result.reversed()
+                        } else {
+                            recentlyPlayedItems = Array(result)
+                        }
+                        for recentlyPlayedItem in recentlyPlayedItems {
+                            switch recentlyPlayedItem {
+                            case .playlist(let playlist):
+                                guard let songs = try await songsFromPlaylist(playlist) else {
+                                    continue
+                                }
+                                await Player.shared.addItemsToQueue(items: .init(songs), at: command.to)
+                            default: await Player.shared.addItemsToQueue(items: [recentlyPlayedItem], at: command.to)
+                            }
+                        }
                         await Player.shared.addItemsToQueue(items: result, at: command.to)
 
                     case let result as MusicItemCollection<Playlist>:
-                        await Player.shared.addItemsToQueue(items: result, at: command.to)
+                        let playlists: [Playlist]
+                        if command.to == .afterCurrentEntry {
+                            playlists = result.reversed()
+                        } else {
+                            playlists = Array(result)
+                        }
+                        for playlist in playlists {
+                            guard let songs = try await songsFromPlaylist(playlist) else {
+                                continue
+                            }
+                            await Player.shared.addItemsToQueue(items: .init(songs), at: command.to)
+                        }
 
                     case let result as MusicItemCollection<Station>:
                         await Player.shared.addItemsToQueue(items: result, at: command.to)
@@ -102,7 +156,20 @@ struct AddToQueueCommand: AsyncParsableCommand {
                                 items.append(item)
                             }
                         }
-                        await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
+                        if command.to == .afterCurrentEntry {
+                            items.reverse()
+                        }
+                        for item in items {
+                            switch item {
+                            case .playlist(let playlist):
+                                guard let songs = try await songsFromPlaylist(playlist) else {
+                                    continue
+                                }
+                                await Player.shared.addItemsToQueue(items: .init(songs), at: command.to)
+                            default:
+                                await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                            }
+                        }
 
                     case let result as MusicItemCollection<Playlist>:
                         var items: [Playlist] = []
@@ -114,7 +181,14 @@ struct AddToQueueCommand: AsyncParsableCommand {
                                 items.append(item)
                             }
                         }
-                        await Player.shared.addItemsToQueue(items: .init(items), at: command.to)
+                        if command.to == .afterCurrentEntry {
+                            items.reverse()
+                        }
+                        for playlist in items {
+                            if let songs = try await songsFromPlaylist(playlist) {
+                                await Player.shared.addItemsToQueue(items: .init(songs), at: command.to)
+                            }
+                        }
 
                     case let result as MusicItemCollection<Station>:
                         var items: [Station] = []
@@ -145,9 +219,22 @@ struct AddToQueueCommand: AsyncParsableCommand {
                     case let item as Album:
                         await Player.shared.addItemsToQueue(items: [item], at: command.to)
                     case let item as RecentlyPlayedMusicItem:
-                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                        switch item {
+                        case .playlist(let playlist):
+                            guard let songs = try await songsFromPlaylist(playlist) else {
+                                await executionError("Error: No songs in playlist, nothing to add.")
+                                return
+                            }
+                            await Player.shared.addItemsToQueue(items: .init(songs), at: command.to)
+                        default:
+                            await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                        }
                     case let item as Playlist:
-                        await Player.shared.addItemsToQueue(items: [item], at: command.to)
+                        guard let songs = try await songsFromPlaylist(item) else {
+                            await executionError("Error: No songs in playlist, nothing to add.")
+                            return
+                        }
+                        await Player.shared.addItemsToQueue(items: .init(songs), at: command.to)
                     case let item as Station:
                         await Player.shared.addItemsToQueue(items: [item], at: command.to)
                     default: break

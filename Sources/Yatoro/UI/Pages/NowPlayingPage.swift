@@ -390,14 +390,14 @@ public class NowPlayingPage: DestroyablePage {
 
     func processArtwork() {
         guard let currentSong else {
-            self.artworkVisual?.destroy()
-            self.artworkPlane?.destroy()
+            self.destroyArtwork()
             return
         }
         if let url = currentSong.artwork?.url(
             width: Int(Config.shared.ui.artwork.width),
             height: Int(Config.shared.ui.artwork.height)
         ) {
+            logger?.debug("Now Playing: Artwork url: \(url)")
             downloadImageAndConvertToRGBA(
                 url: url,
                 width: Int(Config.shared.ui.artwork.width),
@@ -412,14 +412,25 @@ public class NowPlayingPage: DestroyablePage {
                     }
                 } else {
                     await logger?.error("Now Playing: Failed to get artwork RGBA byte array.")
+                    Task { @MainActor in
+                        self.destroyArtwork()
+                    }
                 }
             }
+        } else {
+            self.destroyArtwork()
         }
     }
 
-    func handleArtwork(pixelArray: [UInt8]) {
+    func destroyArtwork() {
         self.artworkVisual?.destroy()
+        self.artworkVisual = nil
         self.artworkPlane?.destroy()
+        self.artworkPlane = nil
+    }
+
+    func handleArtwork(pixelArray: [UInt8]) {
+        self.destroyArtwork()
         let artworkPlaneWidth = min(self.state.width / 2, self.state.height - 3)
         let artworkPlaneHeight = artworkPlaneWidth / 2 - 1
         if artworkPlaneHeight > self.state.height - 12 {
@@ -579,9 +590,7 @@ public class NowPlayingPage: DestroyablePage {
         self.currentTimePlane.erase()
         self.currentTimePlane.destroy()
 
-        self.artworkPlane?.erase()
-        self.artworkPlane?.destroy()
-        self.artworkVisual?.destroy()
+        self.destroyArtwork()
     }
 
 }
