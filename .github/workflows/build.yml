@@ -31,9 +31,12 @@ jobs:
         uses: lando/code-sign-action@v3
         with:
           file: .build/release/yatoro
-          certificate-data: ${{ secrets.APPLE_CERT_DATA }}
+          certificate-data: $APPLE_CERT_DATA
           certificate-id: U537EV56Z3
-          certificate-password: ${{ secrets.APPLE_CERT_PASSWORD }}
+          certificate-password: $APPLE_CERT_PASSWORD
+        env:
+          APPLE_CERT_DATA: ${{ secrets.APPLE_CERT_DATA }}
+          APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
 
       - name: Install Swift
         run: |
