@@ -61,7 +61,7 @@ If the logLevel property is set to non-nil value, the `yatoro.log` file will be 
 
 ## mappings
 
-`ui.mappings` is an array of `Mapping`s
+`mappings` is an array of `Mapping`s
 
 Each `Mapping` has 3 properties:
 
