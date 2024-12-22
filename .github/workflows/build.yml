@@ -1,0 +1,45 @@
+name: Build macOS (x86 and ARM64)
+
+on:
+  push:
+    branches: [ "build-workflow" ] # Change to "master" once it's fully working
+  pull_request:
+    branches: [ "build-workflow" ] # Change to "master" once it's fully working
+
+jobs:
+  build:
+    name: Build for ${{ matrix.arch }}
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runsOn: macos-latest
+
+          - arch: arm64
+            runsOn: macos-latest
+
+    runs-on: ${{ matrix.runsOn }}
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Install dependencies (notcurses)
+        run: brew install notcurses
+
+      - name: Build (Swift release mode)
+        run: swift build -c release
+
+      - name: Code sign
+        run: |
+          codesign --force --deep --options runtime \
+                   --sign "$SIGN_IDENTITY" \
+                   .build/release/yatoro
+        env:
+          SIGN_IDENTITY: ${{ secrets.SIGN_IDENTITY }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.arch }}-build
+          path: .build/release/yatoro
