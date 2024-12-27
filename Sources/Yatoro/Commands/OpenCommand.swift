@@ -16,126 +16,132 @@ struct OpenCommand: AsyncParsableCommand {
     }
 
     @MainActor
-    private static func unknownIndexError(_ index: String) async {
+    private static func unknownIndexError(_ index: SearchItemIndex.Index) async {
         await executionError("Error: Unknown index \(index)")
     }
 
     @MainActor
-    static func execute(arguments: Array<String>) async {
+    private static func musicItemFromCollectionWithIndex(
+        collection: (any AnyMusicItemCollection)?,
+        index: SearchItemIndex.Index
+    ) -> (any MusicItem)? {
+        if let number = index.number {
+            return collection?.item(at: number) as? MusicItem
+        }
+        if collection?.count == 1 {
+            return collection?.first as? MusicItem
+        }
+        return nil
+    }
+
+    @MainActor
+    static func execute(arguments: [String]) async {
+
+        let command: OpenCommand
+
         do {
-            let command = try OpenCommand.parse(arguments)
+            command = try OpenCommand.parse(arguments)
             logger?.debug("New open command request: \(command)")
             guard let lastResult = SearchManager.shared.lastSearchResult else {
                 await executionError("Error: No last search result")
                 return
             }
-            let index = command.item.lowercased()
+            let indexString = command.item.lowercased()
             var musicItem: (any MusicItem)? = nil
-            if index == "np" || index == "nowplaying" || index == "now" {
-                musicItem = Player.shared.nowPlaying
-            } else {
-                switch lastResult.result {
-                case .searchResult(let searchResult):
-                    guard let intIndex = Int(index) else {
-                        await unknownIndexError(index)
-                        return
-                    }
-                    musicItem = searchResult.result.item(at: intIndex) as? MusicItem
 
-                case .songDescription(let songDescription):
-                    if songDescription.artists?.count == 1 && index.starts(with: "w") {
-                        musicItem = songDescription.artists?.first
-                        break
-                    }
-                    if index.starts(with: "a") {
-                        musicItem = songDescription.album
-                        break
-                    }
-                    guard index.count > 1 else {
-                        await unknownIndexError(index)
-                        return
-                    }
-                    guard let intIndex = Int(index.dropFirst()) else {
-                        await unknownIndexError(index)
-                        return
-                    }
-                    switch index.first {
-                    case "w":
-                        musicItem = songDescription.artists?.item(at: intIndex)
-                    default:
-                        await unknownIndexError(index)
-                        return
-                    }
+            guard indexString != "np" && indexString != "nowplaying" && indexString != "now" else {
+                if let nowPlaying = Player.shared.nowPlaying {
+                    try await openSong(nowPlaying)
+                }
+                return
+            }
 
-                case .albumDescription(let albumDescription):
-                    if albumDescription.artists?.count == 1 && index.starts(with: "w") {
-                        musicItem = albumDescription.artists?.first
-                        break
-                    }
-                    guard index.count > 1 else {
-                        await unknownIndexError(index)
-                        return
-                    }
-                    guard let intIndex = Int(index.dropFirst()) else {
-                        await unknownIndexError(index)
-                        return
-                    }
-                    switch index.first {
-                    case "s":
-                        musicItem = albumDescription.songs.item(at: intIndex)
-                    case "w":
-                        musicItem = albumDescription.artists?.item(at: intIndex)
-                    default:
-                        await unknownIndexError(index)
-                        return
-                    }
+            let index = SearchItemIndex.Index(from: indexString)
 
-                case .artistDescription(let artistDescription):
-                    guard index.count > 1 else {
-                        await unknownIndexError(index)
-                        return
-                    }
-                    guard let intIndex = Int(index.dropFirst()) else {
-                        await unknownIndexError(index)
-                        return
-                    }
-                    switch index.first {
-                    case "s":
-                        musicItem = artistDescription.topSongs?.item(at: intIndex)
-                    case "a":
-                        musicItem = artistDescription.lastAlbums?.item(at: intIndex)
-                    default:
-                        await unknownIndexError(index)
-                        return
-                    }
+            guard index.isValid() else {
+                await unknownIndexError(index)
+                return
+            }
 
-                case .playlistDescription(let playlistDescription):
-                    guard let intIndex = Int(index) else {
-                        await unknownIndexError(index)
-                        return
-                    }
-                    musicItem = playlistDescription.songs.item(at: intIndex)
+            switch lastResult.result {
+            case .searchResult(let searchResult):
+                musicItem = musicItemFromCollectionWithIndex(
+                    collection: searchResult.result,
+                    index: index
+                )
 
-                case .recommendationDescription(let recommendationDescription):
-                    guard index.count > 1 else {
-                        await unknownIndexError(index)
-                        return
-                    }
-                    guard let intIndex = Int(index.dropFirst()) else {
-                        await unknownIndexError(index)
-                        return
-                    }
-                    switch index.first {
-                    case "a":
-                        musicItem = recommendationDescription.albums?.item(at: intIndex)
-                    case "s":
-                        musicItem = recommendationDescription.stations?.item(at: intIndex)
-                    case "p":
-                        musicItem = recommendationDescription.playlists?.item(at: intIndex)
-                    default:
-                        await unknownIndexError(index)
-                        return
-                    }
+            case .songDescription(let songDescription):
+                switch index.letter {
+                case "w":
+                    musicItem = musicItemFromCollectionWithIndex(
+                        collection: songDescription.artists,
+                        index: index
+                    )
+                case "a":
+                    musicItem = songDescription.album
+                default: break
+                }
+
+            case .albumDescription(let albumDescription):
+                switch index.letter {
+                case "w":
+                    musicItem = musicItemFromCollectionWithIndex(
+                        collection: albumDescription.artists,
+                        index: index
+                    )
+                case "s":
+                    musicItem = musicItemFromCollectionWithIndex(
+                        collection: albumDescription.songs,
+                        index: index
+                    )
+                default: break
+                }
+
+            case .artistDescription(let artistDescription):
+                switch index.letter {
+                case "s":
+                    musicItem = musicItemFromCollectionWithIndex(
+                        collection: artistDescription.topSongs,
+                        index: index
+                    )
+                case "a":
+                    musicItem = musicItemFromCollectionWithIndex(
+                        collection: artistDescription.lastAlbums,
+                        index: index
+                    )
+                case "w":
+                    musicItem = artistDescription.artist
+                default: break
+                }
+
+            case .playlistDescription(let playlistDescription):
+                switch index.letter {
+                case nil, "s":
+                    musicItem = musicItemFromCollectionWithIndex(
+                        collection: playlistDescription.songs,
+                        index: index
+                    )
+                default: break
+                }
+
+            case .recommendationDescription(let recommendationDescription):
+                switch index.letter {
+                case "a":
+                    musicItem = musicItemFromCollectionWithIndex(
+                        collection: recommendationDescription.albums,
+                        index: index
+                    )
+                case "s":
+                    musicItem = musicItemFromCollectionWithIndex(
+                        collection: recommendationDescription.stations,
+                        index: index
+                    )
+                case "p":
+                    musicItem = musicItemFromCollectionWithIndex(
+                        collection: recommendationDescription.playlists,
+                        index: index
+                    )
+                default: break
                 }
 
             }
@@ -168,7 +174,7 @@ struct OpenCommand: AsyncParsableCommand {
                 try await openRecentlyPlayed(recentlyPlayedItem, inPlace: command.inPlace)
 
             default:
-                logger?.error("OpenCommand: Unknown type of the musicItem")
+                await executionError("Error: Unknown type of the musicItem")
             }
 
         } catch {
