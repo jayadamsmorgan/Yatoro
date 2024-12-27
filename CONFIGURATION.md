@@ -109,5 +109,6 @@ See [COMMANDS.md](#COMMANDS.md) for all available commands
 
 ## settings
 
-- `disableSigInt` - **Bool** --- Disable `<CTRL-c>` default behaviour (quitApplication) to use it for remapping
-- `disableResize` - **Bool** --- Disable resizing the UI
+- `disableITermWorkaround` - **Bool** --- Disable workaround for ITerm2. See [#27](https://github.com/jayadamsmorgan/Yatoro/issues/27). **Default: false**
+- `disableResize` - **Bool** --- Disable UI resizing. **Default: false**
+- `searchItemLimit` - **UInt32** --- Limit the amount of searchable items. **Default: 10**
