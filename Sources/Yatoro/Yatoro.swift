@@ -20,11 +20,6 @@ struct LoggingArgOptions: ParsableArguments {
 }
 
 struct SettingsArgOptions: ParsableArguments {
-    @Flag(
-        name: .long,
-        help: "Disable CTRL+C to exit (default: false (SIGINT enabled))"
-    )
-    var disableSigint: Bool = false
 
     @Flag(
         name: .long,

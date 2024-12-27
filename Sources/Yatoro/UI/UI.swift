@@ -73,11 +73,7 @@ public class UI {
                 await self.handleResize()
             }
         }
-        setupSigintHandler {
-            if !config.settings.disableSigInt {
-                await self.stop()
-            }
-        }
+        setupSigintHandler {}
 
         logger?.info("UI initialized successfully.")
     }

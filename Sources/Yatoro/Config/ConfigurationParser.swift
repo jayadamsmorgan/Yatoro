@@ -199,12 +199,16 @@ extension Config {
             rows: 2
 
         settings:
-          disableSigInt: false
+          searchItemLimit: 10
 
         mappings:
           - key: SPACE
             modifiers:
             action: :playPauseToggle<CR>
+          - key: c
+            modifiers:
+              - CTRL
+            action: :quitApplication<CR>
         """
 }
 

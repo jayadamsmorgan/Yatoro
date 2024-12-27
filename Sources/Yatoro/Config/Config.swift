@@ -31,9 +31,6 @@ public extension Config {
         var config = Config.shared
 
         // Settings
-        if settingsOptions.disableSigint {
-            config.settings.disableSigInt = true
-        }
         if settingsOptions.disableResize {
             config.settings.disableResize = true
         }
