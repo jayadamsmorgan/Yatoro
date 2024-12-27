@@ -62,32 +62,78 @@ extension ApplicationMusicPlayer.Queue.EntryInsertionPosition:
         default: return nil
         }
     }
-
 }
 
 enum SearchItemIndex: ExpressibleByArgument {
-    case all
-    case some([String])
-    case one(String)
 
-    public init?(argument: String) {
+    struct Index: CustomStringConvertible {
+
+        var description: String {
+            if let letter, let number {
+                return "\(letter)\(number)"
+            } else if let number {
+                return "\(number)"
+            } else if let letter {
+                return "\(letter)"
+            }
+            return original
+        }
+
+        let number: Int?
+        let letter: Character?
+
+        let original: String
+
+        init(from string: String) {
+            self.original = string
+            switch string.count {
+            case 0:
+                self.number = nil
+                self.letter = nil
+            case 1:
+                self.number = Int(string)
+                self.letter = nil
+            default:
+                self.number = Int(string.dropFirst())
+                self.letter = string.lowercased().first
+            }
+        }
+
+        func isValid() -> Bool {
+            return !(number == nil && letter == nil)
+        }
+    }
+
+    case all
+    case some([Index])
+    case one(Index)
+
+    public init(argument: String) {
+
+        // ALL
         if argument == "all" || argument == "a" {
             self = .all
             return
         }
+
         let arguments = argument.split(separator: ",")
         guard arguments.count > 1 else {
-            self = .one(argument)
+            // ONE
+            let index = Index(from: argument)
+            self = .one(index)
             return
         }
-        var strs: [String] = []
+
+        // SOME
+        var indices: [Index] = []
         for arg in arguments {
-            let str = String(arg)
-            if !strs.contains(str) {
-                strs.append(str)
+            guard arg.count > 0 else {
+                continue
             }
+            let index = Index(from: String(arg))
+            indices.append(index)
         }
-        self = .some(strs)
+        self = .some(indices)
     }
 }
 

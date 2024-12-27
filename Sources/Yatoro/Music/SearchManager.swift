@@ -15,19 +15,6 @@ public struct SearchResult {
 
 }
 
-public protocol AnyMusicItemCollection: Collection {
-    func item(at index: Int) -> Element?
-}
-
-extension MusicItemCollection: AnyMusicItemCollection where Element: MusicItem {
-    public func item(at index: Int) -> Element? {
-        if (0..<self.count).contains(index) {
-            return self[index]
-        }
-        return nil
-    }
-}
-
 public enum SearchType: Hashable, CaseIterable, Sendable {
     case recentlyPlayed
     case recommended
