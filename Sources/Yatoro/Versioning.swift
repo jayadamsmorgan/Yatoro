@@ -1,6 +1,6 @@
 import Foundation
 
-public let yatoroVersionCore: String = "0.3.0"
+public let yatoroVersionCore: String = "0.3.1"
 
 fileprivate let readyForRelease: Bool = true
 
