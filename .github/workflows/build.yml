@@ -61,7 +61,7 @@ jobs:
       - name: Sign & Notarize binary
         run: |
           cp .build/release/yatoro .
-          codesign --sign "German Berdnikov (U537EV56Z3)" -o runtime --timestamp yatoro
+          codesign --sign "German Berdnikov (U537EV56Z3)" -o runtime --timestamp yatoro --entitlements Resources/entitlements.plist
           zip yatoro.zip yatoro
           xcrun notarytool submit yatoro.zip --apple-id $APPLE_NOTARY_USER --team-id U537EV56Z3 --password $APPLE_NOTARY_PASSWORD --wait
         env:

@@ -42,15 +42,12 @@ let package = Package(
                 "SwiftNotCurses",
             ],
             path: "Sources/Yatoro",
-            exclude: [
-                "Resources/Info.plist"
-            ],
             linkerSettings: [
                 .unsafeFlags([
                     "-Xlinker", "-sectcreate",
                     "-Xlinker", "__TEXT",
                     "-Xlinker", "__info_plist",
-                    "-Xlinker", "Sources/Yatoro/Resources/Info.plist",
+                    "-Xlinker", "Resources/Info.plist",
                 ])
             ],
             plugins: [
