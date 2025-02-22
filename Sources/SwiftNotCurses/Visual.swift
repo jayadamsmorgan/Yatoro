@@ -15,7 +15,42 @@ public struct Visual {
     private var rgba: [UInt8]
     private var renderPlane: OpaquePointer?
 
-    public init?(in notcurses: NotCurses, width: Int32, height: Int32, from rgba: [UInt8], for plane: Plane) {
+    public enum BlitConfig: String, Codable {
+        case `default`
+        case oneByOne
+        case twoByOne
+        case twoByTwo
+        case threeByTwo
+        case fourByTwo
+        case braille
+        case pixel
+        case fourByOne
+        case eightByOne
+
+        fileprivate func toBlitter() -> ncblitter_e {
+            switch self {
+            case .default: return NCBLIT_DEFAULT
+            case .oneByOne: return NCBLIT_1x1
+            case .twoByOne: return NCBLIT_2x1
+            case .twoByTwo: return NCBLIT_2x2
+            case .threeByTwo: return NCBLIT_3x2
+            case .fourByTwo: return NCBLIT_4x2
+            case .braille: return NCBLIT_BRAILLE
+            case .pixel: return NCBLIT_PIXEL
+            case .fourByOne: return NCBLIT_4x1
+            case .eightByOne: return NCBLIT_8x1
+            }
+        }
+    }
+
+    public init?(
+        in notcurses: NotCurses,
+        width: Int32,
+        height: Int32,
+        from rgba: [UInt8],
+        for plane: Plane,
+        blit: BlitConfig = .default
+    ) {
         self.rgba = rgba
         var pointer: OpaquePointer?
         self.rgba.withUnsafeBytes { bufPtr in
@@ -39,7 +74,7 @@ public struct Visual {
             begx: 0,
             leny: 0,
             lenx: 0,
-            blitter: NCBLIT_PIXEL,
+            blitter: blit.toBlitter(),
             flags: NCVISUAL_OPTION_CHILDPLANE | NCVISUAL_OPTION_VERALIGNED | NCVISUAL_OPTION_HORALIGNED,
             transcolor: 0,
             pxoffy: 0,

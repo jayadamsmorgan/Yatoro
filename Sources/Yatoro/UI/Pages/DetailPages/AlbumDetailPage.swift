@@ -258,7 +258,8 @@ public class AlbumDetailPage: DestroyablePage {
             width: Int32(Config.shared.ui.artwork.width),
             height: Int32(Config.shared.ui.artwork.height),
             from: pixelArray,
-            for: self.artworkPlane
+            for: self.artworkPlane,
+            blit: Config.shared.ui.artwork.blit
         )
         self.artworkVisual?.render()
     }

@@ -25,8 +25,12 @@ Alternatively, the path to config file could be provided with `-c` or `--config`
 
 Yatoro can show artwork for the music item. The quality of this artwork can be changed:
 
-- `width` - **UInt32** --- pixel width of the artwork. **Default: 500**
-- `height` - **UInt32** --- pixel height of the artwork. **Default: 500**
+- `blit` - **String** --- specify the way artwork is rendered. `default` means notcurses library decides what to use.
+    - **Values**: `default`, `oneByOne`, `twoByOne`, `twoByTwo`, `threeByTwo`, `fourByTwo`, `braille`, `pixel`, `fourByOne`, `eightByOne`
+    - **Default**: `default`
+
+- `width` - **UInt32** --- pixel width of the artwork. Works only when `blit` is set to `pixel`. **Default: 500**
+- `height` - **UInt32** --- pixel height of the artwork. Works only when `blit` is set to `pixel`. **Default: 500**
 
 ### ui.theme
 

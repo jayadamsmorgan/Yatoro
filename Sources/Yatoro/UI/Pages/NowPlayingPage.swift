@@ -453,7 +453,8 @@ public class NowPlayingPage: DestroyablePage {
             width: Int32(Config.shared.ui.artwork.width),
             height: Int32(Config.shared.ui.artwork.height),
             from: pixelArray,
-            for: self.artworkPlane!
+            for: self.artworkPlane!,
+            blit: Config.shared.ui.artwork.blit
         )
         Task {
             // Small workaround since NP artwork was showing on top
