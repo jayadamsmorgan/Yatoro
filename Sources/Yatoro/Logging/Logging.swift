@@ -4,7 +4,8 @@ import Logging
 
 public let loggerLabel: String = "yatoro"
 
-@MainActor public var logger: Logger?
+@MainActor
+public var logger: Logger?
 
 extension Logger {
     func trace(_ message: String) {
@@ -40,16 +41,17 @@ public struct FileLogger: LogHandler, Sendable, Equatable {
     public var fileURL: URL
     public var fileHandle: FileHandle?
 
+    private let label: String
+    private let writeQueue = DispatchQueue(label: "yatoro.logger.file.write.queue")
+
     public subscript(metadataKey key: String) -> Logger.Metadata.Value? {
         get {
             metadata[key]
         }
-        set(newValue) {
+        set {
             metadata[key] = newValue
         }
     }
-
-    private let label: String
 
     public init(
         label: String,
@@ -60,7 +62,8 @@ public struct FileLogger: LogHandler, Sendable, Equatable {
         self.label = label
         self.logLevel = logLevel
         self.metadata = metadata
-        self.fileURL = URL(string: filePath)!
+        self.fileURL = URL(fileURLWithPath: filePath)
+
         let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: filePath) {
             fileManager.createFile(
@@ -69,8 +72,14 @@ public struct FileLogger: LogHandler, Sendable, Equatable {
                 attributes: nil
             )
         }
-        self.fileHandle = try! FileHandle(forUpdating: fileURL)
-        self.fileHandle?.seekToEndOfFile()
+
+        do {
+            self.fileHandle = try FileHandle(forUpdating: fileURL)
+            self.fileHandle?.seekToEndOfFile()
+        } catch {
+            print("Failed to open file at \(filePath) for logging: \(error)")
+            self.fileHandle = nil
+        }
     }
 
     public func log(
@@ -85,15 +94,22 @@ public struct FileLogger: LogHandler, Sendable, Equatable {
         let metadataString = metadata?.map { "\($0)=\($1)" }.joined(separator: " ") ?? ""
         let timestamp = Date().formattedLogTimestamp()
         let logLevel = level.rawValue.uppercased()
-        let logMessage = "[\(timestamp)] [\((logLevel))]: \(message) \(metadataString)\n"
-        fileHandle?.write(logMessage.data(using: .utf8)!)
+        let logMessage = "[\(timestamp)] [\(logLevel)]: \(message) \(metadataString)\n"
+
+        writeQueue.async {
+            self.fileHandle?.write(logMessage.data(using: .utf8)!)
+        }
     }
 }
 
 extension Date {
-    func formattedLogTimestamp() -> String {
+    private static let logTimestampFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return formatter.string(from: self)
+        return formatter
+    }()
+
+    func formattedLogTimestamp() -> String {
+        return Date.logTimestampFormatter.string(from: self)
     }
 }
