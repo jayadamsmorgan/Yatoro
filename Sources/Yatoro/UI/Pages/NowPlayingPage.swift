@@ -56,11 +56,18 @@ public class NowPlayingPage: DestroyablePage {
         )
         borderPlane.erase()
         borderPlane.windowBorder(width: state.width, height: state.height)
-        let sliderWidth = UInt32(Double(state.width) / 1.5)
+        
+        // Calculate vertical center for controls area
+        let controlsCenterY = Int32(state.height * 4 / 5)
+        let sliderY = controlsCenterY
+        let controlsY = controlsCenterY + 1
+        
+        let sliderWidth = UInt32(Double(state.width) * 0.66)
+        let sliderX = Int32(state.width - sliderWidth) / 2
         sliderPlane.updateByPageState(
             .init(
-                absX: Int32(state.width) / 6,
-                absY: Int32(state.height) - 4,
+                absX: sliderX,
+                absY: sliderY,
                 width: sliderWidth,
                 height: 1
             )
@@ -71,16 +78,16 @@ public class NowPlayingPage: DestroyablePage {
         )
         sliderKnobPlane.updateByPageState(
             .init(
-                absX: Int32(state.width) / 6,
-                absY: Int32(state.height) - 4,
+                absX: sliderX,
+                absY: sliderY,
                 width: 1,
                 height: 1
             )
         )
         controlsPlane.updateByPageState(
             .init(
-                absX: Int32(state.width) / 2 - 6,
-                absY: Int32(state.height) - 3,
+                absX: Int32(state.width) / 2 - 5,
+                absY: controlsY,
                 width: 11,
                 height: 1
             )
@@ -149,7 +156,7 @@ public class NowPlayingPage: DestroyablePage {
                     absX: 1,
                     absY: 1,
                     width: state.width - 2,
-                    height: state.width - 2
+                    height: state.height - 2
                 ),
                 debugID: "NP_PAGE"
             )
@@ -158,13 +165,20 @@ public class NowPlayingPage: DestroyablePage {
         }
         self.pagePlane = pagePlane
 
+        // Calculate vertical center for controls area
+        let controlsCenterY = Int32(state.height * 4 / 5)
+        let sliderY = controlsCenterY
+        let controlsY = controlsCenterY + 1
+
+        let sliderWidth = UInt32(Double(state.width) * 0.66)
+        let sliderX = Int32(state.width - sliderWidth) / 2
         guard
             let sliderPlane = Plane(
                 in: plane,
                 state: .init(
-                    absX: Int32(state.width) / 4,
-                    absY: Int32(state.height) - 4,
-                    width: state.width / 2,
+                    absX: sliderX,
+                    absY: sliderY,
+                    width: sliderWidth,
                     height: 1
                 ),
                 debugID: "NP_SLIDER"
@@ -178,8 +192,8 @@ public class NowPlayingPage: DestroyablePage {
             let sliderKnobPlane = Plane(
                 in: plane,
                 state: .init(
-                    absX: Int32(state.width) / 6,
-                    absY: Int32(state.height) - 4,
+                    absX: sliderX,
+                    absY: sliderY,
                     width: 1,
                     height: 1
                 ),
@@ -194,8 +208,8 @@ public class NowPlayingPage: DestroyablePage {
             let controlsPlane = Plane(
                 in: plane,
                 state: .init(
-                    absX: Int32(state.width) / 2 - 6,
-                    absY: Int32(state.height) - 3,
+                    absX: Int32(state.width) / 2 - 5,
+                    absY: controlsY,
                     width: 11,
                     height: 1
                 ),
@@ -226,8 +240,8 @@ public class NowPlayingPage: DestroyablePage {
             let artistRightPlane = Plane(
                 in: plane,
                 state: .init(
-                    absX: 2,
-                    absY: 4,
+                    absX: 10,
+                    absY: 2,
                     width: 1,
                     height: 1
                 ),
@@ -258,8 +272,8 @@ public class NowPlayingPage: DestroyablePage {
             let songRightPlane = Plane(
                 in: plane,
                 state: .init(
-                    absX: 2,
-                    absY: 4,
+                    absX: 8,
+                    absY: 3,
                     width: 1,
                     height: 1
                 ),
@@ -269,54 +283,6 @@ public class NowPlayingPage: DestroyablePage {
             return nil
         }
         self.songRightPlane = songRightPlane
-
-        guard
-            let albumRightPlane = Plane(
-                in: plane,
-                state: .init(
-                    absX: 2,
-                    absY: 4,
-                    width: 1,
-                    height: 1
-                ),
-                debugID: "NP_ALR"
-            )
-        else {
-            return nil
-        }
-        self.albumRightPlane = albumRightPlane
-
-        guard
-            let currentTimePlane = Plane(
-                in: plane,
-                state: .init(
-                    absX: 2,
-                    absY: 4,
-                    width: 5,
-                    height: 1
-                ),
-                debugID: "NP_CT"
-            )
-        else {
-            return nil
-        }
-        self.currentTimePlane = currentTimePlane
-
-        guard
-            let durationPlane = Plane(
-                in: plane,
-                state: .init(
-                    absX: 2,
-                    absY: 4,
-                    width: 5,
-                    height: 1
-                ),
-                debugID: "NP_TD"
-            )
-        else {
-            return nil
-        }
-        self.durationPlane = durationPlane
 
         guard
             let albumLeftPlane = Plane(
@@ -333,6 +299,54 @@ public class NowPlayingPage: DestroyablePage {
             return nil
         }
         self.albumLeftPlane = albumLeftPlane
+
+        guard
+            let albumRightPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: 9,
+                    absY: 4,
+                    width: 1,
+                    height: 1
+                ),
+                debugID: "NP_ALR"
+            )
+        else {
+            return nil
+        }
+        self.albumRightPlane = albumRightPlane
+
+        guard
+            let currentTimePlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: sliderX - 6,
+                    absY: Int32(state.height) - 5,
+                    width: 5,
+                    height: 1
+                ),
+                debugID: "NP_CT"
+            )
+        else {
+            return nil
+        }
+        self.currentTimePlane = currentTimePlane
+
+        guard
+            let durationPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: sliderX + Int32(sliderWidth) + 1,
+                    absY: Int32(state.height) - 5,
+                    width: 5,
+                    height: 1
+                ),
+                debugID: "NP_TD"
+            )
+        else {
+            return nil
+        }
+        self.durationPlane = durationPlane
 
         self.currentSong = player.nowPlaying
 
@@ -431,17 +445,22 @@ public class NowPlayingPage: DestroyablePage {
 
     func handleArtwork(pixelArray: [UInt8]) {
         self.destroyArtwork()
-        let artworkPlaneWidth = min(self.state.width / 2, self.state.height - 3)
+        let artworkPlaneWidth = min(self.state.width * 2 / 3, self.state.height - 3)  // Made larger: 2/3 instead of 1/2
         let artworkPlaneHeight = artworkPlaneWidth / 2 - 1
         if artworkPlaneHeight > self.state.height - 12 {
             return
         }
+        
+        // Calculate vertical center for the artwork to align with controls
+        let controlsCenterY = Int32(state.height * 4 / 5)
+        let artworkCenterY = Int32((controlsCenterY - 2) / 2) + 2  // Center in upper half, below song info
+        
         self.artworkPlane = Plane(
             in: self.plane,
             state:
                 .init(
                     absX: Int32(self.state.width / 2 - artworkPlaneWidth / 2),
-                    absY: Int32(self.state.height / 2 - artworkPlaneHeight / 2),
+                    absY: max(6, artworkCenterY - Int32(artworkPlaneHeight / 2)),
                     width: artworkPlaneWidth,
                     height: artworkPlaneHeight
                 ),
@@ -475,9 +494,10 @@ public class NowPlayingPage: DestroyablePage {
             }
         }
         guard let currentSong else {
-            self.artistRightPlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
-            self.songRightPlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
-            self.albumRightPlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
+            // Use initial layout coordinates for fallback
+            self.artistRightPlane.updateByPageState(.init(absX: 10, absY: 2, width: 1, height: 1))
+            self.songRightPlane.updateByPageState(.init(absX: 8, absY: 3, width: 1, height: 1))
+            self.albumRightPlane.updateByPageState(.init(absX: 9, absY: 4, width: 1, height: 1))
             self.currentTimePlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
             self.durationPlane.updateByPageState(.init(absX: 2, absY: 4, width: 1, height: 1))
             return
@@ -488,17 +508,18 @@ public class NowPlayingPage: DestroyablePage {
         self.artistRightPlane.putString(currentSong.artistName, at: (0, 0))
         width = min(UInt32(currentSong.title.count), self.state.width - 11)
         self.songRightPlane.erase()
-        self.songRightPlane.updateByPageState(.init(absX: 10, absY: 3, width: width, height: 1))
+        self.songRightPlane.updateByPageState(.init(absX: 8, absY: 3, width: width, height: 1))
         self.songRightPlane.putString(currentSong.title, at: (0, 0))
         width = min(UInt32(currentSong.albumTitle?.count ?? 3), self.state.width - 11)
         self.albumRightPlane.erase()
-        self.albumRightPlane.updateByPageState(.init(absX: 10, absY: 4, width: width, height: 1))
+        self.albumRightPlane.updateByPageState(.init(absX: 9, absY: 4, width: width, height: 1))
         self.albumRightPlane.putString(currentSong.albumTitle ?? "nil", at: (0, 0))
 
         let currentTime = player.player.playbackTime
-        let sliderPositionX = Int32(state.width) / 6
-        let sliderPositionY = Int32(state.height) - 4
-        let sliderWidth = Double(state.width) / 1.5
+        let sliderWidth = Double(state.width) * 0.66
+        let sliderPositionX = Int32(state.width - UInt32(sliderWidth)) / 2
+        let controlsCenterY = Int32(state.height * 4 / 5)
+        let sliderPositionY = controlsCenterY
 
         let position: Double
         if let duration = currentSong.duration {
