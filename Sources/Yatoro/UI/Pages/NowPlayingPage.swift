@@ -429,7 +429,7 @@ public class NowPlayingPage: DestroyablePage {
         self.artworkPlane = nil
     }
 
-    /// Waits for all search pages to close to ensure proper z-ordering of artwork
+    // Waits for all search pages to close to ensure proper z-ordering of artwork
     private func waitForSearchPagesToClose() async {
         while SearchPage.searchPageQueue.amountOfPagesOpened != 0 {
             do {
