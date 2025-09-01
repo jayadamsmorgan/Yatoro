@@ -149,7 +149,7 @@ public class NowPlayingPage: DestroyablePage {
                     absX: 1,
                     absY: 1,
                     width: state.width - 2,
-                    height: state.width - 2
+                    height: state.height - 2
                 ),
                 debugID: "NP_PAGE"
             )
@@ -271,6 +271,22 @@ public class NowPlayingPage: DestroyablePage {
         self.songRightPlane = songRightPlane
 
         guard
+            let albumLeftPlane = Plane(
+                in: plane,
+                state: .init(
+                    absX: 2,
+                    absY: 4,
+                    width: 6,
+                    height: 1
+                ),
+                debugID: "NP_ALL"
+            )
+        else {
+            return nil
+        }
+        self.albumLeftPlane = albumLeftPlane
+
+        guard
             let albumRightPlane = Plane(
                 in: plane,
                 state: .init(
@@ -317,22 +333,6 @@ public class NowPlayingPage: DestroyablePage {
             return nil
         }
         self.durationPlane = durationPlane
-
-        guard
-            let albumLeftPlane = Plane(
-                in: plane,
-                state: .init(
-                    absX: 2,
-                    absY: 4,
-                    width: 6,
-                    height: 1
-                ),
-                debugID: "NP_ALL"
-            )
-        else {
-            return nil
-        }
-        self.albumLeftPlane = albumLeftPlane
 
         self.currentSong = player.nowPlaying
 
@@ -429,6 +429,18 @@ public class NowPlayingPage: DestroyablePage {
         self.artworkPlane = nil
     }
 
+    /// Waits for all search pages to close to ensure proper z-ordering of artwork
+    private func waitForSearchPagesToClose() async {
+        while SearchPage.searchPageQueue.amountOfPagesOpened != 0 {
+            do {
+                try await Task.sleep(nanoseconds: Config.shared.ui.frameDelay)
+            } catch {
+                // If task is cancelled, exit gracefully
+                break
+            }
+        }
+    }
+
     func handleArtwork(pixelArray: [UInt8]) {
         self.destroyArtwork()
         let artworkPlaneWidth = min(self.state.width / 2, self.state.height - 3)
@@ -457,12 +469,9 @@ public class NowPlayingPage: DestroyablePage {
             blit: Config.shared.ui.artwork.blit
         )
         Task {
-            // Small workaround since NP artwork was showing on top
-            // of opened search pages
-            // Probably not the best idea...
-            while (SearchPage.searchPageQueue.amountOfPagesOpened != 0) {
-                try await Task.sleep(nanoseconds: Config.shared.ui.frameDelay)
-            }
+            // Ensure proper z-ordering: wait for search pages to close before rendering artwork
+            // This prevents the artwork from appearing above search overlays
+            await waitForSearchPagesToClose()
             self.artworkVisual?.render()
         }
     }
