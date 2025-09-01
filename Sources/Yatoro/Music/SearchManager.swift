@@ -60,6 +60,7 @@ public enum OpenedResult {
     case playlistDescription(PlaylistDescriptionResult)
     case recommendationDescription(RecommendationDescriptionResult)
     case searchResult(SearchResult)
+    case help
 }
 
 public class ResultNode {
@@ -147,6 +148,10 @@ public class SearchManager: @unchecked Sendable {
             result: result
         )
         self.lastSearchResult = ResultNode(previous: lastSearchResult, .searchResult(searchResult), inPlace: inPlace)
+    }
+
+    public func showHelp() {
+        self.lastSearchResult = ResultNode(previous: lastSearchResult, .help, inPlace: false)
     }
 
 }

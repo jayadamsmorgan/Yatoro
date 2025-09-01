@@ -144,6 +144,10 @@ struct OpenCommand: AsyncParsableCommand {
                 default: break
                 }
 
+            case .help:
+                await CommandInput.shared.setLastCommandOutput("Help page has no items to open.")
+                return
+
             }
             guard let musicItem else {
                 await unknownIndexError(index)

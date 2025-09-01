@@ -384,6 +384,18 @@ public class SearchPage: DestroyablePage {
             )
             SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: recommendationDetailPage, type: result)
 
+        case .help:
+            let helpPage = HelpPage(
+                stdPlane: stdPlane,
+                state: .init(
+                    absX: 5,
+                    absY: 2,
+                    width: stdPlane.width - 10,
+                    height: stdPlane.height - 6
+                )
+            )
+            SearchPage.searchPageQueue = .init(SearchPage.searchPageQueue, page: helpPage, type: result)
+
         }
 
     }

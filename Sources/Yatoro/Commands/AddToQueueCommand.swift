@@ -85,6 +85,9 @@ struct AddToQueueCommand: AsyncParsableCommand {
                 to: command.to
             )
 
+        case .help:
+            await CommandInput.shared.setLastCommandOutput("Help page has no items to add to queue.")
+
         }
     }
 
