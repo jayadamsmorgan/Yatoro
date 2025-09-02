@@ -11,6 +11,7 @@ Here are the available commands for the command mode and their description:
 | `clearQueue`              | `cq`      | Clear playing queue                                           |
 | `close`                   | `c`       | Close last opened detailed page                               |
 | `closeAll`                | `ca`      | Close all opened detailed pages                               |
+| `help`                    | `h`       | Show help with all commands and key bindings                  |
 | `open`                    | `o`       | [See open](#open)                                             |
 | `pause`                   | `pa`      | Pause                                                         |
 | `play`                    | `pl`      | Continue playing                                              |
@@ -18,7 +19,7 @@ Here are the available commands for the command mode and their description:
 | `playPauseToggle`         | `pp`      | Play/pause toggle                                             |
 | `playPrevious`            | `b`       | Play previous song                                            |
 | `quitApplication`         | `q`       | Quit Yatoro application                                       |
-| `reloadTheme`             | `rld`     | Reload theme                                         |
+| `reloadTheme`             | `rld`     | Reload theme                                                  |
 | `repeatMode`              | `repeat`  | [See repeatMode](#repeatMode)                                 |
 | `restartSong`             | `r`       | Restart song                                                  |
 | `search`                  | `/`       | [See search](#search)                                         |
@@ -34,6 +35,8 @@ Command completions can be activated with `TAB` while in command mode.
 Press `TAB` or right arrow to cycle completions forward, `SHIFT+TAB` or left arrow to cycle backwards.
 
 To cycle through command history press arrow up or down while in command mode.
+
+**Quick Help**: Use `:help` (`:h`) command to open a dedicated help page with all available commands and key bindings.
 
 ## addToQueue
 Used to add items to player queue from search page.
