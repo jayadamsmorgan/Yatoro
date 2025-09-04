@@ -334,7 +334,7 @@ public class ArtistDetailPage: DestroyablePage {
                 // if maxAmountOfItemsDisplayed < songIndex {
                 //     break
                 // }
-                self.topSongsIndicesPlane?.putString("t\(songIndex)", at: (0, 2 + Int32(songIndex * 5)))
+                self.topSongsIndicesPlane?.putString("s\(songIndex)", at: (0, 2 + Int32(songIndex * 5)))
             }
         }
 
