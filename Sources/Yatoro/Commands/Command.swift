@@ -40,6 +40,7 @@ public struct Command: Sendable {
         .init(name: "open", short: "o", action: .open),
         .init(name: "close", short: "c", action: .close),
         .init(name: "closeAll", short: "ca", action: .closeAll),
+        .init(name: "help", short: "h", action: nil), // Help command, handled specially
     ]
 
     @MainActor
@@ -63,6 +64,13 @@ public struct Command: Sendable {
             return
         }
         let arguments = Array(commandParts.dropFirst().map(String.init))
+        
+        // Handle help command specially
+        if command.name == "help" {
+            SearchManager.shared.showHelp()
+            return
+        }
+        
         guard let action = command.action else {
             let msg = "Command \"\(command.name)\" doesn't have any action."
             await CommandInput.shared.setLastCommandOutput(msg)
